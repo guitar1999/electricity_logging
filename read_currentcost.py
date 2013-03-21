@@ -15,7 +15,7 @@ db = psycopg2.connect(host='localhost', database='jessebishop',user='jessebishop
 cursor = db.cursor()
 
 
-tempfactor = 0
+tempfactor = 2
 
 ser = serial.Serial(port='/dev/ttyUSB0',baudrate=57600)
 
@@ -40,12 +40,14 @@ def pullFromCurrentCost():
 while True:
 	data = pullFromCurrentCost()
 	totalwatts = int(data[1]) + int(data[2])
+	watts_ch1 = int(data[1])
+	watts_ch2 = int(data[2])
 	temp = float(data[0]) + tempfactor
 	time = data[3]
-	sql = "INSERT INTO temp_electricity (watts, time, read_time) VALUES (%i, CURRENT_TIMESTAMP, '%s');" % (totalwatts, time)
+	sql = "INSERT INTO temp_electricity (watts, ch1_watts, ch2_watts, time, read_time) VALUES (%i, %i, %i, CURRENT_TIMESTAMP, '%s');" % (totalwatts, watts_ch1, watts_ch2, time)
 	cursor.execute(sql)
 	db.commit()
-	print totalwatts, temp, time
+	print totalwatts, watts_ch1, watts_ch2, temp, time
 
 cursor.close()
 db.close()
