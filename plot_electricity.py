@@ -22,7 +22,7 @@ barwidth = 0.35
 rects = ax.bar(numbar, kwh, barwidth, color='r')
 ax.set_ylabel('kwh')
 ax.set_title('Hourly Electricity Usage')
-ax.set_xticks(numbar+barwidth)
+ax.set_xticks(numbar+barwidth/2)
 ax.set_xticklabels([str(this).split('.')[0] for this in hour])
 plt.savefig('/var/www/electricity/hourly.png')
 
@@ -39,7 +39,7 @@ barwidth = 0.35
 rects = ax.bar(numbar, kwh, barwidth, color='r')
 ax.set_ylabel('kwh')
 ax.set_title('Daily Electricity Usage')
-ax.set_xticks(numbar+barwidth)
+ax.set_xticks(numbar+barwidth/2)
 ax.set_xticklabels([str(this).split('.')[0] for this in day])
 plt.savefig('/var/www/electricity/daily.png')
 
@@ -56,7 +56,7 @@ barwidth = 0.35
 rects = ax.bar(numbar, kwh, barwidth, color='r')
 ax.set_ylabel('kwh')
 ax.set_title('Monthly Electricity Usage')
-ax.set_xticks(numbar+barwidth)
+ax.set_xticks(numbar+barwidth/2)
 ax.set_xticklabels([str(this).split('.')[0] for this in month])
 plt.savefig('/var/www/electricity/monthly.png')
 
@@ -73,7 +73,7 @@ barwidth = 0.35
 rects = ax.bar(numbar, kwh, barwidth, color='r')
 ax.set_ylabel('kwh')
 ax.set_title('Annual Electricity Usage')
-ax.set_xticks(numbar+barwidth)
+ax.set_xticks(numbar+barwidth/2)
 ax.set_xticklabels([str(this).split('.')[0] for this in year])
 plt.savefig('/var/www/electricity/yearly.png')
 
