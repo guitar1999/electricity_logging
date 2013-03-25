@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import matplotlib, psycopg2
+matplotlit.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import dates
