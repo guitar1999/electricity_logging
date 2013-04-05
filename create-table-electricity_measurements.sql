@@ -4,5 +4,6 @@ CREATE TABLE electricity_measurements (
 	watts_ch2 integer NOT NULL,
 	watts_ch3 integer,
 	measurement_time timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	device_time time
+	device_time time,
+	tdiff numeric
 );

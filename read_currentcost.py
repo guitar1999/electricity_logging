@@ -44,8 +44,13 @@ while True:
 	watts_ch2 = int(data[2])
 	temp = float(data[0]) + tempfactor
 	time = data[3]
-	sql = "INSERT INTO temp_electricity (watts, ch1_watts, ch2_watts, time, read_time) VALUES (%i, %i, %i, CURRENT_TIMESTAMP, '%s');" % (totalwatts, watts_ch1, watts_ch2, time)
+	sql = "INSERT INTO temp_electricity (watts, ch1_watts, ch2_watts, time, read_time) VALUES (%i, %i, %i, CURRENT_TIMESTAMP, '%s') RETURNING id;" % (totalwatts, watts_ch1, watts_ch2, time)
 	cursor.execute(sql)
+	tid = cursor.fetchone()[0]
+	sql2 = """UPDATE temp_electricity SET tdiff = (SELECT date_part FROM (SELECT date_part('epoch', time - LAG(time) OVER (ORDER BY time)) FROM temp_electricity WHERE id IN (%s,%s)) AS temp1 WHERE NOT date_part IS NULL) WHERE id = %s;""" % (tid, tid - 1, tid)
+	cursor.execute(sql2)
+	sql3 = """UPDATE temp_electricity SET diff_cc = (SELECT date_part FROM (SELECT date_part('epoch', read_time - LAG(read_time) OVER (ORDER BY read_time)) FROM temp_electricity WHERE id IN (%s,%s)) AS temp1 WHERE NOT date_part IS NULL) WHERE id = %s;""" % (tid, tid - 1, tid)
+	cursor.execute(sql3)
 	db.commit()
 	print totalwatts, watts_ch1, watts_ch2, temp, time
 

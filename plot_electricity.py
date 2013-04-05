@@ -1,13 +1,17 @@
 #!/usr/bin/python
 
 import matplotlib, psycopg2
-matplotlit.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import dates
 
 db = psycopg2.connect(host='localhost', database='jessebishop',user='jessebishop')
 cursor = db.cursor()
+
+#############################
+# Create usage for last hour
+cursor.execute("""SELECT kwh, end_time FROM electricity_usage WHERE start_time > CURRENT_TIMESTAMP - interval '1 hour' ORDER BY end_time;""")
 
 #######################################
 # Create hourly plot for last 24 hours 
