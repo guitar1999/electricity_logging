@@ -12,7 +12,7 @@ cursor = db.cursor()
 #############################
 # Create usage for last hour
 #cursor.execute("""SELECT kwh, end_time FROM electricity_usage WHERE start_time > CURRENT_TIMESTAMP - interval '1 hour' ORDER BY end_time;""")
-os.system("""psql -t -A -c "SELECT row_to_json(row(watts * tdiff / 60 / 60 / 1000., time)) FROM temp_electricity WHERE time > CURRENT_TIMESTAMP - interval '1 hour';" > /var/www/electricity/last_hour.json""")
+os.system("""/usr/local/pgsql/bin/psql -t -A -c "SELECT row_to_json(row(watts * tdiff / 60 / 60 / 1000., time)) FROM temp_electricity WHERE time > CURRENT_TIMESTAMP - interval '1 hour';" > /var/www/electricity/last_hour.json""")
 
 #######################################
 # Create hourly plot for last 24 hours 
