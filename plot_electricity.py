@@ -16,7 +16,7 @@ os.system("""/usr/local/pgsql/bin/psql -t -A -c "SELECT row_to_json(row(watts * 
 
 #######################################
 # Create hourly plot for last 24 hours 
-cursor.execute("""SELECT SUM(kwh), date_part('hour', end_time) AS hour, to_timestamp(min(date_part('year', end_time))::text || '/' || min(date_part('month', end_time))::text || '/' || min(date_part('day', end_time))::text || ' ' || date_part('hour', end_time)::text || ':00:00', 'YYYY/MM/DD HH24:MI:SS') AS date  FROM electricity_usage  WHERE start_time > CURRENT_TIMESTAMP - interval '1 day' GROUP BY hour ORDER BY date;""")
+cursor.execute("""SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh, date_part('hour', time) AS hour, to_timestamp(min(date_part('year', time))::text || '/' || min(date_part('month', time))::text || '/' || min(date_part('day', time))::text || ' ' || date_part('hour', time)::text || ':00:00', 'YYYY/MM/DD HH24:MI:SS') AS date  FROM temp_electricity WHERE time > CURRENT_TIMESTAMP - interval '1 day' GROUP BY hour ORDER BY date;""")
 
 data = cursor.fetchall()
 kwh, hour, datesort = zip(*data)
@@ -34,7 +34,7 @@ plt.savefig('/var/www/electricity/hourly.png')
 
 ####################################
 # Create daily plot for last 30 days
-cursor.execute("""SELECT SUM(kwh), date_part('day', end_time) AS day, to_date(min(date_part('year', end_time))::text || '/' || min(date_part('month', end_time))::text || '/' || min(date_part('day', end_time))::text, 'YYYY/MM/DD') AS date  FROM electricity_usage  WHERE start_time > CURRENT_TIMESTAMP - interval '30 days' GROUP BY day ORDER BY date;""")
+cursor.execute("""SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh, date_part('day', time) AS day, to_date(min(date_part('year', time))::text || '/' || min(date_part('month', time))::text || '/' || min(date_part('day', time))::text, 'YYYY/MM/DD') AS date  FROM temp_electricity  WHERE time > CURRENT_TIMESTAMP - interval '30 days' GROUP BY day ORDER BY date;""")
 
 data = cursor.fetchall()
 kwh, day, datesort = zip(*data)
@@ -51,8 +51,8 @@ plt.savefig('/var/www/electricity/daily.png')
 
 ########################################
 # Create monthly plot for last 12 months
+cursor.execute("""SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh, date_part('month', time) AS month, to_date(min(date_part('year', time))::text || '/' || min(date_part('month', time))::text, 'YYYY/MM') AS date  FROM temp_electricity WHERE time > CURRENT_TIMESTAMP - interval '1 year' GROUP BY month ORDER BY date;""")
 
-cursor.execute("""SELECT SUM(kwh), date_part('month', end_time) AS month, to_date(min(date_part('year', end_time))::text || '/' || min(date_part('month', end_time))::text, 'YYYY/MM') AS date  FROM electricity_usage WHERE start_time > CURRENT_TIMESTAMP - interval '1 year' GROUP BY month ORDER BY date;""")
 data = cursor.fetchall()
 kwh, month, datesort = zip(*data)
 fig = plt.figure()
@@ -69,7 +69,7 @@ plt.savefig('/var/www/electricity/monthly.png')
 
 ############################
 # Create yearly plot forever
-cursor.execute("""SELECT SUM(kwh), date_part('year', end_time) AS year, to_date(min(date_part('year', end_time))::text, 'YYYY') AS date  FROM electricity_usage GROUP BY year ORDER BY date;""")
+cursor.execute("""SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh, date_part('year', time) AS year, to_date(min(date_part('year', time))::text, 'YYYY') AS date  FROM temp_electricity GROUP BY year ORDER BY date;""")
 data = cursor.fetchall()
 kwh, year, datesort = zip(*data)
 fig = plt.figure()
@@ -86,4 +86,4 @@ plt.savefig('/var/www/electricity/yearly.png')
 cursor.close()
 db.close()
 
-
+os.system("scp /var/www/electricity/* web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/"
