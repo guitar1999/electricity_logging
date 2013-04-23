@@ -52,6 +52,8 @@ while True:
 		cursor.execute(sql2)
 		sql3 = """UPDATE temp_electricity SET diff_cc = (SELECT date_part FROM (SELECT date_part('epoch', read_time - LAG(read_time) OVER (ORDER BY read_time)) FROM temp_electricity WHERE id IN (%s,%s)) AS temp1 WHERE NOT date_part IS NULL) WHERE id = %s;""" % (tid, tid - 1, tid)
 		cursor.execute(sql3)
+		sql4 = """INSERT INTO temperature_test (temperature, device_id) VALUES (%s, 'current_cost');""" % (temp)
+		cursor.execute(sql4)
 		db.commit()
 		print totalwatts, watts_ch1, watts_ch2, temp, time
 	except Exception, msg:

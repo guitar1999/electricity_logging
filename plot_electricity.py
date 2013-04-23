@@ -86,4 +86,4 @@ plt.savefig('/var/www/electricity/yearly.png')
 cursor.close()
 db.close()
 
-os.system("scp /var/www/electricity/* web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/"
+os.system("scp /var/www/electricity/* web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/")
