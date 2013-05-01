@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import matplotlib, os, psycopg2
+import datetime, matplotlib, os, psycopg2
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,7 +16,8 @@ os.system("""/usr/local/pgsql/bin/psql -t -A -c "SELECT row_to_json(row(watts * 
 
 #######################################
 # Create hourly plot for last 24 hours 
-cursor.execute("""SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh, date_part('hour', time) AS hour, to_timestamp(min(date_part('year', time))::text || '/' || min(date_part('month', time))::text || '/' || min(date_part('day', time))::text || ' ' || date_part('hour', time)::text || ':00:00', 'YYYY/MM/DD HH24:MI:SS') AS date  FROM temp_electricity WHERE time > CURRENT_TIMESTAMP - interval '1 day' GROUP BY hour ORDER BY date;""")
+minutes = datetime.datetime.now().minute + 23 * 60
+cursor.execute("""SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh, date_part('hour', time) AS hour, to_timestamp(min(date_part('year', time))::text || '/' || min(date_part('month', time))::text || '/' || min(date_part('day', time))::text || ' ' || date_part('hour', time)::text || ':00:00', 'YYYY/MM/DD HH24:MI:SS') AS date  FROM temp_electricity WHERE time > CURRENT_TIMESTAMP - interval '%s minutes' GROUP BY hour ORDER BY date;""" % minutes)
 
 data = cursor.fetchall()
 kwh, hour, datesort = zip(*data)
