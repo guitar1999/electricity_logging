@@ -7,3 +7,5 @@ CREATE TABLE electricity_measurements (
 	device_time time,
 	tdiff numeric
 );
+CREATE INDEX CONCURRENTLY measurement_time_index ON electricity_measurements USING btree (measurement_time);
+CREATE INDEX CONCURRENTLY device_time_index ON electricity_measurements USING btree (device_time);
