@@ -27,6 +27,8 @@ query = """UPDATE electricity_usage_dow SET kwh_avg = (SELECT AVG(kwh) FROM (SEL
 cursor.execute(query)
 query = """UPDATE electricity_usage_dow SET complete = '%s' WHERE dow = %s;""" % (complete, dow)
 cursor.execute(query)
+query = """UPDATE electricity_usage_dow SET timestamp = CURRENT_TIMESTAMP WHERE dow = %s;""" % (dow)
+cursor.execute(query)
 cursor.close()
 db.commit()
 db.close()

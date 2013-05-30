@@ -3,5 +3,6 @@ CREATE TABLE electricity_usage_dow (
     day_of_week text,
     kwh numeric,
     kwh_avg numeric,
-    complete text CHECK (complete = 'yes' OR complete = 'no')
+    complete text CHECK (complete = 'yes' OR complete = 'no'),
+    timestamp timestamp with time zone
 );

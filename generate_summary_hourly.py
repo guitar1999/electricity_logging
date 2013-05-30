@@ -35,6 +35,8 @@ query = """UPDATE electricity_usage_hourly SET kwh_avg_dow = (SELECT AVG(kwh) FR
 cursor.execute(query)
 query = """UPDATE electricity_usage_hourly SET complete = '%s' WHERE hour = %s;""" % (complete, ophour)
 cursor.execute(query)
+query = """UPDATE electricity_usage_hourly SET timestamp = CURRENT_TIMESTAMP WHERE hour = %s;""" % (ophour)
+cursor.execute(query)
 db.commit()
 cursor.close()
 db.close()

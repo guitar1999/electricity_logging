@@ -3,5 +3,6 @@ CREATE TABLE electricity_usage_hourly (
     kwh numeric,
     kwh_avg numeric,
     kwh_avg_dow numeric,
-    complete text CHECK (complete = 'yes' OR complete = 'no')
+    complete text CHECK (complete = 'yes' OR complete = 'no'),
+    timestamp timestamp with time zone
 );

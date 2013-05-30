@@ -25,6 +25,8 @@ query = """UPDATE electricity_usage_monthly SET kwh_avg = (SELECT AVG(kwh) FROM 
 cursor.execute(query)
 query = """UPDATE electricity_usage_monthly SET complete = '%s' WHERE month = %s;""" % (complete, month)
 cursor.execute(query)
+query = """UPDATE electricity_usage_monthly SET timestamp = CURRENT_TIMESTAMP WHERE month = %s;""" % (month)
+cursor.execute(query)
 cursor.close()
 db.commit()
 db.close()
