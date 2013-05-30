@@ -36,7 +36,7 @@ plt.savefig('/var/www/electricity/hourly.png')
 ####################################
 # Create daily plot for last 30 days
 now = datetime.datetime.now()
-then = datetime.datetime(now.year, now.month - 1, now.day + 1, 0, 0, 0)
+then = datetime.datetime(now.year, now.month - 1, now.day, 0, 0, 0) + datetime.timedelta(1)
 interval = (now - then).total_seconds()
 cursor.execute("""SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh, date_part('day', time) AS day, to_date(min(date_part('year', time))::text || '/' || min(date_part('month', time))::text || '/' || min(date_part('day', time))::text, 'YYYY/MM/DD') AS date  FROM temp_electricity  WHERE time > CURRENT_TIMESTAMP - interval '%s seconds' GROUP BY day ORDER BY date;""" % interval)
 
