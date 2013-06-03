@@ -18,7 +18,7 @@ dow = opdate.isoweekday()
 if dow == 7:
     dow = 0
 # Check to see if the data are complete
-query = """SELECT max(tdiff) < 300  FROM temp_electricity WHERE time > '%s' AND date_part('hour', time) = %s;""" % (opdate.strftime('%Y-%m-%d'), ophour)
+query = """SELECT max(tdiff) < 300  FROM electricity_measurements WHERE measurement_time > '%s' AND date_part('hour', measurement_time) = %s;""" % (opdate.strftime('%Y-%m-%d'), ophour)
 cursor.execute(query)
 data = cursor.fetchall()
 maxint = data[0][0]
@@ -27,11 +27,11 @@ if maxint:
 else:
     complete = 'no'
 
-query = """UPDATE electricity_usage_hourly SET kwh = (SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh FROM temp_electricity WHERE time > '%s' AND date_part('hour', time) = %s) WHERE hour = %s;""" % (opdate.strftime('%Y-%m-%d'), ophour, ophour)
+query = """UPDATE electricity_usage_hourly SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time > '%s' AND date_part('hour', measurement_time) = %s) WHERE hour = %s;""" % (opdate.strftime('%Y-%m-%d'), ophour, ophour)
 cursor.execute(query)
-query = """UPDATE electricity_usage_hourly SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh FROM temp_electricity WHERE date_part('hour', time) = %s GROUP BY date_part('doy', time)) AS x) WHERE hour = %s;""" % (ophour, ophour)
+query = """UPDATE electricity_usage_hourly SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE date_part('hour', measurement_time) = %s GROUP BY date_part('doy', measurement_time)) AS x) WHERE hour = %s;""" % (ophour, ophour)
 cursor.execute(query)
-query = """UPDATE electricity_usage_hourly SET kwh_avg_dow = (SELECT AVG(kwh) FROM (SELECT SUM(watts * tdiff / 60 / 60 / 1000.) AS kwh FROM temp_electricity WHERE date_part('hour', time) = %s AND date_part('dow', time) = %s GROUP BY date_part('doy', time)) AS x) WHERE hour = %s;""" % (ophour, dow, ophour)
+query = """UPDATE electricity_usage_hourly SET kwh_avg_dow = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE date_part('hour', measurement_time) = %s AND date_part('dow', measurement_time) = %s GROUP BY date_part('doy', measurement_time)) AS x) WHERE hour = %s;""" % (ophour, dow, ophour)
 cursor.execute(query)
 query = """UPDATE electricity_usage_hourly SET complete = '%s' WHERE hour = %s;""" % (complete, ophour)
 cursor.execute(query)

@@ -4,8 +4,9 @@ CREATE TABLE electricity_measurements (
 	watts_ch2 integer NOT NULL,
 	watts_ch3 integer,
 	measurement_time timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	device_time time,
-	tdiff numeric
+	device_time time without time zone,
+	tdiff numeric,
+    tdiff_device_time numeric
 );
 CREATE INDEX CONCURRENTLY measurement_time_index ON electricity_measurements USING btree (measurement_time);
 CREATE INDEX CONCURRENTLY device_time_index ON electricity_measurements USING btree (device_time);

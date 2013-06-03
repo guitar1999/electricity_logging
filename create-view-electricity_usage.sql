@@ -1,11 +1,11 @@
 CREATE VIEW electricity_usage AS
 SELECT 
-	watts, 
-	LAG(time) OVER (ORDER BY time) AS start_time, 
-	time AS end_time, 
-	date_part('epoch', time - LAG(time) OVER (ORDER BY time)) AS seconds, 
-	watts * date_part('epoch', time - LAG(time) OVER (ORDER BY time)) / 60 / 60 / 1000. AS kwh 
+	(watts_ch1 + watts_ch2), 
+	LAG(measurement_time) OVER (ORDER BY measurement_time) AS start_time, 
+	measurement_time AS end_time, 
+	date_part('epoch', measurement_time - LAG(measurement_time) OVER (ORDER BY measurement_time)) AS seconds, 
+	(watts_ch1 + watts_ch2) * date_part('epoch', measurement_time - LAG(measurement_time) OVER (ORDER BY measurement_time)) / 60 / 60 / 1000. AS kwh 
 FROM 
-	temp_electricity
+	electricity_measurements
 ;
 
