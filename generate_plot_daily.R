@@ -10,7 +10,7 @@ res2 <- dbGetQuery(con, query2)
 res <- rbind(res, res2)
 res$col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
 res$col[res$kwh <= res$kwh_avg] <- 'lightgoldenrod' #410
-
+res$col[is.na(res$col) == TRUE] <- 'lightgoldenrod'
 
 fname <- '/var/www/electricity/daily.png'
 #maxwatts <- max(res$watts)
