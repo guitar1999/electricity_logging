@@ -13,9 +13,9 @@ res$col[res$kwh <= res$kwh_avg] <- 'lightgoldenrod' #410
 
 
 fname <- '/var/www/electricity/hourly.png'
-maxwatts <- max(res$watts)
-vseq <- seq(0, maxwatts, ifelse(maxwatts > 1000, 200, 100))
-hseq <- seq(mintime, mintime + 7200, 600)
+#maxwatts <- max(res$watts)
+#vseq <- seq(0, maxwatts, ifelse(maxwatts > 1000, 200, 100))
+#hseq <- seq(mintime, mintime + 7200, 600)
 
 png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 barplot(res$kwh, names.arg=res$hour, col=res$col)
