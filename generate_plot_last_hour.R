@@ -17,7 +17,7 @@ axis(side=1, at=hseq, labels=substr(hseq, 12, 16))
 axis(side=2, at=vseq, labels=vseq)
 abline(v=mintime + 3600, col='black')
 abline(h=vseq, col='grey', lty=2)
-lines(res$measurement_time, res$watts, col='red')
+lines(res$measurement_time, res$watts, col='rosybrown')
 dev.off()
 
 system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '))
