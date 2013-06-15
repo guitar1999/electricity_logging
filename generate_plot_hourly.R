@@ -1,4 +1,5 @@
 library(RPostgreSQL)
+source('/home/jessebishop/scripts/electricity_logging/barplot.R')
 con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
 
 query <- "SELECT hour, kwh, kwh_avg, kwh_avg_dow, complete FROM electricity_usage_hourly WHERE NOT hour = date_part('hour', CURRENT_TIMESTAMP) ORDER BY timestamp;"
@@ -8,8 +9,8 @@ query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP) AS hour, akwh AS kwh, kwh
 res2 <- dbGetQuery(con, query2)
 
 res <- rbind(res, res2)
-res$col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
-res$col[res$kwh <= res$kwh_avg] <- 'lightgoldenrod' #410
+#res$col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
+#res$col[res$kwh <= res$kwh_avg] <- 'lightgoldenrod' #410
 
 
 fname <- '/var/www/electricity/hourly.png'
@@ -18,7 +19,8 @@ fname <- '/var/www/electricity/hourly.png'
 #hseq <- seq(mintime, mintime + 7200, 600)
 
 png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
-barplot(res$kwh, names.arg=res$hour, col=res$col)
+#barplot(res$kwh, names.arg=res$hour, col=res$col)
+bp(res$kwh, res$hour, res$kwh_avg)
 dev.off()
 
 system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '))
