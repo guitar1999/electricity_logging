@@ -1,12 +1,21 @@
-bp <- function(x=res$kwh, names, pts){
+bp <- function(res){
     col <- rep('x', length(res$kwh))
     pcol <- rep('x', length(res$kwh))
+    pdcol <- rep('x', length(res$kwh))
     col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
     col[res$kwh <= res$kwh_avg] <- 'lightgoldenrod' #410
     col[col == 'x'] <- 'lightgoldenrod'
     pcol[res$kwh > res$kwh_avg] <- 'firebrick'
     pcol[res$kwh <= res$kwh_avg] <- 'darkgoldenrod'
     pcol[pcol == 'x'] <- 'darkgoldenrod'
-    b <- barplot(x, names.arg=names, col=col)
-    points(b, pts, pch=19, col=pcol)
+    res[res$complete == 'no',1] <- paste(res[res$complete == 'no',1], '*', sep='')
+    names <- res[,1]
+    b <- barplot(res$kwh, names.arg=names, col=col)
+    points(b, res$kwh_avg, pch=19, col=pcol)
+    if ("kwh_avg_dow" %in% colnames(res)){
+        pdcol[res$kwh > res$kwh_avg_dow] <- 'firebrick'
+        pdcol[res$kwh <= res$kwh_avg_dow] <- 'darkgoldenrod'
+        pdcol[pcol == 'x'] <- 'darkgoldenrod'
+        points(b, res$kwh_avg_dow, col=pdcol, pch=18)
+    }
 }

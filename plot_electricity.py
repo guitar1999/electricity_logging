@@ -55,23 +55,23 @@ os.system("""/usr/local/pgsql/bin/psql -t -A -c "SELECT row_to_json(row((watts_c
 
 ########################################
 # Create monthly plot for last 12 months
-now = datetime.datetime.now()
-then = datetime.datetime(now.year - 1, now.month + 1, 1, 0, 0, 0)
-interval = (now - then).total_seconds()
-cursor.execute("""SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh, date_part('month', measurement_time) AS month, to_date(min(date_part('year', measurement_time))::text || '/' || min(date_part('month', measurement_time))::text, 'YYYY/MM') AS date  FROM electricity_measurements WHERE measurement_time > CURRENT_TIMESTAMP - interval '%s seconds' GROUP BY month ORDER BY date;""" % interval)
-
-data = cursor.fetchall()
-kwh, month, datesort = zip(*data)
-fig = plt.figure()
-ax = fig.add_subplot(111)
-numbar = np.arange(len(month))
-barwidth = 0.35
-rects = ax.bar(numbar, kwh, barwidth, color='r')
-ax.set_ylabel('kwh')
-ax.set_title('Monthly Electricity Usage')
-ax.set_xticks(numbar+barwidth/2)
-ax.set_xticklabels([str(this).split('.')[0] for this in month])
-plt.savefig('/var/www/electricity/monthly.png')
+#now = datetime.datetime.now()
+#then = datetime.datetime(now.year - 1, now.month + 1, 1, 0, 0, 0)
+#interval = (now - then).total_seconds()
+#cursor.execute("""SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh, date_part('month', measurement_time) AS month, to_date(min(date_part('year', measurement_time))::text || '/' || min(date_part('month', measurement_time))::text, 'YYYY/MM') AS date  FROM electricity_measurements WHERE measurement_time > CURRENT_TIMESTAMP - interval '%s seconds' GROUP BY month ORDER BY date;""" % interval)
+#
+#data = cursor.fetchall()
+#kwh, month, datesort = zip(*data)
+#fig = plt.figure()
+#ax = fig.add_subplot(111)
+#numbar = np.arange(len(month))
+#barwidth = 0.35
+#rects = ax.bar(numbar, kwh, barwidth, color='r')
+#ax.set_ylabel('kwh')
+#ax.set_title('Monthly Electricity Usage')
+#ax.set_xticks(numbar+barwidth/2)
+#ax.set_xticklabels([str(this).split('.')[0] for this in month])
+#plt.savefig('/var/www/electricity/monthly.png')
 
 
 ############################
