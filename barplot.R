@@ -11,7 +11,9 @@ bp <- function(res){
     res[res$complete == 'no',1] <- paste(res[res$complete == 'no',1], '*', sep='')
     names <- res[,1]
     b <- barplot(res$kwh, names.arg=names, col=col)
-    points(b, res$kwh_avg, pch=19, col=pcol)
+    if ("kwh_avg" %in% colnames(res)){
+        points(b, res$kwh_avg, pch=19, col=pcol)
+    }
     if ("kwh_avg_dow" %in% colnames(res)){
         pdcol[res$kwh > res$kwh_avg_dow] <- 'firebrick'
         pdcol[res$kwh <= res$kwh_avg_dow] <- 'darkgoldenrod'
