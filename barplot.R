@@ -12,6 +12,8 @@ bp <- function(res){
     names <- res[,1]
     b <- barplot(res$kwh, names.arg=names, col=col)
     if ("kwh_avg" %in% colnames(res)){
+        res$kwh_avg_plot <- res$kwh_avg
+        #res$kwh_avg_plot[res$kwh_avg
         points(b, res$kwh_avg, pch=19, col=pcol)
     }
     if ("kwh_avg_dow" %in% colnames(res)){
