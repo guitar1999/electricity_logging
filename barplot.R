@@ -13,13 +13,19 @@ bp <- function(res){
     b <- barplot(res$kwh, names.arg=names, col=col)
     if ("kwh_avg" %in% colnames(res)){
         res$kwh_avg_plot <- res$kwh_avg
-        #res$kwh_avg_plot[res$kwh_avg
-        points(b, res$kwh_avg, pch=19, col=pcol)
+        res$kwh_avg_plot[res$kwh_avg > max(res$kwh)] <- max(res$kwh)
+        res$kwh_avg_pch <- 19
+        res$kwh_avg_pch[res$kwh_avg > max(res$kwh)] <- 8
+        points(b, res$kwh_avg_plot, pch=res$pch, col=pcol)
     }
     if ("kwh_avg_dow" %in% colnames(res)){
         pdcol[res$kwh > res$kwh_avg_dow] <- 'firebrick'
         pdcol[res$kwh <= res$kwh_avg_dow] <- 'darkgoldenrod'
         pdcol[pcol == 'x'] <- 'darkgoldenrod'
-        points(b, res$kwh_avg_dow, col=pdcol, pch=18)
+        res$kwh_avg_dow_plot <- res$kwh_avg_dow
+        res$kwh_avg_dow_plot[res$kwh_avg_dow > max(res$kwh)] <- max(res$kwh)
+        res$kwh_avg_dow_pch <- 19
+        res$kwh_avg_dow_pch[res$kwh_avg_dow > max(res$kwh)] <- 8
+        points(b, res$kwh_avg_dow, col=pdcol, pch=res$kwh_avg_dow_pch)
     }
 }
