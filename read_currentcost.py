@@ -8,6 +8,8 @@
 # 2013-03-14
 #
 
+print "read_currentcost.py starting up"
+
 import serial,sys,psycopg2
 import xml.etree.ElementTree as ET 
 
