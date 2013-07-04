@@ -47,7 +47,7 @@ while True:
         totalwatts = int(data[1]) + int(data[2])
         watts_ch1 = int(data[1])
         watts_ch2 = int(data[2])
-        temp = float(data[0]) + tempfactor
+        temp = (float(data[0]) + tempfactor - 32) * 5 / 9
         time = data[3]
         sql = "INSERT INTO electricity_measurements (watts_ch1, watts_ch2, measurement_time, device_time) VALUES (%i, %i, CURRENT_TIMESTAMP, '%s') RETURNING emid;" % (watts_ch1, watts_ch2, time)
         cursor.execute(sql)
