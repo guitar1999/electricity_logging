@@ -9,13 +9,19 @@ query2 <- "SELECT date_part('doy', CURRENT_TIMESTAMP) AS label, akwh AS kwh, kwh
 res2 <- dbGetQuery(con, query2)
 
 res <- rbind(res, res2)
+res$jday <- res$label
+today <- Sys.Date()
+jday <- format(today, '%j')
+year.this <- format(today, '%Y')
+year.last <- as.numeric(year.this) - 1
+res$label <- format(as.Date(res$label - 1, origin=paste(ifelse(res$label <= jday, year.this, year.last), '-01-01', sep='')), '%b-%d')
 #res$col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
 #res$col[res$kwh <= res$kwh_avg] <- 'lightgoldenrod' #410
 #res$col[is.na(res$col) == TRUE] <- 'lightgoldenrod'
 
 fname <- '/var/www/electricity/daily.png'
 title <- "Electricity Usage By Day"
-label.x <- "Day"
+label.x <- ""
 label.y <- "kwh"
 
 png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
