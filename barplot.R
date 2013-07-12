@@ -1,5 +1,9 @@
 require(plotrix)
 bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
+    # Define the barplotting function, since it may need to be called more than once depending on the graph.
+    bpf <- function(kwh, label, col, main, xlab, ylab, xpd, las, add){
+        barplot(kwh, names.arg=label, col=col, main=main, xlab=xlab, ylab=ylab, xpd=xpd, las=las, add=add)
+    }
     # Generate a vector of bar colors
     col <- rep('x', length(res$kwh))
     col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
@@ -15,25 +19,38 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     # Add qualifier to label where the aggregation period is not complete
     res$label[res$complete == 'no'] <- paste(res$label[res$complete == 'no'], '*', sep='')
     # Generate the barplot and store it as an object to have the bar midpoint locations for later use
-    b <- barplot(res$kwh, names.arg=res$label, col=col, main=title, xlab=label.x, ylab=label.y, xpd=FALSE, las=ifelse("jday" %in% colnames(res),2,1))
-    # Add a line for sunrise and/or sunset to the barplot
+    b <- bpf(res$kwh, res$label, col, title, label.x, label.y, FALSE, ifelse("jday" %in% colnames(res),2,1), FALSE)
+    # Add a gradient for nighttime to the barplot.
     if (! is.null(sunrise)) {
         # Get the bar midpoint distance
         bd <- b[2] - b[1]
+        # Split the hours, minutes, and seconds for the rise and set
         riseparts <- unlist(strsplit(sunrise, ':'))
         setparts <- unlist(strsplit(sunset, ':'))
-        risepos <- b[which(res$label == as.numeric(riseparts[1]))] + ((as.numeric(riseparts[2]) - 30) / 60 * bd)
-        setpos <- b[which(res$label == as.numeric(setparts[1]))] + ((as.numeric(setparts[2]) - 30) / 60 * bd)
+        # Calculate the position on the barplot for rise and set (Get the value of the bar midpoint by finding the
+        # position of the hour in the label column (removing the * if the hour is incomplete) and add the fraction of the 
+        # bar midpoint distance that represents the minutes of the hour (bar midpoint is half past the hour)).
+        risepos <- b[which(gsub('*', '', res$label, fixed=TRUE) == as.numeric(riseparts[1]))] + ((as.numeric(riseparts[2]) - 30) / 60 * bd)
+        setpos <- b[which(gsub('*', '', res$label, fixed=TRUE) == as.numeric(setparts[1]))] + ((as.numeric(setparts[2]) - 30) / 60 * bd)
+        # Draw the gradient. First case is if nighttime is not split. The second case is if it is.
         if (risepos > setpos) {
-            gradient.rect(setpos, 0, setpos + (risepos - setpos) / 2, max(res$kwh), col=smoothColors('white', 255, 'black'), gradient='x', border=NA)
-            gradient.rect(setpos + (risepos - setpos) / 2, 0, risepos, max(res$kwh), col=smoothColors('black', 255, 'white'), gradient='x', border=NA)
+            gradient.rect(setpos, 0, setpos + (risepos - setpos) / 2, max(res$kwh), col=smoothColors('white', 255, 'grey22'), gradient='x', border=NA)
+            gradient.rect(setpos + (risepos - setpos) / 2, 0, risepos, max(res$kwh), col=smoothColors('grey22', 255, 'white'), gradient='x', border=NA)
         } else {
-
+            # Calculate start and end of gradient on either side of plot
+            gstart <- -1 * (b[24] + 0.7 - setpos)
+            gsmid <- gstart + (risepos - gstart) / 2
+            gend <- b[24] + 0.7 + risepos
+            gemid <- gend - (gend - setpos) / 2
+            gradient.rect(gstart, 0, gsmid, max(res$kwh), col=smoothColors('white', 255, 'grey22'), gradient='x', border=NA)
+            gradient.rect(gsmid, 0, risepos, max(res$kwh), col=smoothColors('grey22', 255, 'white'), gradient='x', border=NA)
+            gradient.rect(setpos, 0, gemid, max(res$kwh), col=smoothColors('white', 255, 'grey22'), gradient='x', border=NA)
+            gradient.rect(gemid, 0, gend, max(res$kwh), col=smoothColors('grey22', 255, 'white'), gradient='x', border=NA)
         }
-        barplot(res$kwh, names.arg=res$label, col=col, main=title, xlab=label.x, ylab=label.y, xpd=FALSE, las=ifelse("jday" %in% colnames(res),2,1), add=TRUE)
-        #abline(v=risepos, lwd=2, col='orangered2', lty=2)
-        #abline(v=setpos, lwd=2, col='orangered2', lty=2)
+        # Draw the barplot again over the gradient
+        bpf(res$kwh, res$label, col, title, label.x, label.y, FALSE, ifelse("jday" %in% colnames(res),2,1), TRUE)
     }
+    # If this plot has an average value, draw the points
     if ("kwh_avg" %in% colnames(res)){
         res$kwh_avg_plot <- res$kwh_avg
         res$kwh_avg_plot[res$kwh_avg > max(res$kwh)] <- max(res$kwh) - max(res$kwh) / 100
@@ -41,6 +58,7 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         res$kwh_avg_pch[res$kwh_avg > max(res$kwh)] <- 8
         points(b, res$kwh_avg_plot, pch=res$kwh_avg_pch, col=pcol)
     }
+    # If this polot has an average by day of week value, draw the points
     if ("kwh_avg_dow" %in% colnames(res)){
         pdcol[res$kwh > res$kwh_avg_dow] <- 'firebrick'
         pdcol[res$kwh <= res$kwh_avg_dow] <- 'darkgoldenrod'
