@@ -20,7 +20,7 @@ res$label <- format(as.Date(res$label - 1, origin=paste(ifelse(res$label <= jday
 #res$col[is.na(res$col) == TRUE] <- 'lightgoldenrod'
 
 fname <- '/var/www/electricity/daily.png'
-title <- "Electricity Usage By Day"
+title <- "Electricity Used in the Last Month"
 label.x <- ""
 label.y <- "kwh"
 

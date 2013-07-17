@@ -14,7 +14,7 @@ res <- rbind(res, res2)
 #res$pcol[res$kwh <= res$kwh_avg] <- 'darkgoldenrod'
 
 fname <- '/var/www/electricity/dow.png'
-title <- "Electricity Usage By Day"
+title <- "Electricity Used in the Last Week"
 label.x <- "Day"
 label.y <- "kwh"
 

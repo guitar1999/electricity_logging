@@ -14,7 +14,7 @@ res <- rbind(res, res2)
 #res$col[is.na(res$col) == TRUE] <- 'lightgoldenrod'
 
 fname <- '/var/www/electricity/monthly.png'
-title <- "Electricity Usage By Month"
+title <- "Electricity Used in the Last Year"
 label.x <- "Month"
 label.y <- "kwh"
 

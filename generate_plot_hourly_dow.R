@@ -34,7 +34,7 @@ if (sethour > currenthour) {
 }
 
 fname <- '/var/www/electricity/hourly_dow.png'
-title <- "Electricity Usage By Hour"
+title <- "Electricity Used in the Last Day"
 label.x <- "Hour"
 label.y <- "kwh"
 
