@@ -59,6 +59,12 @@ while True:
         sql4 = """INSERT INTO temperature_test (temperature, device_id) VALUES (%s, 'current_cost');""" % (temp)
         cursor.execute(sql4)
         db.commit()
+        try:
+            o = open('/var/www/electricity/instant.csv', 'w')
+            o.write('kwh\n%s\n' % (totalwatts))
+            o.close()
+        except Exception, msg:
+            print msg
         if loud == 'yes':
             print totalwatts, watts_ch1, watts_ch2, temp, time
     except Exception, msg:
