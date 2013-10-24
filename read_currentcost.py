@@ -35,21 +35,23 @@ def pullFromCurrentCost():
             time = tree.findtext("time")
             watts1  = tree.findtext("ch1/watts")
             watts2  = tree.findtext("ch2/watts")
+            watts3  = tree.findtext("ch3/watts")
             temp = tree.findtext("tmprF")
         except Exception, inst: # Catch XML errors
             sys.stderr.write("XML error: " + str(inst) + "\n")
             line2 = None
     ser.flushInput()
-    return temp, watts1, watts2, time
+    return temp, watts1, watts2, watts3, time
 while True:
     data = pullFromCurrentCost()
     try:
         totalwatts = int(data[1]) + int(data[2])
         watts_ch1 = int(data[1])
         watts_ch2 = int(data[2])
+        watts_ch3 = int(data[3])
         temp = (float(data[0]) + tempfactor - 32) * 5 / 9
-        time = data[3]
-        sql = "INSERT INTO electricity_measurements (watts_ch1, watts_ch2, measurement_time, device_time) VALUES (%i, %i, CURRENT_TIMESTAMP, '%s') RETURNING emid;" % (watts_ch1, watts_ch2, time)
+        time = data[4]
+        sql = "INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES (%i, %i, %i, CURRENT_TIMESTAMP, '%s') RETURNING emid;" % (watts_ch1, watts_ch2, watts_ch3, time)
         cursor.execute(sql)
         tid = cursor.fetchone()[0]
         sql2 = """UPDATE electricity_measurements SET tdiff = (SELECT date_part FROM (SELECT date_part('epoch', measurement_time - LAG(measurement_time) OVER (ORDER BY measurement_time)) FROM electricity_measurements WHERE emid IN (%s,(SELECT MAX(emid) FROM electricity_measurements WHERE emid < %s))) AS temp1 WHERE NOT date_part IS NULL) WHERE emid = %s;""" % (tid, tid, tid)
@@ -60,15 +62,21 @@ while True:
         cursor.execute(sql4)
         db.commit()
         try:
+            tw = str(totalwatts)
+            while len(tw) < 4:
+                tw = '0%s' % (tw)
             o = open('/var/www/electricity/instant.csv', 'w')
-            o.write('kwh\n%s\n' % (totalwatts))
+            o.write('kwh,a,b,c,d\n%s,%s,%s,%s,%s\n' % (totalwatts, tw[0], tw[1], tw[2], tw[3]))
             o.close()
+            p = open('/var/www/electricity/hvac.csv', 'w')
+            p.write('kwh\n%i\n' % (watts_ch3))
+            p.close()
         except Exception, msg:
-            print msg
+            print msg, "in tw"
         if loud == 'yes':
-            print totalwatts, watts_ch1, watts_ch2, temp, time
+            print totalwatts, watts_ch1, watts_ch2, str(watts_ch3), temp, time
     except Exception, msg:
-        print msg
+        print msg, "in main"
 
 cursor.close()
 db.close()
