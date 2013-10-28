@@ -27,6 +27,7 @@ def pullFromCurrentCost():
     # Read XML from Current Cost.  Try again if nothing is returned.
     watts1  = None
     watts2 = None
+    watts3 = None
     sensor = None
     while watts1 == None:
         line2 = ser.readline()
@@ -45,12 +46,22 @@ def pullFromCurrentCost():
 while True:
     data = pullFromCurrentCost()
     try:
+        temp = (float(data[0]) + tempfactor - 32) * 5 / 9
+        sql4 = """INSERT INTO temperature_test (temperature, device_id) VALUES (%s, 'current_cost');""" % (temp)
+        cursor.execute(sql4)
+        db.commit()
+    except Exception, msg:
+        print msg
+    try:
         totalwatts = int(data[1]) + int(data[2])
         watts_ch1 = int(data[1])
         watts_ch2 = int(data[2])
         watts_ch3 = int(data[3])
-        temp = (float(data[0]) + tempfactor - 32) * 5 / 9
+        #temp = (float(data[0]) + tempfactor - 32) * 5 / 9
         time = data[4]
+        #sql4 = """INSERT INTO temperature_test (temperature, device_id) VALUES (%s, 'current_cost');""" % (temp)
+        #cursor.execute(sql4)
+        #db.commit()
         sql = "INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES (%i, %i, %i, CURRENT_TIMESTAMP, '%s') RETURNING emid;" % (watts_ch1, watts_ch2, watts_ch3, time)
         cursor.execute(sql)
         tid = cursor.fetchone()[0]
@@ -58,9 +69,6 @@ while True:
         cursor.execute(sql2)
         sql3 = """UPDATE electricity_measurements SET tdiff_device_time = (SELECT date_part FROM (SELECT date_part('epoch', device_time - LAG(device_time) OVER (ORDER BY device_time)) FROM electricity_measurements WHERE emid IN (%s,(SELECT MAX(emid) FROM electricity_measurements WHERE emid < %s))) AS temp1 WHERE NOT date_part IS NULL) WHERE emid = %s;""" % (tid, tid, tid)
         cursor.execute(sql3)
-        sql4 = """INSERT INTO temperature_test (temperature, device_id) VALUES (%s, 'current_cost');""" % (temp)
-        cursor.execute(sql4)
-        db.commit()
         try:
             tw = str(totalwatts)
             while len(tw) < 4:

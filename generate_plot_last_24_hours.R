@@ -1,7 +1,7 @@
 library(RPostgreSQL)
 con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
 
-query <- "select watts_ch1, watts_ch2, measurement_time from electricity_measurements where measurement_time > CURRENT_TIMESTAMP - interval '22 hours' - ((date_part('minute', CURRENT_TIMESTAMP) + 60) * interval '1 minute') - (date_part('second', CURRENT_TIMESTAMP) * interval '1 second');"
+query <- "select watts_ch1, watts_ch2, watts_ch3, measurement_time from electricity_measurements where measurement_time > CURRENT_TIMESTAMP - interval '22 hours' - ((date_part('minute', CURRENT_TIMESTAMP) + 60) * interval '1 minute') - (date_part('second', CURRENT_TIMESTAMP) * interval '1 second');"
 res <- dbGetQuery(con, query)
 #res$watts <- res$watts_ch1 + res$watts_ch2
 
@@ -18,6 +18,7 @@ if (maxwatts - min(rbind(res$watts_ch1, res$watts_ch2)) < 2400) {
     maxwatts <- log10(maxwatts)
     res$watts_ch1 <- log10(res$watts_ch1)
     res$watts_ch2 <- log10(res$watts_ch2)
+    res$watts_ch3 <- log10(res$watts_ch3)
 }
 
 hseq <- seq(mintime, mintime + 86400, 1800)
@@ -38,6 +39,7 @@ abline(v=res2$sunrise, lty=2, col='orange')
 abline(v=res2$sunset, lty=2, col='orange')
 lines(res$measurement_time, res$watts_ch1, col='red')
 lines(res$measurement_time, res$watts_ch2, col='blue')
+lines(res$measurement_time, res$watts_ch3, col='orange')
 dev.off()
 
 system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '))
