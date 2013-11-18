@@ -1,5 +1,7 @@
-library(RPostgreSQL)
-con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
+if (! 'package:RPostgreSQL' %in% search()) {
+    library(RPostgreSQL)
+    con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
+}
 
 dd <- data.frame(dow = seq(0,6), day = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
 

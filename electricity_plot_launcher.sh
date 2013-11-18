@@ -2,6 +2,15 @@
 
 # Run this script as a cron job every minute. It should help cut down the load by running these sequentially when necessary
 
+# See if it's alredy running
+lockfile=/var/lock/electricity/plotting
+if [ -e $lockfile ]
+then
+    exit
+else
+    touch $lockfile
+fi
+
 minute=$(date +%M)
 
 #These run every minute
@@ -34,3 +43,5 @@ if [ "$minute" -eq "37" ]
 then
     /usr/bin/R --vanilla --slave < /home/jessebishop/scripts/electricity_logging/generate_plot_yearly.R > /dev/null 2>&1
 fi
+
+rm -f $lockfile

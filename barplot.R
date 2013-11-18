@@ -1,4 +1,6 @@
-require(plotrix)
+if (! 'package:plotrix' %in% search()) {
+    require(plotrix)
+}
 bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     # Define the barplotting function, since it may need to be called more than once depending on the graph.
     bpf <- function(kwh, label, col, main, xlab, ylab, xpd, las, add){
@@ -47,9 +49,13 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
             gradient.rect(setpos, 0, gemid, max(res$kwh), col=smoothColors('white', 255, 'grey22'), gradient='x', border=NA)
             gradient.rect(gemid, 0, gend, max(res$kwh), col=smoothColors('grey22', 255, 'white'), gradient='x', border=NA)
         }
-        # Draw the barplot again over the gradient
-        bpf(res$kwh, res$label, col, title, label.x, label.y, FALSE, ifelse("jday" %in% colnames(res),2,1), TRUE)
     }
+    # Generate some horizontal lines
+    pwr <- nchar(as.character(as.integer(max(res$kwh)))) - 1
+    yseq <- seq(0,ceiling(max(res$kwh)/10^pwr)*10^pwr,ifelse(pwr > 1, 10^pwr, ifelse(max(res$kwh) > 15, 5, ifelse(max(res$kwh) > 8, 2, 0.5))))
+    abline(h=yseq, col='darkgray')
+    # Draw the barplot again over the gradient
+    bpf(res$kwh, res$label, col, title, label.x, label.y, FALSE, ifelse("jday" %in% colnames(res),2,1), TRUE)
     # If this plot has an average value, draw the points
     if ("kwh_avg" %in% colnames(res)){
         res$kwh_avg_plot <- res$kwh_avg

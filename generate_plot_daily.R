@@ -1,6 +1,9 @@
-library(RPostgreSQL)
+if (! 'package:RPostgreSQL' %in% search()) {
+    library(RPostgreSQL)
+    con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
+}
+
 source('/home/jessebishop/scripts/electricity_logging/barplot.R')
-con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
 
 query <- "SELECT doy AS label, kwh, kwh_avg, complete FROM electricity_usage_doy WHERE NOT doy = date_part('doy', CURRENT_TIMESTAMP) AND doy >= date_part('doy', CURRENT_TIMESTAMP - interval '29 days') AND NOT timestamp IS NULL ORDER BY timestamp;"
 res <- dbGetQuery(con, query)

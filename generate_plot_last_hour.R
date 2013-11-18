@@ -1,5 +1,8 @@
-library(RPostgreSQL)
-con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
+if (! 'package:RPostgreSQL' %in% search()) {
+    library(RPostgreSQL)
+    con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
+}
+
 
 query <- "select watts_ch1 + watts_ch2 AS watts, watts_ch3, measurement_time from electricity_measurements where measurement_time > CURRENT_TIMESTAMP - ((date_part('minute', CURRENT_TIMESTAMP) + 60) * interval '1 minute') - (date_part('second', CURRENT_TIMESTAMP) * interval '1 second') ORDER BY measurement_time;"
 res <- dbGetQuery(con, query)
@@ -8,7 +11,7 @@ fname <- '/var/www/electricity/last_hours.png'
 mintime <- min(res$measurement_time)
 maxtime <- max(res$measurement_time)
 maxwatts <- max(res$watts)
-if (maxwatts - min(res$watts) < 2400) {
+if (maxwatts - min(res$watts) < 3000) {
     vseq <- seq(0, maxwatts, ifelse(maxwatts > 1000, 200, 100))
     vlab <- vseq
     ymin <- 0
