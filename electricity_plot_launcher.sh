@@ -4,7 +4,11 @@
 
 # See if it's alredy running
 lockfile=/var/lock/electricity/plotting
-if [ -e $lockfile ]
+if [ ! -d $(dirname lockfile) ]
+then
+    mkdir -p $(dirname lockfile)
+fi
+if [ -f $lockfile ]
 then
     exit
 else
