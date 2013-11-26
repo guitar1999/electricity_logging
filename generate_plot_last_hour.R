@@ -44,4 +44,4 @@ lines(res$measurement_time, res$watts, col='rosybrown')
 lines(res$measurement_time, res$watts_ch3, col='orange')
 dev.off()
 
-system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '))
+system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
