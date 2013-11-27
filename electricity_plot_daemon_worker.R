@@ -16,9 +16,9 @@ genplot <- function(scr){
 # The plot scheduler #
 ######################
 
-# Set a ticker to zero. We will count 60 iterations of the script
+# Set a ticker to the current minute. We will count 60 iterations of the script
 # and if everything works out well, that will be equal to 1 hour.
-ticker <- 0
+ticker <- as.integer(strftime(Sys.time(), format='%M'))
 starttime <- Sys.time()
 print(paste("Start time is ", starttime, sep=""))
 # Set an empty holdover time
