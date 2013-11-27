@@ -44,6 +44,9 @@ while(TRUE){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_hourly_dow.R')
         runtime <- runtime + plottime
         print("    hourlydow")
+        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_last_24_hours.R')
+        runtime <- runtime + plottime
+        print("    24 hours")
     }
 
     # Run the dow every 11th loop and add the plotting times to the loop runtime
@@ -60,11 +63,14 @@ while(TRUE){
         print("    daily")
     }
 
-    # Run the monthly every 16th loop and add the plotting times to the loop runtime
+    # Run the monthly and daily 1year every 16th loop and add the plotting times to the loop runtime
     if (ticker == 1 || ticker %% 16 == 0){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_monthly.R')
         runtime <- runtime + plottime
         print("    monthly")
+        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_daily_1year.R')
+        runtime <- runtime + plottime
+        print("    daily 1year")
     }
 
     # Run the yearly on the 6th and 36th loops

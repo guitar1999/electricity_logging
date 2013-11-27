@@ -2,7 +2,7 @@
 
 # Run this script as a cron job every minute. It should help cut down the load by running these sequentially when necessary
 
-# See if it's alredy running
+# See if it's already running
 lockfile=/var/lock/electricity/plotting
 if [ ! -d $(dirname lockfile) ]
 then

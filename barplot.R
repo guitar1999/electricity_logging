@@ -52,7 +52,7 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     }
     # Generate some horizontal lines
     pwr <- nchar(as.character(as.integer(max(res$kwh)))) - 1
-    yseq <- seq(0,ceiling(max(res$kwh)/10^pwr)*10^pwr,ifelse(pwr > 1, 10^pwr, ifelse(max(res$kwh) > 15, 5, ifelse(max(res$kwh) > 8, 2, 0.5))))
+    yseq <- seq(0,ceiling(max(res$kwh)/10^pwr)*10^pwr,ifelse(pwr > 1, 10^pwr, ifelse(max(res$kwh) > 15, 5, ifelse(max(res$kwh) > 8, 2, ifelse(max(res$kwh) < 1, 0.1, 0.5)))))
     abline(h=yseq, col='darkgray')
     # Draw the barplot again over the gradient
     bpf(res$kwh, res$label, col, title, label.x, label.y, FALSE, ifelse("jday" %in% colnames(res),2,1), TRUE)
