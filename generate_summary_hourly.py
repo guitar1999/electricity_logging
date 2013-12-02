@@ -39,8 +39,8 @@ cursor.execute(query)
 query = """UPDATE electricity_usage_hourly SET timestamp = CURRENT_TIMESTAMP WHERE hour = %s;""" % (ophour)
 cursor.execute(query)
 
-# Now update the current month to be ready for incremental updates to speed up querying
-query = """UPDATE electricity_usage_hourly SET (kwh, complete, timestamp) = (0, 'no', '%s 00:00:00') WHERE hour = %s;""" % (now.strftime('%Y-%m-%d'), hour)
+# Now update the current period to be ready for incremental updates to speed up querying
+query = """UPDATE electricity_usage_hourly SET (kwh, complete, timestamp) = (0, 'no', '%s:00:00') WHERE hour = %s;""" % (now.strftime('%Y-%m-%d %H'), hour)
 cursor.execute(query)
 
 
