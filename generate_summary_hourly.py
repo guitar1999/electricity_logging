@@ -27,6 +27,10 @@ if maxint:
 else:
     complete = 'no'
 
+# Now update the current period to be ready for incremental updates to speed up querying
+query = """UPDATE electricity_usage_hourly SET (kwh, complete, timestamp) = (0, 'no', '%s:00:00') WHERE hour = %s;""" % (now.strftime('%Y-%m-%d %H'), hour)
+cursor.execute(query)
+
 #Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
 query = """UPDATE electricity_usage_hourly SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time > '%s' AND date_part('hour', measurement_time) = %s) WHERE hour = %s;""" % (opdate.strftime('%Y-%m-%d'), ophour, ophour)
 cursor.execute(query)
@@ -39,13 +43,7 @@ cursor.execute(query)
 query = """UPDATE electricity_usage_hourly SET timestamp = CURRENT_TIMESTAMP WHERE hour = %s;""" % (ophour)
 cursor.execute(query)
 
-# Now update the current period to be ready for incremental updates to speed up querying
-query = """UPDATE electricity_usage_hourly SET (kwh, complete, timestamp) = (0, 'no', '%s:00:00') WHERE hour = %s;""" % (now.strftime('%Y-%m-%d %H'), hour)
-cursor.execute(query)
-
-
 # And finish it off
 db.commit()
 cursor.close()
 db.close()
-

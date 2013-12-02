@@ -22,6 +22,11 @@ if maxint:
 else:
     complete = 'no'
 
+# Now update the current period to be ready for incremental updates to speed up querying
+query = """UPDATE electricity_usage_doy SET (kwh, complete, timestamp) = (0, 'no', '%s 00:00:00') WHERE doy = %s;""" % (now.strftime('%Y-%m-%d'), now.timetuple().tm_yday)
+cursor.execute(query)
+
+#Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
 query = """UPDATE electricity_usage_doy SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s') WHERE doy = %s;""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), doy)
 cursor.execute(query)
 # Using dow for now since we don't have any historical doy data until March 14, 2014
@@ -34,6 +39,8 @@ query = """UPDATE electricity_usage_doy SET complete = '%s' WHERE doy = %s;""" %
 cursor.execute(query)
 query = """UPDATE electricity_usage_doy SET timestamp = CURRENT_TIMESTAMP WHERE doy = %s;""" % (doy)
 cursor.execute(query)
+
+# And finish it off
 cursor.close()
 db.commit()
 db.close()

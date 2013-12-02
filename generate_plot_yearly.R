@@ -8,7 +8,8 @@ source('/home/jessebishop/scripts/electricity_logging/barplot.R')
 query <- "SELECT year AS label, kwh, complete FROM electricity_usage_yearly WHERE NOT year = date_part('year', CURRENT_TIMESTAMP) AND NOT timestamp IS NULL ORDER BY timestamp;"
 res <- dbGetQuery(con, query)
 
-query2 <- "SELECT date_part('year', CURRENT_TIMESTAMP) AS label, akwh AS kwh, 'no'::text AS complete FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS akwh FROM electricity_measurements WHERE date_part('year', measurement_time) = date_part('year', CURRENT_TIMESTAMP)) AS x;"
+#query2 <- "SELECT date_part('year', CURRENT_TIMESTAMP) AS label, akwh AS kwh, 'no'::text AS complete FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS akwh FROM electricity_measurements WHERE date_part('year', measurement_time) = date_part('year', CURRENT_TIMESTAMP)) AS x;"
+query2 <- "SELECT date_part('year', CURRENT_TIMESTAMP) AS label, increment_usage('electricity_usage_yearly', 'year') AS kwh, complete FROM electricity_usage_yearly WHERE year = date_part('year', CURRENT_TIMESTAMP);"
 res2 <- dbGetQuery(con, query2)
 
 res <- rbind(res, res2)
