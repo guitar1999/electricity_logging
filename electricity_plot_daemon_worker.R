@@ -36,49 +36,46 @@ while(TRUE){
     runtime <- runtime + plottime
     print("    line")
 
-    # Run the hourlies every 5th loop and add the plotting time to the loop runtime
-    if (ticker %% 5 == 0){
+    # Run the hourlies every 2nd loop and add the plotting time to the loop runtime
+    if (ticker %% 2 == 0 && ticker != 0 && ticker != 2){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_hourly.R')
         runtime <- runtime + plottime
         print("    hourly")
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_hourly_dow.R')
         runtime <- runtime + plottime
         print("    hourlydow")
+    }
+
+    # Run the dow every 10th loop and add the plotting times to the loop runtime
+    if (ticker %% 10 == 0){
+        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_dow.R')
+        runtime <- runtime + plottime
+        print("    dow")
+        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_daily.R')
+        runtime <- runtime + plottime
+        print("    daily")
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_last_24_hours.R')
         runtime <- runtime + plottime
         print("    24 hours")
     }
 
-    # Run the dow every 11th loop and add the plotting times to the loop runtime
-    if (ticker %% 11 == 0){
-        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_dow.R')
-        runtime <- runtime + plottime
-        print("    dow")
-    }
-
-    # Run the daily every 13th loop and add the plotting times to the loop runtime
-    if (ticker %% 13 == 0){
-        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_daily.R')
-        runtime <- runtime + plottime
-        print("    daily")
-    }
-
-    # Run the monthly and daily 1year every 16th loop and add the plotting times to the loop runtime
-    if (ticker == 1 || ticker %% 16 == 0){
+    # Run the daily every 15th loop and add the plotting times to the loop runtime
+    if (ticker %% 15 == 0){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_monthly.R')
         runtime <- runtime + plottime
         print("    monthly")
+        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_yearly.R')
+        runtime <- runtime + plottime
+        print("    yearly")
+    }
+
+    # Run the monthly and daily 1year every 30th loop and add the plotting times to the loop runtime
+    if (ticker %% 30 == 0){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_daily_1year.R')
         runtime <- runtime + plottime
         print("    daily 1year")
     }
 
-    # Run the yearly on the 6th and 36th loops
-    if (ticker == 6 || ticker == 36){
-        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_yearly.R')
-        runtime <- runtime + plottime
-        print("    yearly")
-    }
 
     # Calculate the sleep time or holdover time for the loop
     looptime <- as.difftime(60, units='secs')

@@ -18,6 +18,7 @@ res <- rbind(res, res2)
 #res$col[is.na(res$col) == TRUE] <- 'lightgoldenrod'
 
 fname <- '/var/www/electricity/yearly.png'
+cname <- '/var/www/electricity/yearly.csv'
 title <- "Electricity Usage By Year"
 label.x <- "Year"
 label.y <- "kwh"
@@ -28,3 +29,5 @@ bp(res, title, label.x, label.y)
 dev.off()
 
 system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
+
+write.table(res, file=cname, row.names=F, col.names=T, quote=F, sep=',')
