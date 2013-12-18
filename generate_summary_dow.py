@@ -1,20 +1,37 @@
 #!/usr/bin/python
 
-import datetime, psycopg2
+import argparse, datetime, psycopg2
+
+# Allow the script to be run on a specific day of the week
+p = argparse.ArgumentParser(prog="generate_summary_dow.py")
+p.add_argument('-date', dest="rundate", required=False, help="The date to run in format 'YYYY-MM-DD'.")
+args = p.parse_args()
 
 db = psycopg2.connect(host='localhost', database='jessebishop',user='jessebishop')
 cursor = db.cursor()
 
-now = datetime.datetime.now()
+# Set the appropriate opdate 
+if args.rundate:
+    opdate = datetime.datetime.strptime(args.rundate, '%Y-%m-%d')
+    now = opdate + datetime.timedelta(1)
+else:
+    now = datetime.datetime.now()
+    opdate = now - datetime.timedelta(1)
+
 nowdow = now.isoweekday()
 if nowdow == 7:
     nowdow = 0
 
-opdate = now - datetime.timedelta(1)
 dow = opdate.isoweekday()
-# Make sunday 0 to match postgres style rather than python style
 if dow == 7:
     dow = 0
+
+# Update the current period to be ready for incremental updates to speed up querying if running as cron
+if not args.rundate:
+    query = """UPDATE electricity_usage_dow SET (kwh, complete, timestamp) = (0, 'no', '%s 00:00:00') WHERE dow = %s;""" % (now.strftime('%Y-%m-%d'), nowdow)
+    cursor.execute(query)
+    db.commit()
+
 # Check to see if the data are complete
 query = """SELECT max(tdiff) < 300  FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s';""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'))
 cursor.execute(query)
@@ -25,18 +42,17 @@ if maxint:
 else:
     complete = 'no'
 
-# Update the current period to be ready for incremental updates to speed up querying
-query = """UPDATE electricity_usage_dow SET (kwh, complete, timestamp) = (0, 'no', '%s 00:00:00') WHERE dow = %s;""" % (now.strftime('%Y-%m-%d'), nowdow)
-cursor.execute(query)
-
 # Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
 query = """UPDATE electricity_usage_dow SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s') WHERE dow = %s;""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), dow)
 cursor.execute(query)
-query = """UPDATE electricity_usage_dow SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '2013-03-22' AND date_part('dow', measurement_time) = %s GROUP BY date_part('year', measurement_time), date_part('doy', measurement_time)) AS x) WHERE dow = %s;""" % (dow, dow)
+query = """UPDATE electricity_usage_dow SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('dow', measurement_time) = %s GROUP BY date_part('year', measurement_time), date_part('doy', measurement_time)) AS x) WHERE dow = %s;""" % (dow, dow)
 cursor.execute(query)
 query = """UPDATE electricity_usage_dow SET complete = '%s' WHERE dow = %s;""" % (complete, dow)
 cursor.execute(query)
-query = """UPDATE electricity_usage_dow SET timestamp = CURRENT_TIMESTAMP WHERE dow = %s;""" % (dow)
+if args.rundate:
+    query = """UPDATE electricity_usage_dow SET timestamp = '%s 00:00:01' WHERE dow = %s;""" % (now.strftime('%Y-%m-%d'), dow)
+else:
+    query = """UPDATE electricity_usage_dow SET timestamp = CURRENT_TIMESTAMP WHERE dow = %s;""" % (dow)
 cursor.execute(query)
 
 # Now finish it off

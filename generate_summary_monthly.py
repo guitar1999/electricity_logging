@@ -14,6 +14,11 @@ if opmonth == 0:
 if opmonth == 12:
     year = year - 1
 
+# Update the current period to be ready for incremental updates to speed up querying
+query = """UPDATE electricity_usage_monthly SET (kwh, complete, timestamp) = (0, 'no', '%s 00:00:00') WHERE month = %s;""" % (now.strftime('%Y-%m-%d'), month)
+cursor.execute(query)
+db.commit()
+
 query = """SELECT date_part('day', min(measurement_time)) = 1, date_part('day', max(measurement_time)) = num_days(%s,%s), max(tdiff) < 300  FROM electricity_measurements WHERE date_part('month', measurement_time) = %s AND date_part('year', measurement_time) = %s;""" % (year, opmonth, opmonth, year)
 cursor.execute(query)
 data = cursor.fetchall()
@@ -22,10 +27,6 @@ if mmin[0] and mmax[0] and maxint[0]:
     complete = 'yes'
 else:
     complete = 'no'
-
-# Update the current period to be ready for incremental updates to speed up querying
-query = """UPDATE electricity_usage_monthly SET (kwh, complete, timestamp) = (0, 'no', '%s 00:00:00') WHERE month = %s;""" % (now.strftime('%Y-%m-%d'), month)
-cursor.execute(query)
 
 # Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
 query = """UPDATE electricity_usage_monthly SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE date_part('month', measurement_time) = %s AND date_part('year', measurement_time) = %s) WHERE month = %s;""" % (opmonth, year, opmonth)
