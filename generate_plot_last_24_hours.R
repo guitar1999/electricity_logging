@@ -32,7 +32,7 @@ query2 <- paste("SELECT (date || ' ' || sunrise)::timestamp AS sunrise, (date ||
 res2 <- dbGetQuery(con, query2)
 
 
-png(filename=fname, width=10240, height=800, units='px', pointsize=12, bg='white')
+png(filename=fname, width=10240, height=700, units='px', pointsize=12, bg='white')
 plot(res$measurement_time, res$watts_ch1, type='l', col='white', xlim=c(mintime, mintime + 86400), ylim=c(0,maxwatts), xlab="Time", ylab="Watts", main=paste("Electricity Usage since ", mintime), xaxt='n', yaxt='n')
 axis(side=1, at=hseq, labels=substr(hseq, 12, 16))
 axis(side=2, at=vseq, labels=vlab, las=1)
