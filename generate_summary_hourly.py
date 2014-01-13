@@ -44,7 +44,11 @@ cursor.execute(query)
 kwh_avg = cursor.fetchall()[0][0]
 query = """UPDATE energy_statistics.electricity_statistics_hourly SET (count, kwh_avg, timestamp) = (count + 1, %s, CURRENT_TIMESTAMP) WHERE hour = %s""" % (kwh_avg, ophour)
 cursor.execute(query)
-query = """UPDATE electricity_usage_hourly SET kwh_avg_dow = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 3600 AND measurement_time >= '2013-03-22' AND date_part('hour', measurement_time) = %s AND date_part('dow', measurement_time) = %s GROUP BY date_part('doy', measurement_time)) AS x) WHERE hour = %s;""" % (ophour, dow, ophour)
+#query = """UPDATE electricity_usage_hourly SET kwh_avg_dow = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 3600 AND measurement_time >= '2013-03-22' AND date_part('hour', measurement_time) = %s AND date_part('dow', measurement_time) = %s GROUP BY date_part('doy', measurement_time)) AS x) WHERE hour = %s;""" % (ophour, dow, ophour)
+query = """UPDATE electricity_usage_hourly SET kwh_avg_dow = (SELECT (old + %s) / (count + 1) FROM (SELECT kwh_avg_dow * count AS old, count FROM energy_statistics.electricity_statistics_hourly_dow WHERE hour = %s AND dow = %s) AS x) WHERE hour = %s RETURNING kwh_avg_dow""" % (kwh, ophour, dow, ophour)
+cursor.execute(query)
+kwh_avg_dow = cursor.fetchall()[0][0]
+query = """UPDATE energy_statistics.electricity_statistics_hourly_dow SET (count, kwh_avg_dow, timestamp) = (count + 1, %s, CURRENT_TIMESTAMP) WHERE hour = %s AND dow = %s""" % (kwh_avg_dow, ophour, dow)
 cursor.execute(query)
 query = """UPDATE electricity_usage_hourly SET complete = '%s' WHERE hour = %s;""" % (complete, ophour)
 cursor.execute(query)
