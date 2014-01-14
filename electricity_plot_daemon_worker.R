@@ -48,6 +48,12 @@ while(TRUE){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_hourly_dow.R')
         runtime <- runtime + plottime
         print("    hourlydow")
+        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_hourly_season.R')
+        runtime <- runtime + plottime
+        print("    hourlyseason")
+        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_hourly_dow_season.R')
+        runtime <- runtime + plottime
+        print("    hourlydowseason")
         plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_hourly.R')
         runtime <- runtime + plottime
         print("    gas hourly")

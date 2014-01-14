@@ -50,6 +50,15 @@ cursor.execute(query)
 kwh_avg_dow = cursor.fetchall()[0][0]
 query = """UPDATE energy_statistics.electricity_statistics_hourly_dow SET (count, kwh_avg_dow, timestamp) = (count + 1, %s, CURRENT_TIMESTAMP) WHERE hour = %s AND dow = %s""" % (kwh_avg_dow, ophour, dow)
 cursor.execute(query)
+# Seasonal averaging
+query = """UPDATE energy_statistics.electricity_statistics_hourly_season SET count=count + 1, kwh_avg_season=y.avg, timestamp=CURRENT_TIMESTAMP FROM (SELECT ((kwh_avg_season * count) + %s) / (count + 1) AS avg FROM energy_statistics.electricity_statistics_hourly_season WHERE hour = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date))) AS y WHERE hour = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date));""" % (kwh, ophour, opdate.strftime('%Y-%m-%d'), ophour, opdate.strftime('%Y-%m-%d'))
+cursor.execute(query)
+# Seasonal DOW averaging
+query = """UPDATE energy_statistics.electricity_statistics_hourly_dow_season SET count=count + 1, kwh_avg_dow_season=y.avg, timestamp=CURRENT_TIMESTAMP FROM (SELECT ((kwh_avg_dow_season * count) + %s) / (count + 1) AS avg FROM energy_statistics.electricity_statistics_hourly_dow_season WHERE hour = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date)) AND dow = %s) AS y WHERE hour = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date)) AND dow = %s;""" % (kwh, ophour, opdate.strftime('%Y-%m-%d'), dow, ophour, opdate.strftime('%Y-%m-%d'), dow)
+cursor.execute(query)
+
+
+# Older queries
 query = """UPDATE electricity_usage_hourly SET complete = '%s' WHERE hour = %s;""" % (complete, ophour)
 cursor.execute(query)
 query = """UPDATE electricity_usage_hourly SET timestamp = CURRENT_TIMESTAMP WHERE hour = %s;""" % (ophour)
