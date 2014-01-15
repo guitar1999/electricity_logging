@@ -121,8 +121,19 @@ while(TRUE){
     if (ticker < 59){
         ticker <- ticker + 1
     } else {
-        print(paste("This cycle took ", Sys.time() - starttime, sep=""))
+        endtime <- Sys.time()
+        print(paste("This cycle took ", endtime - starttime, sep=""))
         ticker <- 0
+        end.minute <- as.numeric(format(endtime, "%M"))
+        end.second <- as.numeric(format(endtime, "%S"))
+        if (end.minute < 58){
+            holdover <- holdover + (end.minute * 60 + end.second)
+            print(paste("Holdover at cycle end is ", holdover, sep=""))
+        } else {
+            cyclesleeptime <- (60 - end.minute) * 60 - end.second
+            print(paste("Sleep time at cycle end is ", cyclesleeptime, sep=""))
+            Sys.sleep(cyclesleeptime)
+        }
         starttime <- Sys.time()
     }
 }

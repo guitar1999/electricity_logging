@@ -43,9 +43,13 @@ else:
     complete = 'no'
 
 # Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
-query = """UPDATE electricity_usage_dow SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s') WHERE dow = %s;""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), dow)
+query = """UPDATE electricity_usage_dow SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s') WHERE dow = %s RETURNING kwh;""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), dow)
 cursor.execute(query)
-query = """UPDATE electricity_usage_dow SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('dow', measurement_time) = %s GROUP BY date_part('year', measurement_time), date_part('doy', measurement_time)) AS x) WHERE dow = %s;""" % (dow, dow)
+kwh = cursor.fetchall()[0][0]
+query = """UPDATE electricity_usage_dow SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('dow', measurement_time) = %s GROUP BY date_part('year', measurement_time), date_part('doy', measurement_time)) AS x) WHERE dow = %s RETURNING kwh_avg;""" % (dow, dow)
+cursor.execute(query)
+kwh_avg = cursor.fetchall()[0][0]
+query = """UPDATE energy_statistics.electricity_statistics_dow SET (count, kwh_avg, timestamp) = (count + 1, %s, CURRENT_TIMESTAMP) WHERE dow = %s""" % (kwh_avg, dow)
 cursor.execute(query)
 query = """UPDATE electricity_usage_dow SET complete = '%s' WHERE dow = %s;""" % (complete, dow)
 cursor.execute(query)
