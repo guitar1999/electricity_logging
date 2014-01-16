@@ -46,10 +46,14 @@ else:
 query = """UPDATE electricity_usage_dow SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s') WHERE dow = %s RETURNING kwh;""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), dow)
 cursor.execute(query)
 kwh = cursor.fetchall()[0][0]
-query = """UPDATE electricity_usage_dow SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('dow', measurement_time) = %s GROUP BY date_part('year', measurement_time), date_part('doy', measurement_time)) AS x) WHERE dow = %s RETURNING kwh_avg;""" % (dow, dow)
+#query = """UPDATE electricity_usage_dow SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('dow', measurement_time) = %s GROUP BY date_part('year', measurement_time), date_part('doy', measurement_time)) AS x) WHERE dow = %s RETURNING kwh_avg;""" % (dow, dow)
+query = """UPDATE electricity_usage_dow SET kwh_avg = (SELECT (old + %s) / (count + 1) FROM (SELECT kwh_avg * count AS old, count FROM energy_statistics.electricity_statistics_dow WHERE dow = %s) AS x) WHERE dow = %s RETURNING kwh_avg""" % (kwh, dow, dow)
 cursor.execute(query)
 kwh_avg = cursor.fetchall()[0][0]
 query = """UPDATE energy_statistics.electricity_statistics_dow SET (count, kwh_avg, timestamp) = (count + 1, %s, CURRENT_TIMESTAMP) WHERE dow = %s""" % (kwh_avg, dow)
+cursor.execute(query)
+# Seasonal averaging
+query = """UPDATE energy_statistics.electricity_statistics_dow_season SET count=count + 1, kwh_avg_season=y.avg, timestamp=CURRENT_TIMESTAMP FROM (SELECT ((kwh_avg_season * count) + %s) / (count + 1) AS avg FROM energy_statistics.electricity_statistics_dow_season WHERE dow = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date))) AS y WHERE dow = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date));""" % (kwh, dow, opdate.strftime('%Y-%m-%d'), dow, opdate.strftime('%Y-%m-%d'))
 cursor.execute(query)
 query = """UPDATE electricity_usage_dow SET complete = '%s' WHERE dow = %s;""" % (complete, dow)
 cursor.execute(query)
