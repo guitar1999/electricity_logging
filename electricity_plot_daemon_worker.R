@@ -64,6 +64,9 @@ while(TRUE){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_dow.R')
         runtime <- runtime + plottime
         print("    dow")
+        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_dow_season.R')
+        runtime <- runtime + plottime
+        print("    dowseason")
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_daily.R')
         runtime <- runtime + plottime
         print("    daily")
