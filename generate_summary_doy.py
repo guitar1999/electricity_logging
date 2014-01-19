@@ -42,8 +42,9 @@ else:
     complete = 'no'
 
 #Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
-query = """UPDATE electricity_usage_doy SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s') WHERE doy = %s;""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), doy)
+query = """UPDATE electricity_usage_doy SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s') WHERE doy = %s RETURNING kwh;""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), doy)
 cursor.execute(query)
+kwh = cursor.fetchall()[0][0]
 # Using dow for now since we don't have any historical doy data until March 14, 2014
 if opdate > datetime.datetime(2014,3,14,0,0,0):
     query = """UPDATE electricity_usage_doy SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('doy', measurement_time) = %s GROUP BY date_part('year', measurement_time)) AS x) WHERE doy = %s;""" % (doy, doy)
