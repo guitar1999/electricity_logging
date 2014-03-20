@@ -46,7 +46,7 @@ query = """UPDATE electricity_usage_doy SET kwh = (SELECT SUM((watts_ch1 + watts
 cursor.execute(query)
 kwh = cursor.fetchall()[0][0]
 # Using dow for now since we don't have any historical doy data until March 14, 2014
-if opdate > datetime.datetime(2014,3,14,0,0,0):
+if opdate > datetime.datetime(2014,3,21,0,0,0):
     query = """UPDATE electricity_usage_doy SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('doy', measurement_time) = %s GROUP BY date_part('year', measurement_time)) AS x) WHERE doy = %s;""" % (doy, doy)
 else:
     query = """UPDATE electricity_usage_doy SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('dow', measurement_time) = %s GROUP BY date_part('year', measurement_time), date_part('doy', measurement_time)) AS x) WHERE doy = %s;""" % (dow, doy)
