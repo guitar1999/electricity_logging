@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import argparse, datetime, psycopg2
+from tweet import *
 
 # Allow the script to be run on a specific day of the week
 p = argparse.ArgumentParser(prog="generate_summary_dow.py")
@@ -68,3 +69,8 @@ cursor.close()
 db.commit()
 db.close()
 
+if kwh > kwh_avg:
+    status = """You used more electricity yesterday than your average use for a {0}! Try harder!""".format(opdate.strftime('%A')
+else:
+    status = """You used less electricity yesterday than your average use for a {0}! Good work!""".format(opdate.strftime('%A')
+tweet(status)
