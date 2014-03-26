@@ -70,7 +70,7 @@ cursor.close()
 db.commit()
 db.close()
 
-if args.rundate:
+if not args.rundate:
     if kwh > kwh_avg:
         s1 = "more"
     else:
