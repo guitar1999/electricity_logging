@@ -60,7 +60,7 @@ while(TRUE){
     }
 
     # Run the dow every 10th loop and add the plotting times to the loop runtime
-    if (ticker %% 10 == 0){
+    if ((ticker %% 10 == 0 && ticker != 0) || ticker == 5){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_dow.R')
         runtime <- runtime + plottime
         print("    dow")
@@ -82,7 +82,7 @@ while(TRUE){
     }
 
     # Run the daily every 15th loop and add the plotting times to the loop runtime
-    if (ticker %% 15 == 0){
+    if ((ticker %% 15 == 0 && ticker != 0) || ticker == 5){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_monthly.R')
         runtime <- runtime + plottime
         print("    monthly")

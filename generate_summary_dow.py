@@ -54,8 +54,9 @@ kwh_avg = cursor.fetchall()[0][0]
 query = """UPDATE energy_statistics.electricity_statistics_dow SET (count, kwh_avg, timestamp) = (count + 1, %s, CURRENT_TIMESTAMP) WHERE dow = %s""" % (kwh_avg, dow)
 cursor.execute(query)
 # Seasonal averaging
-query = """UPDATE energy_statistics.electricity_statistics_dow_season SET count=count + 1, kwh_avg=y.avg, timestamp=CURRENT_TIMESTAMP FROM (SELECT ((kwh_avg * count) + %s) / (count + 1) AS avg FROM energy_statistics.electricity_statistics_dow_season WHERE dow = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date))) AS y WHERE dow = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date));""" % (kwh, dow, opdate.strftime('%Y-%m-%d'), dow, opdate.strftime('%Y-%m-%d'))
+query = """UPDATE energy_statistics.electricity_statistics_dow_season SET count=count + 1, kwh_avg=y.avg, timestamp=CURRENT_TIMESTAMP FROM (SELECT ((kwh_avg * count) + %s) / (count + 1) AS avg FROM energy_statistics.electricity_statistics_dow_season WHERE dow = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date))) AS y WHERE dow = %s AND season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', '%s'::date)) RETURNING kwh_avg, season;""" % (kwh, dow, opdate.strftime('%Y-%m-%d'), dow, opdate.strftime('%Y-%m-%d'))
 cursor.execute(query)
+kwh_avg_season, season = cursor.fetchall()[0]
 query = """UPDATE electricity_usage_dow SET complete = '%s' WHERE dow = %s;""" % (complete, dow)
 cursor.execute(query)
 if args.rundate:
@@ -69,8 +70,18 @@ cursor.close()
 db.commit()
 db.close()
 
-if kwh > kwh_avg:
-    status = """You used more electricity yesterday than your average use for a {0}! Try harder!""".format(opdate.strftime('%A')
-else:
-    status = """You used less electricity yesterday than your average use for a {0}! Good work!""".format(opdate.strftime('%A')
-tweet(status)
+if args.rundate:
+    if kwh > kwh_avg:
+        s1 = "more"
+    else:
+        s1 = "less"
+    if kwh > kwh_avg_season:
+        s2 = "more"
+    else:
+        s2 = "less"
+    if s1 == s2:
+        j = "and"
+    else:
+        j = "but"
+    status = """You used {0} electricity yesterday than your average use for a {1} {2} {3} than your average for a {1} in the {4}!""".format(s1, opdate.strftime('%A'), j, s2, season)
+    tweet(status)
