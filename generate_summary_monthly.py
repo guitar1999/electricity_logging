@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import datetime, psycopg2
+from tweet import *
 
 db = psycopg2.connect(host='localhost', database='jessebishop',user='jessebishop')
 cursor = db.cursor()
@@ -28,13 +29,20 @@ if mmin[0] and mmax[0] and maxint[0]:
 else:
     complete = 'no'
 
+# Get the monthly total for the previous year
+query = """SELECT previous_year FROM energy_statistics.electricity_statistics_monthly WHERE month = {0}""".format(opmonth)
+cursor.execute(query)
+prevkwh = cursor.fetchall()[0][0]
 # Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
 query = """UPDATE electricity_usage_monthly SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE date_part('month', measurement_time) = %s AND date_part('year', measurement_time) = %s) WHERE month = %s RETURNING kwh;""" % (opmonth, year, opmonth)
 cursor.execute(query)
 kwh = cursor.fetchall()[0][0]
-query = """UPDATE electricity_usage_monthly SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE date_part('month', measurement_time) = %s GROUP BY date_part('year', measurement_time)) AS x) WHERE month = %s RETURNING kwh_avg;""" % (opmonth, opmonth)
+#query = """UPDATE electricity_usage_monthly SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE date_part('month', measurement_time) = %s GROUP BY date_part('year', measurement_time)) AS x) WHERE month = %s RETURNING kwh_avg;""" % (opmonth, opmonth)
+query = """UPDATE electricity_usage_monthly SET kwh_avg = (SELECT (old + %s) / (count + 1) FROM (SELECT kwh_avg * count AS old, count FROM energy_statistics.electricity_statistics_monthyly WHERE month = %s) AS x) WHERE month = %s RETURNING kwh_avg""" % (kwh, opmonth, opmonth)
 cursor.execute(query)
 kwh_avg = cursor.fetchall()[0][0]
+query = """UPDATE energy_statistics.electricity_statistics_monthly SET (count, kwh_avg, previous_year, timestamp) = (count + 1, %s, %s, CURRENT_TIMESTAMP) WHERE month = %s""" % (kwh_avg, kwh, opmonth)
+cursor.execute(query)
 query = """UPDATE electricity_usage_monthly SET complete = '%s' WHERE month = %s;""" % (complete, opmonth)
 cursor.execute(query)
 query = """UPDATE electricity_usage_monthly SET timestamp = CURRENT_TIMESTAMP WHERE month = %s;""" % (opmonth)
@@ -45,3 +53,22 @@ cursor.close()
 db.commit()
 db.close()
 
+# Now tweet about it!
+if kwh > kwh_avg:
+    s1 = "more"
+    a1 = kwh - kwh_avg
+else:
+    s1 = "less"
+    a1 = kwh_avg - kwh
+if kwh > prevkwh:
+    s2 = "more"
+    a2 = kwh - prevkwh
+else:
+    s2 = "less"
+    a2 = prevkwh - kwh
+if s1 == s2:
+    j = "and"
+else:
+    j = "but"
+status = """You used {0} kwh {1} last month than your average {2} useage {3} {4} kwh {5} than you used in {2} {6}""".format(a1, s1, opdate.strftime('%B'), j, a2, s2, year - 1)
+tweet(status)
