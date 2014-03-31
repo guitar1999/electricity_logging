@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import datetime, psycopg2
+import calendar, datetime, psycopg2
 from tweet import *
 
 db = psycopg2.connect(host='localhost', database='jessebishop',user='jessebishop')
@@ -38,7 +38,7 @@ query = """UPDATE electricity_usage_monthly SET kwh = (SELECT SUM((watts_ch1 + w
 cursor.execute(query)
 kwh = cursor.fetchall()[0][0]
 #query = """UPDATE electricity_usage_monthly SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE date_part('month', measurement_time) = %s GROUP BY date_part('year', measurement_time)) AS x) WHERE month = %s RETURNING kwh_avg;""" % (opmonth, opmonth)
-query = """UPDATE electricity_usage_monthly SET kwh_avg = (SELECT (old + %s) / (count + 1) FROM (SELECT kwh_avg * count AS old, count FROM energy_statistics.electricity_statistics_monthyly WHERE month = %s) AS x) WHERE month = %s RETURNING kwh_avg""" % (kwh, opmonth, opmonth)
+query = """UPDATE electricity_usage_monthly SET kwh_avg = (SELECT (old + %s) / (count + 1) FROM (SELECT kwh_avg * count AS old, count FROM energy_statistics.electricity_statistics_monthly WHERE month = %s) AS x) WHERE month = %s RETURNING kwh_avg""" % (kwh, opmonth, opmonth)
 cursor.execute(query)
 kwh_avg = cursor.fetchall()[0][0]
 query = """UPDATE energy_statistics.electricity_statistics_monthly SET (count, kwh_avg, previous_year, timestamp) = (count + 1, %s, %s, CURRENT_TIMESTAMP) WHERE month = %s""" % (kwh_avg, kwh, opmonth)
@@ -70,5 +70,5 @@ if s1 == s2:
     j = "and"
 else:
     j = "but"
-status = """You used {0} kwh {1} last month than your average {2} useage {3} {4} kwh {5} than you used in {2} {6}""".format(a1, s1, opdate.strftime('%B'), j, a2, s2, year - 1)
+status = """You used {0} kwh {1} last month than your average {2} useage {3} {4} kwh {5} than you used in {2} {6}.""".format(round(a1, 2), s1, calendar.month_name[opmonth], j, round(a2, 2), s2, year - 1)
 tweet(status)
