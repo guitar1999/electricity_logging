@@ -1,6 +1,11 @@
 #!/usr/bin/python
 
-import ConfigParser, datetime, psycopg2
+import argparse, ConfigParser, datetime, psycopg2
+
+# Allow the script to be run on a specific day of the week
+p = argparse.ArgumentParser(prog="generate_summary_hourly.py")
+p.add_argument('-hour', dest="runhour", required=False, help="The hour to run.")
+args = p.parse_args()
 
 # Get the db config from our config file
 config = ConfigParser.RawConfigParser()
@@ -14,7 +19,14 @@ db = psycopg2.connect(host=dbhost, database=dbname, user=dbuser)
 cursor = db.cursor()
 
 now = datetime.datetime.now()
-hour = now.hour
+if args.runhour:
+    if args.runhour != 23:
+        hour = int(args.runhour) + 1
+    else:
+        hour = 0
+else:
+    hour = now.hour
+
 if hour == 0:
     ophour = 23
     opdate = now - datetime.timedelta(1)
@@ -27,9 +39,10 @@ if dow == 7:
     dow = 0
 
 # Now update the current period to be ready for incremental updates to speed up querying
-query = """UPDATE electricity_usage_hourly SET (kwh, complete, timestamp) = (0, 'no', '%s:00:00') WHERE hour = %s;""" % (now.strftime('%Y-%m-%d %H'), hour)
-cursor.execute(query)
-db.commit()
+if not args.runhour:
+    query = """UPDATE electricity_usage_hourly SET (kwh, complete, timestamp) = (0, 'no', '%s:00:00') WHERE hour = %s;""" % (now.strftime('%Y-%m-%d %H'), hour)
+    cursor.execute(query)
+    db.commit()
 
 # Check to see if the data are complete
 query = """SELECT max(tdiff) < 300  FROM electricity_measurements WHERE measurement_time > '%s' AND date_part('hour', measurement_time) = %s;""" % (opdate.strftime('%Y-%m-%d'), ophour)
