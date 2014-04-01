@@ -1,12 +1,20 @@
 #!/usr/bin/python
 
-import datetime, matplotlib, os, psycopg2
+import ConfigParser, datetime, matplotlib, os, psycopg2
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import dates
 
-db = psycopg2.connect(host='localhost', database='jessebishop',user='jessebishop')
+# Get the db config from our config file
+config = ConfigParser.RawConfigParser()
+config.read('/home/jessebishop/.pyconfig')
+dbhost = config.get('pidb', 'DBHOST')
+dbname = config.get('pidb', 'DBNAME')
+dbuser = config.get('pidb', 'DBUSER')
+
+# Connect to the database
+db = psycopg2.connect(host=dbhost, database=dbname, user=dbuser)
 cursor = db.cursor()
 
 #############################

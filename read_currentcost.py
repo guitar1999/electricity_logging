@@ -10,12 +10,20 @@
 
 print "read_currentcost.py starting up"
 
-import serial,sys,psycopg2
+import ConfigParser, serial, sys, psycopg2
 import xml.etree.ElementTree as ET 
 
 loud = sys.argv[1]
 
-db = psycopg2.connect(host='localhost', database='jessebishop',user='jessebishop')
+# Get the db config from our config file
+config = ConfigParser.RawConfigParser()
+config.read('/home/jessebishop/.pyconfig')
+dbhost = config.get('pidb', 'DBHOST')
+dbname = config.get('pidb', 'DBNAME')
+dbuser = config.get('pidb', 'DBUSER')
+
+# Connect to the database
+db = psycopg2.connect(host=dbhost, database=dbname, user=dbuser)
 cursor = db.cursor()
 
 

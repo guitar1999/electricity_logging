@@ -1,9 +1,13 @@
 #!/usr/bin/python
 
-import datetime, json, psycopg2, urllib2
+import ConfigParser, datetime, json, psycopg2, urllib2
+
+# Get the api key from our config file
+config = ConfigParser.RawConfigParser()
+config.read('/home/jessebishop/.pyconfig')
+apikey = config.get('wunderground', 'APIKEY')
 
 # Connect to wunderground and get sunrise and sunset times
-apikey = 'ee7f65f21cceab3a'
 url = 'http://api.wunderground.com/api/{0}/astronomy/q/USA/MA/East_Falmouth.json'.format(apikey)
 f = urllib2.urlopen(url)
 json_string = f.read()

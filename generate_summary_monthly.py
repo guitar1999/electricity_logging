@@ -1,9 +1,17 @@
 #!/usr/bin/python
 
-import calendar, datetime, psycopg2
+import calendar, ConfigParser, datetime, psycopg2
 from tweet import *
 
-db = psycopg2.connect(host='localhost', database='jessebishop',user='jessebishop')
+# Get the db config from our config file
+config = ConfigParser.RawConfigParser()
+config.read('/home/jessebishop/.pyconfig')
+dbhost = config.get('pidb', 'DBHOST')
+dbname = config.get('pidb', 'DBNAME')
+dbuser = config.get('pidb', 'DBUSER')
+
+# Connect to the database
+db = psycopg2.connect(host=dbhost, database=dbname, user=dbuser)
 cursor = db.cursor()
 
 now = datetime.datetime.now()
@@ -70,5 +78,5 @@ if s1 == s2:
     j = "and"
 else:
     j = "but"
-status = """You used {0} kwh {1} last month than your average {2} useage {3} {4} kwh {5} than you used in {2} {6}.""".format(round(a1, 2), s1, calendar.month_name[opmonth], j, round(a2, 2), s2, year - 1)
+status = """You used {0} kwh {1} last month than your average {2} usage {3} {4} kwh {5} than you used in {2} {6}.""".format(round(a1, 2), s1, calendar.month_name[opmonth], j, round(a2, 2), s2, year - 1)
 tweet(status)
