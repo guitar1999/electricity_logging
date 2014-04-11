@@ -62,7 +62,10 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         res$kwh_avg_plot[res$kwh_avg > max(res$kwh)] <- max(res$kwh) - max(res$kwh) / 100
         res$kwh_avg_pch <- 19
         res$kwh_avg_pch[res$kwh_avg > max(res$kwh)] <- 8
-        if ('By' %in% strsplit(title, ' ')[[1]]){res$kwh_avg_pch <- 18}
+        if ('By' %in% strsplit(title, ' ')[[1]]){
+            res$kwh_avg_pch <- 18
+            legend('bottomleft','Previous Year-to-Date', pch=18, col=pcol)
+        }
         points(b, res$kwh_avg_plot, pch=res$kwh_avg_pch, col=pcol)
     }
     # If this polot has an average by day of week value, draw the points

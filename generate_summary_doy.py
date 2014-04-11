@@ -67,6 +67,9 @@ else:
     query = """UPDATE electricity_usage_doy SET timestamp = CURRENT_TIMESTAMP WHERE doy = %s;""" % (doy)
 cursor.execute(query)
 
+query = """INSERT INTO electricity_statistics_daily_minimum (measurement_date, watts) SELECT '{0}'::date, min(watts_ch1 + watts_ch2) AS watts FROM electricity_measurements WHERE measurement_time >= '{0} 00:00:00' and measurement_time::date = '{0}';""".format(opdate.strftime('%Y-%m-%d'))
+cursor.execute(query)
+
 # And finish it off
 cursor.close()
 db.commit()
