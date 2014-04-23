@@ -2,9 +2,10 @@
 
 import argparse, ConfigParser, datetime, psycopg2
 
-# Allow the script to be run on a specific day of the week
+# Allow the script to be run on a specific hour day of the week
 p = argparse.ArgumentParser(prog="generate_summary_hourly.py")
 p.add_argument('-hour', dest="runhour", required=False, help="The hour to run.")
+p.add_argument('-date', dest="rundate", required=False, help="The date to run in format 'YYYY-MM-DD'.")
 args = p.parse_args()
 
 # Get the db config from our config file
@@ -18,13 +19,15 @@ dbuser = config.get('pidb', 'DBUSER')
 db = psycopg2.connect(host=dbhost, database=dbname, user=dbuser)
 cursor = db.cursor()
 
-now = datetime.datetime.now()
 if args.runhour:
     if args.runhour != 23:
         hour = int(args.runhour) + 1
+        now = datetime.datetime.strptime(args.rundate, '%Y-%m-%d')
     else:
         hour = 0
+        now = datetime.datetime.strptime(args.rundate, '%Y-%m-%d') + datetime.timedelta(1)
 else:
+    now = datetime.datetime.now()
     hour = now.hour
 
 if hour == 0:
