@@ -85,7 +85,10 @@ cursor.execute(query)
 # Older queries
 query = """UPDATE electricity_usage_hourly SET complete = '%s' WHERE hour = %s;""" % (complete, ophour)
 cursor.execute(query)
-query = """UPDATE electricity_usage_hourly SET timestamp = CURRENT_TIMESTAMP WHERE hour = %s;""" % (ophour)
+if args.rundate:
+    query = """UPDATE electricity_usage_hourly SET timestamp = '%s %s:00:01' WHERE hour = %s;""" % (now.strftime('%Y-%m-%d'), hour, ophour)
+else:
+    query = """UPDATE electricity_usage_hourly SET timestamp = CURRENT_TIMESTAMP WHERE hour = %s;""" % (ophour)
 cursor.execute(query)
 
 # And finish it off
