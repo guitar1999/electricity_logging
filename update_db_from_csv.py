@@ -14,7 +14,7 @@ import ConfigParser, sys, psycopg2, datetime
 from dateutil import parser
 
 loud = sys.argv[1]
-infle = sys.argv[2]
+infile = sys.argv[2]
 if sys.argv[3]:
     conv = True
     dateconv = sys.argv[3]
