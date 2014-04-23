@@ -51,13 +51,13 @@ for line in f.readlines():
         
     try:
         sql = "INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES (%i, %i, %i, '%s', '%s') RETURNING emid;" % (watts_ch1, watts_ch2, watts_ch3, current_time, time)
-        print sql
-        #cursor.execute(sql)
+        #print sql
+        cursor.execute(sql)
         tid = cursor.fetchone()[0]
         sql2 = """UPDATE electricity_measurements SET tdiff = (SELECT date_part FROM (SELECT date_part('epoch', measurement_time - LAG(measurement_time) OVER (ORDER BY measurement_time)) FROM electricity_measurements WHERE emid IN (%s,(SELECT MAX(emid) FROM electricity_measurements WHERE emid < %s))) AS temp1 WHERE NOT date_part IS NULL) WHERE emid = %s;""" % (tid, tid, tid)
-        #cursor.execute(sql2)
+        cursor.execute(sql2)
         sql3 = """UPDATE electricity_measurements SET tdiff_device_time = (SELECT date_part FROM (SELECT date_part('epoch', device_time - LAG(device_time) OVER (ORDER BY device_time)) FROM electricity_measurements WHERE emid IN (%s,(SELECT MAX(emid) FROM electricity_measurements WHERE emid < %s))) AS temp1 WHERE NOT date_part IS NULL) WHERE emid = %s;""" % (tid, tid, tid)
-        #cursor.execute(sql3)
+        cursor.execute(sql3)
         db.commit()
     except Exception, msg:
         print msg, "in main"
