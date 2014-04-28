@@ -60,7 +60,7 @@ else:
 
 #Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
 if args.runhour:
-    query = """UPDATE electricity_usage_hourly SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time > '%s' measuremnt_time <= '%s' AND date_part('hour', measurement_time) = %s) WHERE hour = %s RETURNING kwh;""" % (opdate.strftime('%Y-%m-%d'), opdate.strftime('%Y-%m-%d 23:59:59.999999'), ophour, ophour)
+    query = """UPDATE electricity_usage_hourly SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time > '%s' AND measuremnt_time <= '%s' AND date_part('hour', measurement_time) = %s) WHERE hour = %s RETURNING kwh;""" % (opdate.strftime('%Y-%m-%d'), opdate.strftime('%Y-%m-%d 23:59:59.999999'), ophour, ophour)
 else:
     query = """UPDATE electricity_usage_hourly SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time > '%s' AND date_part('hour', measurement_time) = %s) WHERE hour = %s RETURNING kwh;""" % (opdate.strftime('%Y-%m-%d'), ophour, ophour)
 cursor.execute(query)

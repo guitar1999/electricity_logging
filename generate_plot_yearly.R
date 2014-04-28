@@ -13,8 +13,7 @@ res$kwh_avg <- NA
 query2 <- "SELECT date_part('year', CURRENT_TIMESTAMP) AS label, increment_usage('electricity_usage_yearly', 'year') AS kwh, complete FROM electricity_usage_yearly WHERE year = date_part('year', CURRENT_TIMESTAMP);"
 res2 <- dbGetQuery(con, query2)
 
-query3 <- "SELECT SUM((watts_ch1 + watts_ch2) * tdiff /
-60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE date_part('year', measurement_time) = date_part('year', CURRENT_TIMESTAMP) - 1 and measurement_time < CURRENT_TIMESTAMP - interval '1 year';"
+query3 <- "SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= (date_part('year', CURRENT_TIMESTAMP) - 1 || '-01-01 00:00:00')::timestamp with time zone AND measurement_time < CURRENT_TIMESTAMP - interval '1 year';"
 ytdkwh <- dbGetQuery(con,query3)
 res2 <- cbind(res2, ytdkwh)
 

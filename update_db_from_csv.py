@@ -15,9 +15,10 @@ from dateutil import parser
 
 loud = sys.argv[1]
 infile = sys.argv[2]
-if sys.argv[3]:
-    conv = True
-    dateconv = sys.argv[3]
+#if sys.argv[3]:
+#    conv = True
+#    dateconv = sys.argv[3]
+conv = False
 
 # Get the db config from our config file
 config = ConfigParser.RawConfigParser()
@@ -48,6 +49,7 @@ for line in f.readlines():
     watts_ch1 = int(watts_ch1)
     watts_ch2 = int(watts_ch2)
     watts_ch3 = int(watts_ch3)
+    print watts_ch1, watts_ch2, watts_ch3, current_time
         
     try:
         sql = "INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES (%i, %i, %i, '%s', '%s') RETURNING emid;" % (watts_ch1, watts_ch2, watts_ch3, current_time, time)
