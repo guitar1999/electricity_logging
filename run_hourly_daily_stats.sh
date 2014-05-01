@@ -5,7 +5,7 @@ shour=$2
 ehour=$3
 rundaily=$4
 
-for h in {$shour..$ehour}
+for h in $(seq $shour $ehour)
 do
     echo $h
     echo 'e'
