@@ -73,6 +73,10 @@ else:
     query = """UPDATE electricity_usage_dow SET timestamp = CURRENT_TIMESTAMP WHERE dow = %s;""" % (dow)
 cursor.execute(query)
 
+# Update sums table
+query = """INSERT INTO energy_statistics.electricity_sums_daily (date, kwh) VALUES ('%s', %s);""" % (opdate.strftime('%Y-%m-%d'), kwh)
+cursor.execute(query)
+
 # Now finish it off
 cursor.close()
 db.commit()

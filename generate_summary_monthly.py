@@ -56,6 +56,15 @@ cursor.execute(query)
 query = """UPDATE electricity_usage_monthly SET timestamp = CURRENT_TIMESTAMP WHERE month = %s;""" % (opmonth)
 cursor.execute(query)
 
+# See if we've set a record. Always do this before sums table so you're not comparing against current month!
+query = """SELECT CASE WHEN {0} > (SELECT max(kwh) FROM energy_statistics.electricity_sums_monthly) THEN 'max' WHEN {0} < (SELECT min(kwh) FROM energy_statistics.electricity_sums_monthly) THEN 'min' ELSE 'none' END;""".format(kwh)
+cursor.execute(query)
+userecord = cursor.fetchall()[0][0]
+
+# Update the sums table
+query = """INSERT INTO energy_statistics.electricity_sums_monthly (year, month, kwh) VALUES (%s, %s, %s);""" % (year, opmonth, kwh)
+cursor.execute(query)
+
 # And finish it off
 cursor.close()
 db.commit()
@@ -79,4 +88,14 @@ if s1 == s2:
 else:
     j = "but"
 status = """You used {0} kwh {1} last month than your average {2} usage {3} {4} kwh {5} than you used in {2} {6}.""".format(round(a1, 2), s1, calendar.month_name[opmonth], j, round(a2, 2), s2, year - 1)
+tweet(status)
+
+# Now tweet about any records that may have been set
+if userecord == 'min':
+    s3 = "lowest"
+    s4 = "Great job! #LowerMyBills"
+elif userecord == 'max':
+    s3 = "highest"
+    s4 = "You'd better look into that!"
+status = """In {0}, you set a new record of {1} kwh, the {2} ever monthly electricity usage at your house! {3}""".format(calendar.month_name[opmonth], round(kwh, 1), s3, s4)
 tweet(status)
