@@ -49,10 +49,11 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
             gradient.rect(setpos, 0, gemid, max(res$kwh), col=smoothColors('white', 255, 'grey22'), gradient='x', border=NA)
             gradient.rect(gemid, 0, gend, max(res$kwh), col=smoothColors('grey22', 255, 'white'), gradient='x', border=NA)
         }
-    }
+    } # End gradient
     # Generate some horizontal lines
+    linelookup <- data.frame(rbind(c(15, 5), c(5, 2), c(1, 0.1)))
     pwr <- nchar(as.character(as.integer(max(res$kwh)))) - 1
-    yseq <- seq(0,ceiling(max(res$kwh)/10^pwr)*10^pwr,ifelse(pwr > 1, 10^pwr, ifelse(max(res$kwh) > 15, 5, ifelse(max(res$kwh) > 5, 2, ifelse(max(res$kwh) < 1, 0.1, 0.2)))))
+    yseq <- seq(0,ceiling(max(res$kwh)/10^pwr)*10^pwr,ifelse(pwr > 1, 10^pwr, ifelse(max(res$kwh) > 77, 20, ifelse(max(res$kwh) > 38, 10, ifelse(max(res$kwh) > 15, 5, ifelse(max(res$kwh) > 7.5, 2, ifelse(max(res$kwh) > 3.75, 1, ifelse(max(res$kwh) > 1.5, 0.5, ifelse(max(res$kwh) > 0.75, 0.2, ifelse(max(res$kwh) > 0.35, 0.1, ifelse(max(res$kwh) > 0.15, 0.05, 0.02)))))))))))
     abline(h=yseq, col='darkgray')
     # Draw the barplot again over the gradient
     bpf(res$kwh, res$label, col, title, label.x, label.y, FALSE, ifelse("jday" %in% colnames(res),2,1), TRUE)
