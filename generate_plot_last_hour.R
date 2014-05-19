@@ -19,8 +19,8 @@ if (maxwatts - min(res$watts) < 3000) {
     vseq <- log10(c(1,10,50,100,250,500,750,1000,2500,5000,7500,10000))
     vlab <- 10^vseq
     maxwatts <- log10(maxwatts)
-    res$watts <- log10(res$watts)
-    res$watts_ch3 <- log10(res$watts_ch3)
+    res$watts <- ifelse(res$watts > 0, log10(res$watts), 0)
+    res$watts_ch3 <- ifelse(res$watts_ch3 > 0, log10(res$watts_ch3), 0)
     ymin <- min(c(min(res$watts),min(res$watts_ch3, na.rm = TRUE)))
 }
 

@@ -19,9 +19,9 @@ if (maxwatts - min(rbind(res$watts_ch1, res$watts_ch2)) < 2400) {
     vseq <- log10(c(1,10,50,100,250,500,750,1000,2500,5000,7500,10000))
     vlab <- 10^vseq
     maxwatts <- log10(maxwatts)
-    res$watts_ch1 <- log10(res$watts_ch1)
-    res$watts_ch2 <- log10(res$watts_ch2)
-    res$watts_ch3 <- log10(res$watts_ch3)
+    res$watts_ch1 <- ifelse(res$watts_ch1 > 0, log10(res$watts_ch1), 0)
+    res$watts_ch2 <- ifelse(res$watts_ch2 > 0, log10(res$watts_ch2), 0)
+    res$watts_ch3 <- ifelse(res$watts_ch3 > 0, log10(res$watts_ch3), 0)
 }
 
 hseq <- seq(mintime, mintime + 86400, 1800)
