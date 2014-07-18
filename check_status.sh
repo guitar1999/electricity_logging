@@ -5,11 +5,11 @@ notified=$(/usr/local/pgsql93/bin/psql -t -A -c "SELECT notified FROM error_noti
 
 if [ "$stat" == "t" ]; then
     if [ "$notified" == "f" ]; then
-        /home/jessebishop/scripts/tweet.py "I haven't seen an electricity usage update in over 2 minutes! #HelpMe @jessebishop!"
-        /usr/local/pgsql93/bin/psql -c "UPDATE error_notification SET (notified, timestamp) = (TRUE, CURRENT_TIMESTAMP) WHERE error = 'electricity usage timeout;"
+        /home/jessebishop/scripts/twitter/tweet.py "I haven't seen an electricity usage update in over 2 minutes! #HelpMe @jessebishop!"
+        /usr/local/pgsql93/bin/psql -c "UPDATE error_notification SET (notified, timestamp) = (TRUE, CURRENT_TIMESTAMP) WHERE error = 'electricity usage timeout';"
     fi
 else
     if [ "$notified" == "t" ]; then
-        /usr/local/pgsql93/bin/psql -c "UPDATE error_notification SET (notified, timestamp) = (FALSE, CURRENT_TIMESTAMP) WHERE error = 'electricity usage timeout;"
+        /usr/local/pgsql93/bin/psql -c "UPDATE error_notification SET (notified, timestamp) = (FALSE, CURRENT_TIMESTAMP) WHERE error = 'electricity usage timeout';"
     fi
 fi
