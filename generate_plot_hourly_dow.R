@@ -46,4 +46,4 @@ png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white'
 bp(res, title, label.x, label.y, sunrise, sunset)
 dev.off()
 
-system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
+system(paste("scp", fname, "75.126.173.130:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)

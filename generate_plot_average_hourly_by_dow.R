@@ -21,5 +21,5 @@ for (i in seq(0,6)){
     lines(pdf$hour, pdf$kwh, col=i+1)
 }
 legend(0, max(res$kwh) - 100, dd$day, dd$dow)
-system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
+system(paste("scp", fname, "75.126.173.130:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
 
