@@ -8,7 +8,7 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     }
     # Generate a vector of bar colors
     col <- rep('x', length(res$kwh))
-    col[res$kwh > res$kwh_avg] <- rgb(188/255, 143/255, 143/255, 200/255) #rosybrown 557
+    col[res$kwh > res$kwh_avg] <- rgb(188/255, 143/255, 143/255, 175/255) #rosybrown 557
     col[res$kwh <= res$kwh_avg] <- rgb(238/255, 221/255, 130/255, 200/255) #lightgoldenrod 410
     col[col == 'x'] <- 'lightgoldenrod'
     # Generate a vector of point colors
