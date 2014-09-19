@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import argparse, ConfigParser, datetime, psycopg2
+from tweet import *
 
 # Allow the script to be run on a specific day of the week
 p = argparse.ArgumentParser(prog="generate_summary_doy.py")
@@ -22,25 +23,33 @@ cursor = db.cursor()
 if args.rundate:
     opdate = datetime.datetime.strptime(args.rundate, '%Y-%m-%d')
     now = opdate + datetime.timedelta(1)
+    timestamp = "{0} 00:00:01".format(now.strftime('%Y-%m-%d'))
 else:
     now = datetime.datetime.now()
     opdate = now - datetime.timedelta(1)
+    timestamp = now.strftime('%Y-%m-%d %H:%M:%S')
 
 doy = opdate.timetuple().tm_yday
 dow = opdate.isoweekday()
+month = opdate.month
+day = opdate.day
 # Make sunday 0 to match postgres style rather than python style
 if dow == 7:
     dow = 0
 
 
-# Now update the current period to be ready for incremental updates to speed up querying
+# Now update the current period to be ready for incremental updates to speed up querying and
+# and move the current to previous for the current day (now).
 if not args.rundate:
-    query = """UPDATE electricity_usage_doy SET (kwh, complete, timestamp) = (0, 'no', '%s 00:00:00') WHERE doy = %s;""" % (now.strftime('%Y-%m-%d'), now.timetuple().tm_yday)
+    query = """UPDATE electricity_usage_doy SET (kwh, complete, timestamp) = (0, 'no', '{0} 00:00:00') WHERE month = {1} AND day = {2};""".format(now.strftime('%Y-%m-%d'), now.month, now.day)
+    cursor.execute(query)
+    db.commit()
+    query = """UPDATE electricity_statistics_doy SET (previous_year, current_year) = (current_year, NULL) WHERE month = {0} and day = {1}""".format(now.month, now.day)
     cursor.execute(query)
     db.commit()
 
 # Check to see if the data are complete
-query = """SELECT max(tdiff) < 300  FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s';""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'))
+query = """SELECT max(tdiff) < 300  FROM electricity_measurements WHERE measurement_time >= '{0}' AND measurement_time < '{1}';""".format(opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'))
 cursor.execute(query)
 data = cursor.fetchall()
 maxint = data[0][0]
@@ -50,23 +59,17 @@ else:
     complete = 'no'
 
 #Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
-query = """UPDATE electricity_usage_doy SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s') WHERE doy = %s RETURNING kwh;""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), doy)
+query = """UPDATE electricity_usage_doy SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '{0}' AND measurement_time < '{1}') WHERE month = {2} AND day = {3} RETURNING kwh;""".format(opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), month, day)
 cursor.execute(query)
 kwh = cursor.fetchall()[0][0]
-# Using dow for now since we don't have any historical doy data until March 14, 2014
-if opdate > datetime.datetime(2014,3,21,0,0,0):
-    query = """UPDATE electricity_usage_doy SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('doy', measurement_time) = %s GROUP BY date_part('year', measurement_time)) AS x) WHERE doy = %s;""" % (doy, doy)
-else:
-    query = """UPDATE electricity_usage_doy SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('dow', measurement_time) = %s GROUP BY date_part('year', measurement_time), date_part('doy', measurement_time)) AS x) WHERE doy = %s;""" % (dow, doy)
+# Put kwh in current_year in statistics table
+query = """UPDATE electricity_statistics_doy SET (current_year, kwh_avg, count, timestamp) = ({0}, ({0} + (kwh_avg * count)) / count + 1), count + 1, '{1}') WHERE month = {2} AND day = {3} RETURNING kwh_avg, previous_year;""".format(kwh, timestamp, month, day)
 cursor.execute(query)
-query = """UPDATE electricity_usage_doy SET complete = '%s' WHERE doy = %s;""" % (complete, doy)
+kwh_avg, previous_year = cursor.fetchall()[0]
+# Update the rest of the usage table
+query = """UPDATE electricity_usage_doy SET (kwh_avg, complete, timestamp) = ({0}, '{1}', '{2}') WHERE month = {3} AND day = {4};""".format(kwh_avg, complete, timestamp, month, day)
 cursor.execute(query)
-if args.rundate:
-    query = """UPDATE electricity_usage_doy SET timestamp = '%s 00:00:01' WHERE doy = %s;""" % (now.strftime('%Y-%m-%d'), doy)
-else:
-    query = """UPDATE electricity_usage_doy SET timestamp = CURRENT_TIMESTAMP WHERE doy = %s;""" % (doy)
-cursor.execute(query)
-
+# Update the minimum table
 query = """INSERT INTO electricity_statistics_daily_minimum (measurement_date, watts) SELECT '{0}'::date, min(watts_ch1 + watts_ch2) AS watts FROM electricity_measurements WHERE measurement_time >= '{0} 00:00:00' and measurement_time::date = '{0}';""".format(opdate.strftime('%Y-%m-%d'))
 cursor.execute(query)
 
@@ -75,3 +78,12 @@ cursor.close()
 db.commit()
 db.close()
 
+# Tweet some info
+if not args.rundate:
+    if kwh > previous_year:
+        s1 = "more"
+    else:
+        s1 = "less"
+    pct_diff = abs(round(((float(kwh) - previous_year) / previous_year * 100), 2))
+    status = """You used {0}% {1} electricity than you did on {2}-{3}-{4}""".format(pct_diff, s1, opdate.year, month, day)
+    tweet(status)
