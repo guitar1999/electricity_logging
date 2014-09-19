@@ -2,8 +2,13 @@ CREATE OR REPLACE FUNCTION increment_usage(tablename text, columnname text) RETU
 --input table name, column name
 DECLARE
     temp1 numeric;
-    year1 text := columnname;
+    year1 text;
 BEGIN
+    IF columnname LIKE 'doy%' THEN
+        year1 := 'doy';
+    ELSE
+        year1 := columnname;
+    END IF;
     EXECUTE 'UPDATE '
         || tablename
     || ' SET 
