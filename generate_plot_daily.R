@@ -5,11 +5,12 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source('/home/jessebishop/scripts/electricity_logging/barplot.R')
 
-query <- "SELECT doy AS label, kwh, kwh_avg, complete FROM electricity_usage_doy WHERE NOT doy = date_part('doy', CURRENT_TIMESTAMP) AND timestamp >= CURRENT_TIMESTAMP - interval '29 days' AND NOT timestamp IS NULL ORDER BY timestamp;"
+#query <- "SELECT doy AS label, kwh, kwh_avg, complete FROM electricity_usage_doy WHERE NOT doy = date_part('doy', CURRENT_TIMESTAMP) AND timestamp >= CURRENT_TIMESTAMP - interval '29 days' AND NOT timestamp IS NULL ORDER BY timestamp;"
+query <- "SELECT u.doy AS label, kwh, previous_year AS kwh_avg, complete FROM electricity_usage_doy u INNER JOIN electricity_statistics_doy s ON u.doy=s.doy WHERE NOT u.doy = date_part('doy', CURRENT_TIMESTAMP) AND u.timestamp >= CURRENT_TIMESTAMP - interval '29 days' AND NOT u.timestamp IS NULL ORDER BY u.timestamp;"
 res <- dbGetQuery(con, query)
 
 #query2 <- "SELECT date_part('doy', CURRENT_TIMESTAMP) AS label, akwh AS kwh, kwh_avg, 'no'::text AS complete FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS akwh FROM electricity_measurements WHERE measurement_time > CURRENT_TIMESTAMP - (date_part('hour', CURRENT_TIMESTAMP) * 3600 + date_part('minute', CURRENT_TIMESTAMP) * 60 + date_part('second', CURRENT_TIMESTAMP)) * interval '1 second') AS x, electricity_usage_doy WHERE doy = date_part('doy', CURRENT_TIMESTAMP);"
-query2 <- "SELECT date_part('doy', CURRENT_TIMESTAMP) AS label, increment_usage('electricity_usage_doy', 'doy') AS kwh, kwh_avg, complete FROM electricity_usage_doy WHERE doy = date_part('doy', CURRENT_TIMESTAMP);"
+query2 <- "SELECT date_part('doy', CURRENT_TIMESTAMP) AS label, increment_usage('electricity_usage_doy', 'doy') AS kwh, previous_year AS kwh_avg, complete FROM electricity_usage_doy u INNER JOIN electricity_statistics_doy s ON u.doy=s.doy WHERE u.doy = date_part('doy', CURRENT_TIMESTAMP);"
 res2 <- dbGetQuery(con, query2)
 
 res <- rbind(res, res2)
