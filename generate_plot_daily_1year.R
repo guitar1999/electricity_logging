@@ -5,22 +5,14 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source('/home/jessebishop/scripts/electricity_logging/barplot.R')
 
-query <- "SELECT doy AS label, kwh, kwh_avg, complete FROM electricity_usage_doy WHERE NOT doy = date_part('doy', CURRENT_TIMESTAMP) AND NOT timestamp IS NULL ORDER BY timestamp;"
+query <- "SELECT to_char(to_timestamp(u.month::text, 'MM'), 'Mon') || '-' || to_char(u.day, '09') AS label, kwh, previous_year AS kwh_avg, complete FROM electricity_usage_doy u INNER JOIN electricity_statistics_doy s ON u.month=s.month AND u.day=s.day WHERE (NOT u.month = date_part('month', CURRENT_TIMESTAMP) OR NOT u.day = date_part('day', CURRENT_TIMESTAMP)) AND ((is_leapyear(date_part('year', CURRENT_TIMESTAMP)::integer) OR is_leapyear(date_part('year', CURRENT_TIMESTAMP)::integer - 1)) OR ( NOT u.month = 2 OR NOT u.day = 29)) AND NOT u.timestamp IS NULL ORDER BY u.timestamp;"
 res <- dbGetQuery(con, query)
 
-query2 <- "SELECT date_part('doy', CURRENT_TIMESTAMP) AS label, akwh AS kwh, kwh_avg, 'no'::text AS complete FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS akwh FROM electricity_measurements WHERE measurement_time > CURRENT_TIMESTAMP - (date_part('hour', CURRENT_TIMESTAMP) * 3600 + date_part('minute', CURRENT_TIMESTAMP) * 60 + date_part('second', CURRENT_TIMESTAMP)) * interval '1 second') AS x, electricity_usage_doy WHERE doy = date_part('doy', CURRENT_TIMESTAMP);"
+query2 <- "SELECT to_char(to_timestamp(u.month::text, 'MM'), 'Mon') || '-' || to_char(u.day, '09') AS label, kwh, previous_year AS kwh_avg, complete FROM electricity_usage_doy u INNER JOIN electricity_statistics_doy s ON u.month=s.month AND u.day=s.day WHERE u.month = date_part('month', CURRENT_TIMESTAMP) AND u.day = date_part('day', CURRENT_TIMESTAMP);"
 res2 <- dbGetQuery(con, query2)
 
 res <- rbind(res, res2)
 res$jday <- res$label
-today <- Sys.Date()
-jday <- format(today, '%j')
-year.this <- format(today, '%Y')
-year.last <- as.numeric(year.this) - 1
-res$label <- format(as.Date(res$label - 1, origin=paste(ifelse(res$label <= jday, year.this, year.last), '-01-01', sep='')), '%b-%d')
-#res$col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
-#res$col[res$kwh <= res$kwh_avg] <- 'lightgoldenrod' #410
-#res$col[is.na(res$col) == TRUE] <- 'lightgoldenrod'
 
 fname <- '/var/www/electricity/daily_1year.png'
 title <- "Electricity Used Daily"
