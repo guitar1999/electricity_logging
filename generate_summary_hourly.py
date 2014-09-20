@@ -48,11 +48,11 @@ if not args.runhour:
     db.commit()
 
 # Check to see if the data are complete
-query = """SELECT max(tdiff) < 300  FROM electricity_measurements WHERE measurement_time > '%s' AND date_part('hour', measurement_time) = %s;""" % (opdate.strftime('%Y-%m-%d'), ophour)
+query = """SELECT 't' = ANY(array_agg(tdiff * (watts_ch1 + watts_ch2) > 0)) FROM electricity_measurements WHERE measurement_time > '%s' AND date_part('hour', measurement_time) = %s AND tdiff >= 300 and tdiff * (watts_ch1 + watts_ch2) > 0;"""  % (opdate.strftime('%Y-%m-%d'), ophour)
 cursor.execute(query)
 data = cursor.fetchall()
 maxint = data[0][0]
-if maxint:
+if not maxint:
     complete = 'yes'
 else:
     complete = 'no'
