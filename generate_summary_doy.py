@@ -63,7 +63,7 @@ query = """UPDATE electricity_usage_doy SET kwh = (SELECT SUM((watts_ch1 + watts
 cursor.execute(query)
 kwh = cursor.fetchall()[0][0]
 # Put kwh in current_year in statistics table
-query = """UPDATE electricity_statistics_doy SET (current_year, kwh_avg, count, timestamp) = ({0}, ({0} + (kwh_avg * count)) / count + 1), count + 1, '{1}') WHERE month = {2} AND day = {3} RETURNING kwh_avg, previous_year;""".format(kwh, timestamp, month, day)
+query = """UPDATE electricity_statistics_doy SET (current_year, kwh_avg, count, timestamp) = ({0}, ({0} + (kwh_avg * count)) / (count + 1), count + 1, '{1}') WHERE month = {2} AND day = {3} RETURNING kwh_avg, previous_year;""".format(kwh, timestamp, month, day)
 cursor.execute(query)
 kwh_avg, previous_year = cursor.fetchall()[0]
 # Update the rest of the usage table
@@ -84,6 +84,6 @@ if not args.rundate:
         s1 = "more"
     else:
         s1 = "less"
-    pct_diff = abs(round(((float(kwh) - previous_year) / previous_year * 100), 2))
+    pct_diff = abs(round((((kwh * 1.0) - previous_year) / previous_year * 100), 2))
     status = """You used {0}% {1} electricity than you did on {2}-{3}-{4}""".format(pct_diff, s1, opdate.year, month, day)
     tweet(status)
