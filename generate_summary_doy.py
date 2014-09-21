@@ -84,6 +84,6 @@ if not args.rundate:
         s1 = "more"
     else:
         s1 = "less"
-    pct_diff = abs(round((((kwh * 1.0) - previous_year) / previous_year * 100), 2))
-    status = """You used {0}% {1} electricity than you did on {2}-{3}-{4}""".format(pct_diff, s1, opdate.year, month, day)
+    pct_diff = abs(round(((kwh - previous_year) / previous_year * 100), 2))
+    status = """You used {0}% {1} electricity than you did on {2}-{3}-{4}""".format(pct_diff, s1, opdate.year - 1, month, day)
     tweet(status)
