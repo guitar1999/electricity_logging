@@ -91,11 +91,12 @@ status = """You used {0} kwh {1} last month than your average {2} usage {3} {4} 
 tweet(status)
 
 # Now tweet about any records that may have been set
-if userecord == 'min':
-    s3 = "lowest"
-    s4 = "Great job! #LowerMyBills"
-elif userecord == 'max':
-    s3 = "highest"
-    s4 = "You'd better look into that!"
-status = """In {0}, you set a new record of {1} kwh, the {2} ever monthly electricity usage at your house! {3}""".format(calendar.month_name[opmonth], round(kwh, 1), s3, s4)
-tweet(status)
+if userecord != 'none':
+    if userecord == 'min':
+        s3 = "lowest"
+        s4 = "Great job! #LowerMyBills"
+    elif userecord == 'max':
+        s3 = "highest"
+        s4 = "You'd better look into that!"
+    status = """In {0}, you set a new record of {1} kwh, the {2} ever monthly electricity usage at your house! {3}""".format(calendar.month_name[opmonth], round(kwh, 1), s3, s4)
+    tweet(status)

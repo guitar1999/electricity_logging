@@ -35,9 +35,9 @@ while(TRUE){
     plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_last_hour.R')
     runtime <- runtime + plottime
     print("    line")
-#    plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_last_hour.R')
-#    runtime <- runtime + plottime
-#    print("    gas line")
+    plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_last_hour.R')
+    runtime <- runtime + plottime
+    print("    gas line")
 
 
     # Run the hourlies every 2nd loop and add the plotting time to the loop runtime
@@ -54,9 +54,9 @@ while(TRUE){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_hourly_dow_season.R')
         runtime <- runtime + plottime
         print("    hourlydowseason")
-#        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_hourly.R')
-#        runtime <- runtime + plottime
-#        print("    gas hourly")
+        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_hourly.R')
+        runtime <- runtime + plottime
+        print("    gas hourly")
     }
 
     # Run the dow every 10th loop and add the plotting times to the loop runtime
@@ -73,12 +73,12 @@ while(TRUE){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_last_24_hours.R')
         runtime <- runtime + plottime
         print("    24 hours")
-#        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_dow.R')
-#        runtime <- runtime + plottime
-#        print("    gas dow")
-#        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_daily.R')
-#        runtime <- runtime + plottime
-#        print("    gas daily")
+        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_dow.R')
+        runtime <- runtime + plottime
+        print("    gas dow")
+        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_daily.R')
+        runtime <- runtime + plottime
+        print("    gas daily")
     }
 
     # Run the daily every 15th loop and add the plotting times to the loop runtime
@@ -89,12 +89,12 @@ while(TRUE){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_yearly.R')
         runtime <- runtime + plottime
         print("    yearly")
-#        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_monthly.R')
-#        runtime <- runtime + plottime
-#        print("    gas monthly")
-#        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_yearly.R')
-#        runtime <- runtime + plottime
-#        print("    gas yearly")
+        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_monthly.R')
+        runtime <- runtime + plottime
+        print("    gas monthly")
+        plottime <- genplot('/home/jessebishop/scripts/gas_logging/generate_plot_gas_yearly.R')
+        runtime <- runtime + plottime
+        print("    gas yearly")
 
     }
 
@@ -117,6 +117,9 @@ while(TRUE){
     } else {
         holdover <- runtime - looptime
         print(paste("    Holdover is ", holdover, sep=""))
+        if (holdover > 600) {
+            q(save='no', status=1)
+        }
     }
 
     
