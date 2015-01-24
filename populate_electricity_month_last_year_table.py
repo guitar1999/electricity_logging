@@ -30,4 +30,14 @@ else:
     month = now.month
     year = now.year - 1
 
-print month, year
+# Clean out the existing data
+query = """"DELETE FROM electricity_month_last_year;"""
+cursor.execute(query)
+
+# Load the new data
+query = """INSERT INTO electricity_month_last_year SELECT (watts_ch1 + watts_ch2) * tdiff / 1000. / 60 / 60 AS kwh, measurement_time, sum((watts_ch1 + watts_ch2) * tdiff / 1000. / 60 / 60) OVER (ORDER BY measurement_time) AS cumulative_kwh FROM electricity_measurements WHERE date_part('month', measurement_time) = {0} AND date_part('year', measurement_time) = {1};""".format(month, year)
+cursor.execute(query)
+db.commit()
+
+cursor.close()
+db.close()
