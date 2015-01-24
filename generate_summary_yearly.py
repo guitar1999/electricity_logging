@@ -17,8 +17,8 @@ year = datetime.datetime.now().year - 1
 
 # Update the current period to be ready for incremental updates to speed up querying
 query = """INSERT INTO electricity_usage_yearly (year, kwh, complete, timestamp) VALUES (%s, 0, 'no', '%s-01-01 00:00:00');""" % (year + 1, year + 1)
-#cursor.execute(query)
-#db.commit()
+cursor.execute(query)
+db.commit()
 
 query = """SELECT min(measurement_time)::date = '%s-01-01'::date, max(measurement_time)::date = '%s-12-31'::date, max(tdiff) < 300  FROM electricity_measurements WHERE date_part('year', measurement_time) = %s;""" % (year, year, year)
 cursor.execute(query)
