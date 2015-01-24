@@ -17,7 +17,7 @@ fname <- '/var/www/electricity/month_to_month.png'
 pmax <- max(c(last_year$cumulative_kwh, current_year$cumulative_kwh))
 
 png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
-plot(last_year$measurement_time, last_year$cumulative_kwh, type='l', col='grey', xlim=c(0,pmax))
+plot(last_year$measurement_time, last_year$cumulative_kwh, type='l', col='grey', ylim=c(0,pmax))
 lines(current_year$measurement_time, current_year$cumulative_kwh, col='red')
 if (kwhavg < pmax) {
     abline(h=kwhavg, col='orange')
