@@ -31,7 +31,7 @@ else:
     year = now.year - 1
 
 # Clean out the existing data
-query = """"DELETE FROM electricity_month_last_year;"""
+query = """DELETE FROM electricity_month_last_year;"""
 cursor.execute(query)
 
 # Load the new data
