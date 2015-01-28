@@ -19,9 +19,7 @@ pmax <- max(c(last_year$cumulative_kwh, current_year$cumulative_kwh))
 png(filename=fname, width=1200, height=500, units='px', pointsize=12, bg='white')
 plot(last_year$measurement_time, last_year$cumulative_kwh, type='l', col='grey', ylim=c(0,pmax), xlab='', ylab='Cumulative kwh')
 lines(current_year$measurement_time, current_year$cumulative_kwh, col='red')
-if (kwhavg < pmax) {
-    abline(h=kwhavg, col='orange')
-}
+abline(h=kwhavg, col='orange')
 dev.off()
 
 system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
