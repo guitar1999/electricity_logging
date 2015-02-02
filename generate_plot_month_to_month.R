@@ -19,8 +19,8 @@ fname <- '/var/www/electricity/month_to_month.png'
 pmax <- max(c(last_year$cumulative_kwh, current_year$cumulative_kwh, prediction$minute))
 
 png(filename=fname, width=1200, height=500, units='px', pointsize=12, bg='white')
-plot(last_year$measurement_time, last_year$cumulative_kwh, type='l', col='grey', ylim=c(0,pmax), xlab='', ylab='Cumulative kwh')
-lines(current_year$measurement_time, current_year$cumulative_kwh, col='red')
+plot(last_year$measurement_time, last_year$cumulative_kwh, type='l', col='grey', lwd=1.5, ylim=c(0,pmax), xlab='', ylab='Cumulative kwh')
+lines(current_year$measurement_time, current_year$cumulative_kwh, col='red', lwd=1.5)
 lines(prediction$time, prediction$minute, col='blue4', lty=2)
 abline(h=kwhavg, col='orange')
 dev.off()
