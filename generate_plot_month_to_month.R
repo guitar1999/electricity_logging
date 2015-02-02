@@ -12,7 +12,7 @@ last_year <- dbGetQuery(con, query)
 query <- "SELECT kwh_avg FROM electricity_statistics_monthly WHERE month = date_part('month', CURRENT_TIMESTAMP);"
 kwhavg <- dbGetQuery(con, query)
 
-query <- "SELECT time - interval '1 year' AS time, minute FROM prediction_test WHERE date_part('month', time) = date_part('month', current_timestamp) WHERE minute > 0 ORDER BY time;"
+query <- "SELECT time - interval '1 year' AS time, minute FROM prediction_test WHERE date_part('month', time) = date_part('month', current_timestamp) AND minute > 0 ORDER BY time;"
 prediction <- dbGetQuery(con, query)
 
 fname <- '/var/www/electricity/month_to_month.png'
