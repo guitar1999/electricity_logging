@@ -59,6 +59,13 @@ while(TRUE){
         print("    gas hourly")
     }
 
+    # Run the month_to_month at 7 past the hour and add the plotting timest to the loop runtime
+    if (ticker == 7){
+        plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_month_to_month.R')
+        runtime <- runtime + plottime
+        print("    month to month")
+    }
+
     # Run the dow every 10th loop and add the plotting times to the loop runtime
     if ((ticker %% 10 == 0 && ticker != 0) || ticker == 5){
         plottime <- genplot('/home/jessebishop/scripts/electricity_logging/generate_plot_dow.R')
