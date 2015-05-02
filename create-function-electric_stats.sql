@@ -27,7 +27,7 @@ WITH
     pred AS (
         SELECT 
             DATE_TRUNC('second', time) AS prediction_time, 
-            minute AS prediction 
+            minuteh AS prediction 
         FROM 
             prediction_test 
         WHERE time = (SELECT max(time) FROM prediction_test)),
