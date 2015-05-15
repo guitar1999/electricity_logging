@@ -19,7 +19,7 @@ pxmin <- max(measurements$timestamp)
 query <- "SELECT kwh_avg FROM electricity_statistics_monthly WHERE month = date_part('month', CURRENT_TIMESTAMP);"
 kwhavg <- dbGetQuery(con, query)
 
-query <- "SELECT time, minuteh FROM prediction_test WHERE date_part('year', time) = date_part('year', CURRENT_TIMESTAMP) AND date_part('month', time) = date_part('month', CURRENT_TIMESTAMP) AND minute > 0 ORDER BY time;"
+query <- "SELECT time, CASE WHEN minuteh IS NULL THEN minute ELSE minuteh END AS minute FROM prediction_test WHERE date_part('year', time) = date_part('year', CURRENT_TIMESTAMP) AND date_part('month', time) = date_part('month', CURRENT_TIMESTAMP) AND minute > 0 ORDER BY time;"
 prediction <- dbGetQuery(con, query)
 prediction <- rbind(prediction, setNames(data.frame(xmax, prediction$minute[length(prediction$minute)]), names(prediction)))
 predline <- rbind(measurements[dim(measurements)[1],c("timestamp", "cumulative_kwh")], setNames(data.frame(prediction[dim(prediction)[1],]), c(names(measurements)[5], names(measurements)[8])))
