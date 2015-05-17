@@ -32,7 +32,7 @@ png(filename=fname, width=1200, height=500, units='px', pointsize=12, bg='white'
 plot(measurements$plotstamp, measurements$cumulative_kwh, type='l', col='white', ylim=c(0,ymax), xlab='', ylab='Cumulative kwh')
 years <- seq(min(measurements$year), max(measurements$year))
 ghostyears <- length(years) - 1
-ghostcolors <- grey.colors(ghostyears,start=0.9, end=0.5)
+ghostcolors <- grey.colors(ghostyears,start=0.8, end=0.5)
 for (i in seq(1, length(years))){
     plotdata <- subset(measurements, measurements$year == years[i])
     if (years[i] < max(years)) {
