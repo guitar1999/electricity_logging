@@ -1,3 +1,8 @@
+CREATE OR REPLACE FUNCTION electricity_stats()
+RETURNS TABLE(date DATE, kwh_day NUMERIC, kwh_last_year_day NUMERIC, avg_kwh_day NUMERIC, kwh_month NUMERIC, kwh_last_year_month NUMERIC, kwh_avg_month NUMERIC, prediction NUMERIC)
+AS $$
+BEGIN
+RETURN QUERY 
 WITH 
     month AS (
         SELECT 
@@ -53,3 +58,5 @@ WITH
         doy, 
         month, 
         pred;
+END;
+$$ LANGUAGE plpgsql;
