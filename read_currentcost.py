@@ -119,7 +119,7 @@ while True:
         print "The db connection has failed. Trying to reconnect..."
         db.close()
         try:
-            dbcon(dbhost, dbname, dbuser)
+            db = dbcon(dbhost, dbname, dbuser)
         except:
             print "    It didn't work this time..."
 
