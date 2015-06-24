@@ -23,9 +23,11 @@ dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
 
 # Connect to the database
-db = psycopg2.connect(host=dbhost, database=dbname, user=dbuser)
-cursor = db.cursor()
+def dbcon(dbhost=dbhost, dbname=dbname, dbuser=dbuser, dbport=5432):
+    db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
+    return (db)
 
+db = dbcon(dbhost, dbname, dbuser)
 
 tempfactor = 2
 
@@ -51,6 +53,9 @@ def pullFromCurrentCost():
             line2 = None
     ser.flushInput()
     return temp, watts1, watts2, watts3, time
+
+
+    
 while True:
     data = pullFromCurrentCost()
     try:
