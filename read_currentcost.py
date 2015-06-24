@@ -118,7 +118,10 @@ while True:
     else:
         print "The db connection has failed. Trying to reconnect..."
         db.close()
-        dbcon(dbhost, dbname, dbuser)
+        try:
+            dbcon(dbhost, dbname, dbuser)
+        except:
+            print "    It didn't work this time..."
 
 # Close the db connection if True ever becomes False! Also, be worried.
 db.close()
