@@ -94,7 +94,7 @@ while True:
                     watts_ch3 = int(data['watts3'])
                     readtime = data['readtime']
                     time = data['time']
-                    sql = """INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES ({0}, {1}, {2}, {3}, '{4}');""".format(watts_ch1, watts_ch2, watts_ch3, readtime, time)
+                    sql = """INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES ({0}, {1}, {2}, '{3}', '{4}');""".format(watts_ch1, watts_ch2, watts_ch3, readtime, time)
                     cursor.execute(sql)
                     db.commit()
                     try:
