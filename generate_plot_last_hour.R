@@ -44,7 +44,7 @@ lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
 lines(res$measurement_time, res$watts_ch3, col='orange', lwd=1.5)
 leg.txt <- c('HVAC', 'Total')
 leg.col <- c('orange', 'rosybrown')
-legend('topright', legend=leg.txt, col=leg.col, inset=0.01)
+legend('topright', legend=leg.txt, col=leg.col, lty=c(1,1), inset=0.01)
 dev.off()
 
 system(paste("scp", fname, "75.126.173.130:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
