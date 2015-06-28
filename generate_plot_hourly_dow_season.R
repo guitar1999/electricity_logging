@@ -3,7 +3,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
     con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
 }
 
-source('/home/jessebishop/scripts/electricity_logging/barplot.R')
+source('/usr/local/git_repos/electricity_logging/barplot.R')
 
 query <- "SELECT u.hour AS label, u.kwh, s.kwh_avg_dow_season AS kwh_avg, u.complete FROM electricity_usage_hourly u INNER JOIN energy_statistics.electricity_statistics_hourly_dow_season s ON u.hour=s.hour AND s.dow = CASE WHEN u.hour > date_part('hour', CURRENT_TIMESTAMP) THEN date_part('dow', (CURRENT_TIMESTAMP - interval '1 day')) ELSE date_part('dow', CURRENT_TIMESTAMP) END AND s.season = CASE WHEN u.hour > date_part('hour', CURRENT_TIMESTAMP) THEN (SELECT season FROM meteorological_season WHERE doy = date_part('doy', (CURRENT_TIMESTAMP - interval '1 day'))) ELSE (SELECT season FROM meteorological_season WHERE doy = date_part('doy', CURRENT_TIMESTAMP)) END WHERE NOT u.hour = date_part('hour', CURRENT_TIMESTAMP) ORDER BY u.timestamp;"
 res <- dbGetQuery(con, query)

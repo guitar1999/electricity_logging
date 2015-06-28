@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/usr/local/pgsql93/bin/psql -f /home/jessebishop/scripts/electricity_logging/predicted_use.sql
+/usr/local/pgsql94/bin/psql -f /usr/local/git_repos/electricity_logging/predicted_use.sql

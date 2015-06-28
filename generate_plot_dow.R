@@ -3,7 +3,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
     con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
 }
 
-source('/home/jessebishop/scripts/electricity_logging/barplot.R')
+source('/usr/local/git_repos/electricity_logging/barplot.R')
 
 query <- "SELECT day_of_week AS label, dow, kwh, kwh_avg, complete FROM electricity_usage_dow WHERE NOT dow = date_part('dow', CURRENT_TIMESTAMP) ORDER BY timestamp;"
 res <- dbGetQuery(con, query)

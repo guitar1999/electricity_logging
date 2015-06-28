@@ -3,7 +3,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
     con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
 }
 
-source('/home/jessebishop/scripts/electricity_logging/barplot.R')
+source('/usr/local/git_repos/electricity_logging/barplot.R')
 
 query <- "SELECT month AS label, kwh, kwh_avg, complete FROM electricity_usage_monthly WHERE NOT month = date_part('month', CURRENT_TIMESTAMP) AND NOT timestamp IS NULL ORDER BY timestamp;"
 res <- dbGetQuery(con, query)

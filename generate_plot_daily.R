@@ -3,7 +3,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
     con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
 }
 
-source('/home/jessebishop/scripts/electricity_logging/barplot.R')
+source('/usr/local/git_repos/electricity_logging/barplot.R')
 
 query <- "SELECT to_char(to_timestamp(u.month::text, 'MM'), 'Mon') || '-' || to_char(u.day, '09') AS label, kwh, previous_year AS kwh_avg, complete FROM electricity_usage_doy u INNER JOIN electricity_statistics_doy s ON u.month=s.month AND u.day=s.day WHERE (NOT u.month = date_part('month', CURRENT_TIMESTAMP) OR NOT u.day = date_part('day', CURRENT_TIMESTAMP)) AND u.timestamp >= CURRENT_TIMESTAMP - interval '29 days' AND NOT u.timestamp IS NULL ORDER BY u.timestamp;"
 res <- dbGetQuery(con, query)
