@@ -43,7 +43,7 @@ for (i in seq(1, length(years))){
     lines(plotdata$plotstamp, plotdata$cumulative_kwh, col=linecolor, lwd=1.5)
 }
 lines(prediction$time, prediction$minute, col='blue4', lty=2)
-lines(predline, col='red', lty=2, lwd=1.5)
+lines(predline, col='darkred', lty=2, lwd=1.5)
 abline(h=kwhavg, col='orange')
 leg.txt <- c(years[1], '. . .', years[ghostyears], years[length(years)], "predicted total kwh", "average kwh")
 leg.lty <- c(1, 1, 1, 1, 2, 1)
