@@ -22,13 +22,28 @@ WITH
         SELECT 
             day_of_week, 
             ROUND(kwh, 2) AS kwh, 
-            ROUND(kwh_avg, 2) AS kwh_avg, 
             complete, 
             DATE_TRUNC('second', timestamp) AS timestamp 
         FROM 
             electricity_usage_dow 
         WHERE 
             dow = date_part('dow', CURRENT_TIMESTAMP)),
+    day_avg AS (
+        SELECT
+            ROUND(kwh_avg, 2) AS kwh_avg
+        FROM 
+            electricity_statistics_dow_season
+        WHERE 
+            dow = date_part('dow', CURRENT_TIMESTAMP) AND
+            season = (
+                SELECT
+                    season
+                FROM
+                    meteorological_season
+                WHERE
+                    doy = date_part('doy', CURRENT_TIMESTAMP)
+            )
+        ),
     pred AS (
         SELECT 
             DATE_TRUNC('second', time) AS prediction_time, 
@@ -48,13 +63,14 @@ WITH
         CURRENT_TIMESTAMP::date AS date,
         day.kwh AS kwh_day,
         doy.previous_year AS kwh_last_year_day,
-        day.kwh_avg AS avg_kwh_day,
+        day_avg.kwh_avg AS avg_kwh_day,
         month.kwh AS kwh_month,
         month.previous_year AS kwh_last_year_month,
         month.kwh_avg AS kwh_avg_month,
         pred.prediction AS prediction
     FROM
-        day, 
+        day,
+        day_avg,
         doy, 
         month, 
         pred;
