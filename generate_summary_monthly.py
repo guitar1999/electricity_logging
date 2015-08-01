@@ -60,6 +60,10 @@ cursor.execute(query)
 query = """SELECT CASE WHEN {0} > (SELECT max(kwh) FROM energy_statistics.electricity_sums_monthly) THEN 'max' WHEN {0} < (SELECT min(kwh) FROM energy_statistics.electricity_sums_monthly) THEN 'min' ELSE 'none' END;""".format(kwh)
 cursor.execute(query)
 userecord = cursor.fetchall()[0][0]
+query = """SELECT CASE WHEN {0} > (SELECT max(kwh) FROM energy_statistics.electricity_sums_monthly WHERE month = {1}) THEN 'max' WHEN {0} < (SELECT min(kwh) FROM energy_statistics.electricity_sums_monthly WHERE month = {1}) THEN 'min' ELSE 'none' END;""".format(kwh, opmonth)
+cursor.execute(query)
+userecord_month = cursor.fetchall()[0][0]
+
 
 # Update the sums table
 query = """INSERT INTO energy_statistics.electricity_sums_monthly (year, month, kwh) VALUES (%s, %s, %s);""" % (year, opmonth, kwh)
@@ -91,12 +95,17 @@ status = """You used {0} kwh {1} last month than your average {2} usage {3} {4} 
 tweet(status)
 
 # Now tweet about any records that may have been set
+usestring = """Your monthly useage of {0} kwh""".format(round(kwh, 1))
 if userecord != 'none':
     if userecord == 'min':
-        s3 = "lowest"
-        s4 = "Great job! #LowerMyBills"
-    elif userecord == 'max':
-        s3 = "highest"
-        s4 = "You'd better look into that!"
-    status = """In {0}, you set a new record of {1} kwh, the {2} ever monthly electricity usage at your house! {3}""".format(calendar.month_name[opmonth], round(kwh, 1), s3, s4)
+        recordtext = 'is less'
+    else:
+        recordtext = 'is more'
+    status = """{0} in {1} {2} than any previous month ever!""".format(usestring, calendar.month_name[opmonth], recordtext)
+elif userecord == 'none' and userecord_month != 'none':
+    if userecord_month == 'min':
+        month_recordtext = "is less"
+    elif userrecord_month == 'max':
+        month_recordtext = "is more"
+    status = """{0} {1} than any previous {2}!""".format(usestring, month_recordtext, calendar.month_name[opmonth])
     tweet(status)
