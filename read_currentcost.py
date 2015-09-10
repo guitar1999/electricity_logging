@@ -21,14 +21,18 @@ config.read('/home/jessebishop/.pyconfig')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
+dbport = config.get('pidb', 'DBPORT')
 
 # A function to connect to the database
-def dbcon(dbhost=dbhost, dbname=dbname, dbuser=dbuser, dbport=5432):
+def dbcon(dbhost=dbhost, dbname=dbname, dbuser=dbuser, dbport=dbport):
     db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
     return (db)
 
 # Connect to the database
-db = dbcon(dbhost, dbname, dbuser)
+try:
+    db = dbcon(dbhost, dbname, dbuser, dbport)
+except psycopg2.OperationalError, msg:
+    print msg
 
 # Set the temperature adjustment factor
 tempfactor = 2
@@ -119,7 +123,7 @@ while True:
         print "The db connection has failed. Trying to reconnect..."
         db.close()
         try:
-            db = dbcon(dbhost, dbname, dbuser)
+            db = dbcon(dbhost, dbname, dbuser, dbport)
         except:
             print "    It didn't work this time..."
 

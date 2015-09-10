@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import argparse, ConfigParser, datetime, psycopg2
-from tweet import *
 
 # Allow the script to be run on a specific day of the week
 p = argparse.ArgumentParser(prog="generate_summary_dow.py")
@@ -14,9 +13,10 @@ config.read('/home/jessebishop/.pyconfig')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
+dbport = config.get('pidb', 'DBPORT')
 
 # Connect to the database
-db = psycopg2.connect(host=dbhost, database=dbname, user=dbuser)
+db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
 cursor = db.cursor()
 
 # Set the appropriate opdate 
@@ -83,6 +83,7 @@ db.commit()
 db.close()
 
 if not args.rundate:
+    from tweet import *
     if kwh > kwh_avg:
         s1 = "more"
     else:

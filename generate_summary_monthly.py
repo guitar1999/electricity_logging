@@ -9,9 +9,10 @@ config.read('/home/jessebishop/.pyconfig')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
+dbport = config.get('pidb', 'DBPORT')
 
 # Connect to the database
-db = psycopg2.connect(host=dbhost, database=dbname, user=dbuser)
+db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
 cursor = db.cursor()
 
 now = datetime.datetime.now()

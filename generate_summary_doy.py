@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import argparse, ConfigParser, datetime, psycopg2
-from tweet import *
 
 # Allow the script to be run on a specific day of the week
 p = argparse.ArgumentParser(prog="generate_summary_doy.py")
@@ -14,9 +13,10 @@ config.read('/home/jessebishop/.pyconfig')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
+dbport = config.get('pidb', 'DBPORT')
 
 # Connect to the database
-db = psycopg2.connect(host=dbhost, database=dbname, user=dbuser)
+db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
 cursor = db.cursor()
 
 
@@ -44,7 +44,7 @@ if not args.rundate:
     query = """UPDATE electricity_usage_doy SET (kwh, complete, timestamp) = (0, 'no', '{0} 00:00:00') WHERE month = {1} AND day = {2};""".format(now.strftime('%Y-%m-%d'), now.month, now.day)
     cursor.execute(query)
     db.commit()
-    query = """UPDATE electricity_statistics_doy SET (previous_year, current_year) = (current_year, NULL) WHERE month = {0} and day = {1}""".format(now.month, now.day)
+    query = """UPDATE energy_statistics.electricity_statistics_doy SET (previous_year, current_year) = (current_year, NULL) WHERE month = {0} and day = {1}""".format(now.month, now.day)
     cursor.execute(query)
     db.commit()
 
@@ -63,14 +63,14 @@ query = """UPDATE electricity_usage_doy SET kwh = (SELECT SUM((watts_ch1 + watts
 cursor.execute(query)
 kwh = cursor.fetchall()[0][0]
 # Put kwh in current_year in statistics table
-query = """UPDATE electricity_statistics_doy SET (current_year, kwh_avg, count, timestamp) = ({0}, ({0} + (kwh_avg * count)) / (count + 1), count + 1, '{1}') WHERE month = {2} AND day = {3} RETURNING kwh_avg, previous_year;""".format(kwh, timestamp, month, day)
+query = """UPDATE energy_statistics.electricity_statistics_doy SET (current_year, kwh_avg, count, timestamp) = ({0}, ({0} + (kwh_avg * count)) / (count + 1), count + 1, '{1}') WHERE month = {2} AND day = {3} RETURNING kwh_avg, previous_year;""".format(kwh, timestamp, month, day)
 cursor.execute(query)
 kwh_avg, previous_year = cursor.fetchall()[0]
 # Update the rest of the usage table
 query = """UPDATE electricity_usage_doy SET (kwh_avg, complete, timestamp) = ({0}, '{1}', '{2}') WHERE month = {3} AND day = {4};""".format(kwh_avg, complete, timestamp, month, day)
 cursor.execute(query)
 # Update the minimum table
-query = """INSERT INTO electricity_statistics_daily_minimum (measurement_date, watts) SELECT '{0}'::date, min(watts_ch1 + watts_ch2) AS watts FROM electricity_measurements WHERE measurement_time >= '{0} 00:00:00' and measurement_time::date = '{0}';""".format(opdate.strftime('%Y-%m-%d'))
+query = """INSERT INTO energy_statistics.electricity_statistics_daily_minimum (measurement_date, watts) SELECT '{0}'::date, min(watts_ch1 + watts_ch2) AS watts FROM electricity_measurements WHERE measurement_time >= '{0} 00:00:00' and measurement_time::date = '{0}';""".format(opdate.strftime('%Y-%m-%d'))
 cursor.execute(query)
 
 # And finish it off
@@ -80,6 +80,7 @@ db.close()
 
 # Tweet some info
 if not args.rundate:
+    from tweet import *
     if kwh > previous_year:
         s1 = "more"
     else:
