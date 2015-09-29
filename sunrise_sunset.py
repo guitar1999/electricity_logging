@@ -6,6 +6,14 @@ import ConfigParser, datetime, json, psycopg2, urllib2
 config = ConfigParser.RawConfigParser()
 config.read('/home/jessebishop/.pyconfig')
 apikey = config.get('wunderground', 'APIKEY')
+dbhost = config.get('pidb', 'DBHOST')
+dbname = config.get('pidb', 'DBNAME')
+dbuser = config.get('pidb', 'DBUSER')
+dbport = config.get('pidb', 'DBPORT')
+
+# Connect to the database
+db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
+cursor = db.cursor()
 
 # Connect to wunderground and get sunrise and sunset times
 url = 'http://api.wunderground.com/api/{0}/astronomy/q/USA/MA/East_Falmouth.json'.format(apikey)
@@ -21,8 +29,6 @@ sunrise = datetime.datetime(now.year, now.month, now.day, int(sunrise_json['hour
 sunset = datetime.datetime(now.year, now.month, now.day, int(sunset_json['hour']), int(sunset_json['minute']), 0)
 
 # Stick it in the database
-db = psycopg2.connect(host='localhost', database='jessebishop',user='jessebishop')
-cursor = db.cursor()
 query = """INSERT INTO astronomy_data (date, sunrise, sunset) VALUES ('{0}', '{1}', '{2}');""".format(now.date(), sunrise.time(), sunset.time())
 cursor.execute(query)
 db.commit()

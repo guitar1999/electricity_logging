@@ -1,16 +1,16 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    con <- dbConnect(drv="PostgreSQL", host="127.0.0.1", user="jessebishop", dbname="jessebishop")
+    source('/home/jessebishop/.rconfig.R')
 }
 
-source('/usr/local/git_repos/electricity_logging/barplot.R')
+source('/home/jessebishop/scripts/electricity_logging/barplot.R')
 
-query <- "SELECT u.hour AS label, u.kwh, s.kwh_avg_dow AS kwh_avg, u.complete FROM electricity_usage_hourly u INNER JOIN energy_statistics.electricity_statistics_hourly_dow s ON u.hour=s.hour AND s.dow = CASE WHEN u.hour > date_part('hour', CURRENT_TIMESTAMP) THEN date_part('dow', (CURRENT_TIMESTAMP - interval '1 day')) ELSE date_part('dow', CURRENT_TIMESTAMP) END WHERE NOT u.hour = date_part('hour', CURRENT_TIMESTAMP) ORDER BY u.timestamp;"
+query <- "SELECT u.hour AS label, u.kwh, s.kwh_avg_dow AS kwh_avg, u.complete FROM electricity_usage_hourly u INNER JOIN energy_statistics.electricity_statistics_hourly_dow s ON u.hour=s.hour AND s.dow = CASE WHEN u.hour > date_part('hour', CURRENT_TIMESTAMP - interval '4 hours') THEN date_part('dow', (CURRENT_TIMESTAMP - interval '4 hours' - interval '1 day')) ELSE date_part('dow', CURRENT_TIMESTAMP - interval '4 hours') END WHERE NOT u.hour = date_part('hour', CURRENT_TIMESTAMP - interval '4 hours') ORDER BY u.timestamp;"
 res <- dbGetQuery(con, query)
 
-#query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP) AS label, akwh AS kwh, kwh_avg, kwh_avg_dow, 'no'::text AS complete FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS akwh FROM electricity_measurements WHERE measurement_time > CURRENT_TIMESTAMP - interval '1 hour' AND date_part('hour', measurement_time) = date_part('hour', CURRENT_TIMESTAMP)) AS x, electricity_usage_hourly WHERE hour = date_part('hour', CURRENT_TIMESTAMP);"
+#query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP - interval '4 hours') AS label, akwh AS kwh, kwh_avg, kwh_avg_dow, 'no'::text AS complete FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS akwh FROM electricity_measurements WHERE measurement_time > CURRENT_TIMESTAMP - interval '4 hours' - interval '1 hour' AND date_part('hour', measurement_time) = date_part('hour', CURRENT_TIMESTAMP - interval '4 hours')) AS x, electricity_usage_hourly WHERE hour = date_part('hour', CURRENT_TIMESTAMP - interval '4 hours');"
 # Don't use the increment function here because we likely just did it for the daily plot
-query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP) AS label, kwh, kwh_avg_dow AS kwh_avg, complete FROM electricity_usage_hourly WHERE hour = date_part('hour', CURRENT_TIMESTAMP);"
+query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP - interval '4 hours') AS label, kwh, kwh_avg_dow AS kwh_avg, complete FROM electricity_usage_hourly WHERE hour = date_part('hour', CURRENT_TIMESTAMP - interval '4 hours');"
 res2 <- dbGetQuery(con, query2)
 
 res <- rbind(res, res2)
