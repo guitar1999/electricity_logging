@@ -60,7 +60,7 @@ def pullFromCurrentCost():
             sys.stderr.write("XML error: " + str(inst) + "\n")
             line2 = None
     ser.flushInput()
-    readtime = datetime.datetime.now().isoformat()
+    readtime = datetime.datetime.now().utcnow().isoformat()
     outdict = {"temp" : temp, "watts1" : watts1, "watts2" : watts2, "watts3" : watts3, "time" : time, "readtime" : readtime}
     return outdict
 
