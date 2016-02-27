@@ -16,9 +16,9 @@ from datetime import datetime
 loud = sys.argv[1]
 
 # Connect to the database
-t = open('/home/jessebishop/temps11.csv', 'w')
-e = open('/home/jessebishop/elec11.csv', 'w')
-s = open('/home/jessebishop/dbinserts11.sql', 'w')
+t = open('/home/jessebishop/temps12.csv', 'w')
+e = open('/home/jessebishop/elec12.csv', 'w')
+s = open('/home/jessebishop/dbinserts12.sql', 'w')
 
 tempfactor = 2
 

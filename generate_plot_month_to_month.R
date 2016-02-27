@@ -3,8 +3,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
     source('/home/jessebishop/.rconfig.R')
 }
 
-query <- "SELECT DATE_PART('year', date) AS year, DATE_PART('month', date) AS month, DATE_PART('day', date) AS day, hour, (date || ' ' || hour || ':59:59')::timestamp AS timestamp, ((date + ((DATE_PART('year', CURRENT_TIMESTAMP - interval '4 hours') - DATE_PART('year', date))::integer || ' year')::interval)::date || ' ' || hour || ':59:59')::timestamp AS plotstamp, kwh, SUM(kwh) OVER (PARTITION BY date_part('year', date) ORDER BY date_part('day', date), hour) AS cumulative_kwh FROM electricity_sums_hourly WHERE DATE_PART('month', date) = DATE_PART('month', CURRENT_TIMESTAMP - interval '4 hours') ORDER BY DATE_PART('year', date), DATE_PART('day', date), hour;
-"
+query <- "SELECT DATE_PART('year', date) AS year, DATE_PART('month', date) AS month, DATE_PART('day', date) AS day, hour, (date || ' ' || hour || ':59:59')::timestamp AS timestamp, ((date + ((DATE_PART('year', CURRENT_TIMESTAMP - interval '4 hours') - DATE_PART('year', date))::integer || ' year')::interval)::date || ' ' || hour || ':59:59')::timestamp AS plotstamp, kwh, SUM(kwh) OVER (PARTITION BY date_part('year', date) ORDER BY date_part('day', date), hour) AS cumulative_kwh FROM electricity_sums_hourly WHERE DATE_PART('month', date) = DATE_PART('month', CURRENT_TIMESTAMP - interval '4 hours') ORDER BY DATE_PART('year', date), DATE_PART('day', date), hour;"
 measurements <- dbGetQuery(con, query)
 
 #query <- "SELECT DATE_TRUNC('month', CURRENT_TIMESTAMP - interval '4 hours') AS xmin;"
