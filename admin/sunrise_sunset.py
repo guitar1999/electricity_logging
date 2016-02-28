@@ -16,7 +16,7 @@ db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
 cursor = db.cursor()
 
 # Connect to wunderground and get sunrise and sunset times
-url = 'http://api.wunderground.com/api/{0}/astronomy/q/USA/MA/East_Falmouth.json'.format(apikey)
+url = 'http://api.wunderground.com/api/{0}/astronomy/q/USA/ME/Brunswick.json'.format(apikey)
 f = urllib2.urlopen(url)
 json_string = f.read()
 parsed_json = json.loads(json_string)
