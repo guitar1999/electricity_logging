@@ -1,5 +1,5 @@
 BEGIN;
-CREATE TABLE electricity_historical_utility_measurements (
+CREATE TABLE electricity.electricity_historical_utility_measurements (
     ehum serial NOT NULL PRIMARY KEY,
     watts numeric,
     measurement_time timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,

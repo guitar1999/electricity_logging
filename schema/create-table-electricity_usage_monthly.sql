@@ -1,7 +1,7 @@
-CREATE TABLE electricity_usage_monthly (
+CREATE TABLE electricity.electricity_usage_monthly (
     month integer PRIMARY KEY CHECK (month > 0 AND month <= 12),
     kwh numeric,
-    kwh_avg numeric,
     complete text CHECK (complete = 'yes' OR complete = 'no'),
-    timestamp timestamp with time zone
+    updated timestamp with time zone
 );
+INSERT INTO electricity.electricity_usage_monthly (month, kwh, complete, updated) SELECT generate_series(1,12), 0, 'no', CURRENT_TIMESTAMP;

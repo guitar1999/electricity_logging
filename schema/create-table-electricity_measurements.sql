@@ -1,4 +1,4 @@
-CREATE TABLE electricity_measurements (
+CREATE TABLE electricity.electricity_measurements (
 	emid serial NOT NULL PRIMARY KEY,
 	watts_ch1 integer NOT NULL,
 	watts_ch2 integer NOT NULL,
@@ -9,4 +9,3 @@ CREATE TABLE electricity_measurements (
     tdiff_device_time numeric
 );
 CREATE INDEX CONCURRENTLY measurement_time_index ON electricity_measurements USING btree (measurement_time);
-CREATE INDEX CONCURRENTLY device_time_index ON electricity_measurements USING btree (device_time);
