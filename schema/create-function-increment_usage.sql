@@ -13,7 +13,7 @@ BEGIN
         || tablename
     || ' SET 
         kwh=x.skwh, 
-        timestamp=CURRENT_TIMESTAMP
+        updated=CURRENT_TIMESTAMP
     FROM 
         (SELECT 
             ((SELECT 
@@ -21,7 +21,7 @@ BEGIN
             FROM '
                 || tablename
             || ' WHERE '
-                || columnname || ' = date_part(''' || year1 ||''', CURRENT_TIMESTAMP - interval ''4 hours'')
+                || columnname || ' = date_part(''' || year1 ||''', CURRENT_TIMESTAMP)
             ) +
             (SELECT COALESCE(SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.), 0) 
         FROM 
@@ -29,16 +29,16 @@ BEGIN
         WHERE 
             measurement_time > 
             (SELECT
-                timestamp
+                updated
             FROM '
                 || tablename
             || ' WHERE '
-                || columnname || ' = date_part(''' || year1 || ''', CURRENT_TIMESTAMP - interval ''4 hours'')
+                || columnname || ' = date_part(''' || year1 || ''', CURRENT_TIMESTAMP)
             ))
             ) AS skwh
         ) AS x
     WHERE '
-        || columnname || ' = date_part(''' || year1 || ''', CURRENT_TIMESTAMP - interval ''4 hours'')
+        || columnname || ' = date_part(''' || year1 || ''', CURRENT_TIMESTAMP)
     RETURNING 
         x.skwh' INTO temp1;
     RETURN temp1;

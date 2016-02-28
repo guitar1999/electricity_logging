@@ -12,10 +12,10 @@ WITH
             s.count, 
             ROUND(s.previous_year, 2) AS previous_year, 
             u.complete, 
-            DATE_TRUNC('second', u.timestamp) AS timestamp 
+            DATE_TRUNC('second', u.updated) AS updated 
         FROM 
             electricity_usage_monthly u 
-            INNER JOIN electricity_statistics_monthly s ON u.month=s.month 
+            INNER JOIN electricity_statistics.electricity_statistics_monthly s ON u.month=s.month 
         WHERE 
             u.month = date_part('month', CURRENT_TIMESTAMP)),
     day AS (
@@ -23,7 +23,7 @@ WITH
             day_of_week, 
             ROUND(kwh, 2) AS kwh, 
             complete, 
-            DATE_TRUNC('second', timestamp) AS timestamp 
+            DATE_TRUNC('second', updated) AS updated 
         FROM 
             electricity_usage_dow 
         WHERE 
@@ -32,7 +32,7 @@ WITH
         SELECT
             ROUND(kwh_avg, 2) AS kwh_avg
         FROM 
-            electricity_statistics_dow_season
+            electricity_statistics.electricity_statistics_dow_season
         WHERE 
             dow = date_part('dow', CURRENT_TIMESTAMP) AND
             season = (
@@ -55,7 +55,7 @@ WITH
         SELECT 
             ROUND(previous_year, 2) AS previous_year
         FROM 
-            electricity_statistics_doy 
+            electricity_statistics.electricity_statistics_doy 
         WHERE 
             month = date_part('month', CURRENT_TIMESTAMP) AND
             day = date_part('day', CURRENT_TIMESTAMP))

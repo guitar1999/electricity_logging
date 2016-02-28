@@ -2,7 +2,7 @@ CREATE FUNCTION fix_tdiff(myemid INTEGER) RETURNS VOID AS
 $$
 BEGIN
     UPDATE 
-        electricity_measurements 
+        electricity.electricity_measurements 
     SET 
         tdiff = 
             (SELECT 
