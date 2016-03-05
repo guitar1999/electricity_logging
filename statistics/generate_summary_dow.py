@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import argparse, ConfigParser, datetime, psycopg2
+import argparse, ConfigParser, datetime, psycopg2, pytz
 
 # Allow the script to be run on a specific day of the week
 p = argparse.ArgumentParser(prog="generate_summary_dow.py")
@@ -14,6 +14,8 @@ dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
 dbport = config.get('pidb', 'DBPORT')
+mytz = pytz.timezone(config.get('location', 'TZ'))
+utctz = pytz.utc
 
 # Connect to the database
 db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
@@ -27,6 +29,9 @@ else:
     now = datetime.datetime.now()
     opdate = now - datetime.timedelta(1)
 
+# Set start and end timezone
+tzstart = mytz.localize(datetime.datetime.combine(opdate.date(), datetime.time(0,0,0))).strftime('%Z')
+tzend = mytz.localize(datetime.datetime.combine(opdate.date(), datetime.time(23,59,59))).strftime('%Z')
 nowdow = now.isoweekday()
 if nowdow == 7:
     nowdow = 0
@@ -52,7 +57,7 @@ else:
     complete = 'no'
 
 # Compute the period metrics. For now, do the calculation on the entire record. Maybe in the future, we'll trust the incremental updates.
-query = """UPDATE electricity_usage_dow SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '%s' AND measurement_time < '%s') WHERE dow = %s RETURNING kwh;""" % (opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), dow)
+query = """UPDATE electricity_usage_dow SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time AT TIME ZONE '{0}' >= '{1}' AND measurement_time AT TIME ZONE '{2}' < '{3}') WHERE dow = {4} RETURNING kwh;""".format(tzstart, opdate.strftime('%Y-%m-%d'), tzend, now.strftime('%Y-%m-%d'), dow)
 cursor.execute(query)
 kwh = cursor.fetchall()[0][0]
 #query = """UPDATE electricity_usage_dow SET kwh_avg = (SELECT AVG(kwh) FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE tdiff <= 86400 AND measurement_time >= '2013-03-22' AND date_part('dow', measurement_time) = %s GROUP BY date_part('year', measurement_time), date_part('doy', measurement_time)) AS x) WHERE dow = %s RETURNING kwh_avg;""" % (dow, dow)
