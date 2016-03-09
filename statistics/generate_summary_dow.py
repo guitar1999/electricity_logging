@@ -29,6 +29,9 @@ else:
     now = datetime.datetime.now()
     opdate = now - datetime.timedelta(1)
 
+now = mytz.localize(now)
+opdate = mytz.localize(opdate)
+
 # Set start and end timezone
 tzstart = mytz.localize(datetime.datetime.combine(opdate.date(), datetime.time(0,0,0))).strftime('%Z')
 tzend = mytz.localize(datetime.datetime.combine(opdate.date(), datetime.time(23,59,59))).strftime('%Z')
@@ -42,7 +45,7 @@ if dow == 7:
 
 # Update the current period to be ready for incremental updates to speed up querying if running as cron
 if not args.rundate:
-    query = """UPDATE electricity_usage_dow SET (kwh, complete, timestamp) = (0, 'no', '%s 00:00:00') WHERE dow = %s;""" % (now.strftime('%Y-%m-%d'), nowdow)
+    query = """UPDATE electricity_usage_dow SET (kwh, complete, timestamp) = (0, 'no', '{0} 00:00:00') WHERE dow = {1};""".format(now.strftime('%Y-%m-%d'), nowdow)
     cursor.execute(query)
     db.commit()
 
