@@ -60,7 +60,7 @@ def pullFromCurrentCost():
             sys.stderr.write("XML error: " + str(inst) + "\n")
             line2 = None
     ser.flushInput()
-    readtime = datetime.datetime.now().utcnow().isoformat()
+    readtime = datetime.datetime.now().isoformat()
     outdict = {"temp" : temp, "watts1" : watts1, "watts2" : watts2, "watts3" : watts3, "time" : time, "readtime" : readtime}
     return outdict
 
@@ -80,6 +80,8 @@ while True:
             db_timestamp = cursor.fetchall()
             db.commit()
         except psycopg2.OperationalError: # If not, add data to the datalist
+            print "The db connection failed at time inquiry."
+        except psycopg2.DatabaseError:
             print "The db connection failed at time inquiry."
         else:
             while datalist:
