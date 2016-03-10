@@ -3,8 +3,8 @@ CREATE TABLE electricity_statistics.electricity_statistics_hourly_dow_season (
     dow integer CHECK (dow >= 0 AND dow <= 6),
     season text,
     count integer,
-    kwh_avg_dow_season numeric,
+    kwh_avg numeric,
     updated timestamp with time zone
 );
 \copy electricity_statistics.electricity_statistics_hourly_dow_season (hour, dow, season) FROM hourly_dow_season_statistics.data
-UPDATE electricity_statistics.electricity_statistics_hourly_dow_season SET (count, kwh_avg_dow_season, updated) = (0, 0, CURRENT_TIMESTAMP);
+UPDATE electricity_statistics.electricity_statistics_hourly_dow_season SET (count, kwh_avg, updated) = (0, 0, CURRENT_TIMESTAMP);

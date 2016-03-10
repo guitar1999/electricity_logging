@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import argparse, ConfigParser, datetime, os, psycopg2, pytz
+import argparse, ConfigParser, datetime, os, psycopg2
 
 
 #####################
@@ -34,8 +34,6 @@ dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
 dbport = config.get('pidb', 'DBPORT')
-mytz = pytz.timezone(config.get('location', 'TZ'))
-utctz = pytz.utc
 
 
 ###########################
@@ -53,9 +51,6 @@ def fix_dow(dow):
         return 0
     else:
         return dow
-
-def get_local_tz(mytz, opdate):
-    return(mytz.localize(opdate).strftime('%Z'))
 
 def hour_calc(now, rundate=None, runhour=None):
     if runhour:
@@ -78,9 +73,7 @@ def hour_calc(now, rundate=None, runhour=None):
     dow = fix_dow(opdate.isoweekday())
     starttime = datetime.datetime.combine(opdate.date(), datetime.time(ophour, 0, 0))
     endtime = datetime.datetime.combine(opdate.date(), datetime.time(ophour, 59, 59))
-    tzstart = get_local_tz(mytz, starttime)
-    tzend = get_local_tz(mytz, endtime)
-    return (hour, now, ophour, opdate, dow, starttime, endtime, tzstart, tzend, reset)
+    return (hour, now, ophour, opdate, dow, starttime, endtime, reset)
 
 def day_calc(now, rundate=None):
     if rundate:
@@ -92,9 +85,7 @@ def day_calc(now, rundate=None):
         opdate = now - datetime.timedelta(1)
     starttime = datetime.datetime.combine(opdate.date(), datetime.time(0, 0, 0))
     datetime.datetime.combine(opdate.date(), datetime.time(23, 59, 59))
-    tzstart = get_local_tz(mytz, starttime)
-    tzend = get_local_tz(mytz, endtime)
-    return(opdate, now, starttime, endtime, tzstart, tzend, reset)
+    return(opdate, now, starttime, endtime, reset)
 
 def month_calc(now, runmonth=None):
     year = now.year
@@ -116,9 +107,7 @@ def month_calc(now, runmonth=None):
             year = year - 1
     starttime = datetime.datetime.combine(datetime.date(year, opmonth, 1), datetime.time(0, 0, 0))
     endtime = datetime.datetime.combine(datetime.date(year, opmonth, (datetime.date(year, month, 1) - datetime.timedelta(1)).day), datetime.time(23, 59, 59))
-    tzstart = get_local_tz(mytz, startime)
-    tzend = get_local_tz(mytz, endtime)
-    return(opmonth, month, year, startime, endtime, tzstart, tzend, reset)
+    return(opmonth, month, year, startime, endtime, reset)
 
 def year_calc(now, runyear=None):
     if runyear:
@@ -129,9 +118,7 @@ def year_calc(now, runyear=None):
         opyear = now.year - 1
     startime = datetime.datetime.combine(datetime.date(opyear, 1, 1), datetime.time(0, 0, 0))
     endtime = datetime.datetime.combine(datetime.date(opyear, 12, 31), datetime.time(23, 59, 59))
-    tzstart = get_local_tz(mytz, startime)
-    tzend = get_local_tz(mytz, endtime)
-    return(opyear, startime, endtime, tzstart, tzend, reset)
+    return(opyear, startime, endtime, reset)
 
 
 ############
@@ -141,7 +128,11 @@ def year_calc(now, runyear=None):
 def reset_kwh():
     pass
 
-def hour_query():
+def hour_query(now, opdate, hour, ophour, starttime, endtime, dow):
+    query = """UPDATE electricity_usage_hourly SET (kwh, complete, updated) = (0, 'no', '{0}:00:00') WHERE hour = {1};""".format(now.strftime('%Y-%m-%d %H'), hour)
+    cursor.execute(query)
+    db.commit()
+    # Are the data complete
     query = """SELECT 't' = ANY(array_agg(tdiff * (watts_ch1 + watts_ch2) > 0)) FROM electricity_measurements WHERE measurement_time > '{0}' AND date_part('hour', measurement_time) = {1} AND tdiff >= 300 and tdiff * (watts_ch1 + watts_ch2) > 0;""".format(opdate.strftime('%Y-%m-%d'), ophour)
     cursor.execute(query)
     data = cursor.fetchall()
@@ -158,12 +149,19 @@ def hour_query():
     if not kwh:
         kwh = 0
     # Averages
-    query = """UPDATE electricity_statistics.electricity_statistics_hourly SET (kwh_avg, count, timestamp) = ((kwh_avg * count + {0}) / (count + 1), count + 1, CURRENT_TIMESTAMP) WHERE hour = {1};""".format(kwh, ophour)
+    query = """WITH old AS (SELECT count, kwh_avg, updated FROM electricity_statistics.electricity_statistics_hourly WHERE hour = {0}), new AS (SELECT COUNT(DISTINCT measurement_time::DATE), COALESCE(SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.), 0) AS kwh FROM electricity_measurements e, old WHERE measurement_time > old.updated AND measurement_time <= '{1}' AND DATE_PART('hour', measurement_time) = {0}) UPDATE electricity_statistics.electricity_statistics_hourly SET (kwh_avg, count, updated) = (((old.kwh_avg * old.count + new.kwh) / (old.count + new.count)), old.count + new.count, CURRENT_TIMESTAMP) FROM old, new WHERE hour = {0};""".format(ophour, endtime)
     cursor.execute(query)
-    query = """UPDATE electricity_statistics.electricity_statistics_hourly_dow SET (kwh_avg, count, timestamp) = ((kwh_avg * count + {0}) / (count + 1), count + 1, CURRENT_TIMESTAMP) WHERE hour = {1} AND dow = {2};""".format(kwh, ophour, dow)
-    cursor.exectute(query)
-    query = """UPDATE electricity_statistics.electricity_statistics_hourly_season SET (kwh_avg, count, timestamp) = ((kwh_avg * count + {0}) / (count + 1), count + 1, CURRENT_TIMESTAMP) WHERE hour = {1} AND season = (SELECT season FROM meteorological_season WHERE doy = DATE_PART('doy', {2}::DATE));""".format(kwh, ophour, opdate)
+    query = """WITH old AS (SELECT count, kwh_avg, updated FROM electricity_statistics.electricity_statistics_hourly_dow WHERE hour = {0} AND dow = {2}), new AS (SELECT COUNT(DISTINCT measurement_time::DATE), COALESCE(SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.), 0) AS kwh FROM electricity_measurements e, old WHERE measurement_time > old.updated AND measurement_time <= '{1}' AND DATE_PART('hour', measurement_time) = {0} AND DATE_PART('dow', measurement_time) = {2}) UPDATE electricity_statistics.electricity_statistics_hourly_dow SET (kwh_avg, count, updated) = (((old.kwh_avg * old.count + new.kwh) / (old.count + new.count)), old.count + new.count, CURRENT_TIMESTAMP) FROM old, new WHERE hour = {0} AND dow = {2};""".format(ophour, endtime, dow)
     cursor.execute(query)
+    query = """WITH old AS (SELECT count, kwh_avg, updated, season FROM electricity_statistics.electricity_statistics_hourly_season WHERE hour = {0} AND season = (SELECT season FROM meteorological_season WHERE doy = DATE_PART('doy', '{1}'::DATE))), new AS (SELECT COUNT(DISTINCT measurement_time::DATE), COALESCE(SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.), 0) AS kwh FROM electricity_measurements e INNER JOIN meteorological_season m ON date_part('doy', measurement_time)=m.doy, old WHERE measurement_time > old.updated AND measurement_time <= '{1}' AND DATE_PART('hour', measurement_time) = {0} AND m.season = old.season) UPDATE electricity_statistics.electricity_statistics_hourly_season AS e SET (kwh_avg, count, updated) = (((old.kwh_avg * old.count + new.kwh) / (old.count + new.count)), old.count + new.count, CURRENT_TIMESTAMP) FROM old, new WHERE hour = {0} AND e.season = old.season;""".format(ophour, endtime)
+    cursor.execute(query)
+    query = """WITH old AS (SELECT count, kwh_avg, updated, season FROM electricity_statistics.electricity_statistics_hourly_dow_season WHERE hour = {0} AND dow = {2} AND season = (SELECT season FROM meteorological_season WHERE doy = DATE_PART('doy', '{1}'::DATE))), new AS (SELECT COUNT(DISTINCT measurement_time::DATE), COALESCE(SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.), 0) AS kwh FROM electricity_measurements e INNER JOIN meteorological_season m ON date_part('doy', measurement_time)=m.doy, old WHERE measurement_time > old.updated AND measurement_time <= '{1}' AND DATE_PART('hour', measurement_time) = {0} AND DATE_PART('dow', measurement_time) = {2} AND m.season = old.season) UPDATE electricity_statistics.electricity_statistics_hourly_dow_season AS e SET (kwh_avg, count, updated) = (((old.kwh_avg * old.count + new.kwh) / (old.count + new.count)), old.count + new.count, CURRENT_TIMESTAMP) FROM old, new WHERE hour = {0} AND dow = {2} AND e.season = old.season;""".format(ophour, endtime, dow)
+    cursor.execute(query)
+    db.commit()
+    query = """INSERT INTO electricity_statistics.electricity_sums_hourly (sum_date, hour, kwh) VALUES ('{0}', {1}, {2});""".format(opdate.strftime('%Y-%m-%d'), ophour, kwh)
+    cursor.execute(query)
+    db.commit()
+
 
 
 # Main stuff here
@@ -171,7 +169,8 @@ now = datetime.datetime.now()
 
 if args.mode == 'hour':
     print 'Hourly'
-    hour, now, ophour, opdate, dow, startime, endtime, tzstart, tzend, reset = hour_calc(now, args.rundate, args.runhour)
+    hour, now, ophour, opdate, dow, starttime, endtime, reset = hour_calc(now)
+    hour_query(now, opdate, hour, ophour, starttime, endtime, dow)
 elif args.mode == 'day':
     print 'Daily'
 elif args.mode == 'month':
