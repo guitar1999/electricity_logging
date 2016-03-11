@@ -84,8 +84,10 @@ def day_calc(now, rundate=None):
         reset = True
         opdate = now - datetime.timedelta(1)
     starttime = datetime.datetime.combine(opdate.date(), datetime.time(0, 0, 0))
-    datetime.datetime.combine(opdate.date(), datetime.time(23, 59, 59))
-    return(opdate, now, starttime, endtime, reset)
+    endtime = datetime.datetime.combine(opdate.date(), datetime.time(23, 59, 59))
+    dow = fix_dow(opdate.isoweekday())
+    nowdow = fix_dow(now.isoweekday())
+    return(opdate, now, dow, nowdow, starttime, endtime, reset)
 
 def month_calc(now, runmonth=None):
     year = now.year
@@ -142,7 +144,7 @@ def hour_query(now, opdate, hour, ophour, starttime, endtime, dow):
     else:
         complete = 'no'
     # KWH
-    query = """UPDATE electricity_usage_hourly SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time > '{0}' AND measurement_time <= '{1}' AND date_part('hour', measurement_time) = {2}) WHERE hour = {2} RETURNING kwh;""".format(starttime, endtime, ophour)
+    query = """UPDATE electricity_usage_hourly SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time > '{0}' AND measurement_time <= '{1}' AND date_part('hour', measurement_time) = {2}), complete = '{3}', updated = CURRENT_TIMESTAMP WHERE hour = {2} RETURNING kwh;""".format(starttime, endtime, ophour, complete)
     cursor.execute(query)
     db.commit()
     kwh = cursor.fetchall()[0][0]
@@ -159,8 +161,57 @@ def hour_query(now, opdate, hour, ophour, starttime, endtime, dow):
     cursor.execute(query)
     db.commit()
     query = """INSERT INTO electricity_statistics.electricity_sums_hourly (sum_date, hour, kwh) VALUES ('{0}', {1}, {2});""".format(opdate.strftime('%Y-%m-%d'), ophour, kwh)
+    try:
+        cursor.execute(query)
+    except:
+        print "Hourly sum already updated."
+    db.commit()
+
+def day_query(now, nowdow, opdate, dow, endtime, rundate):
+    if not rundate:
+        query = """UPDATE electricity_usage_dow SET (kwh, complete, updated) = (0, 'no', '{0} 00:00:00') WHERE dow = {1};""".format(now.strftime('%Y-%m-%d'), nowdow)
+        cursor.execute(query)
+        query = """UPDATE electricity_usage_doy SET (kwh, complete, updated) = (0, 'no', '{0} 00:00:00') WHERE month = {1} AND day = {2};""".format(now.strftime('%Y-%m-%d'), now.month, now.day)
+        cursor.execute(query)
+        db.commit()
+        query = """UPDATE electricity_statistics.electricity_statistics_doy SET (previous_year, current_year) = (current_year, NULL) WHERE month = {0} and day = {1}""".format(now.month, now.day)
+        cursor.execute(query)
+        db.commit()
+    query = """SELECT 't' = ANY(array_agg(tdiff * (watts_ch1 + watts_ch2) > 0)) FROM electricity_measurements WHERE measurement_time >= '{0}' AND measurement_time < '{1}' AND tdiff >= 300 and tdiff * (watts_ch1 + watts_ch2) > 0;""".format(opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'))
+    cursor.execute(query)
+    data = cursor.fetchall()
+    maxint = data[0][0]
+    if not maxint:
+        complete = 'yes'
+    else:
+        complete = 'no'
+    query = """UPDATE electricity_usage_dow SET kwh = (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh FROM electricity_measurements WHERE measurement_time >= '{0}' AND measurement_time < '{1}'), complete = '{3}', updated = CURRENT_TIMESTAMP WHERE dow = {2} RETURNING kwh;""".format(opdate.strftime('%Y-%m-%d'), now.strftime('%Y-%m-%d'), dow, complete)
+    cursor.execute(query)
+    kwh = cursor.fetchall()[0][0]
+    query = """UPDATE electricity_usage_doy SET (kwh, complete, updated) = ({0}, '{1}', CURRENT_TIMESTAMP) WHERE month = {2} AND day = {3};""".format(kwh, complete, opdate.month, opdate.day)
     cursor.execute(query)
     db.commit()
+    query = """WITH old AS (SELECT count, kwh_avg, updated FROM electricity_statistics.electricity_statistics_dow WHERE dow = {0}), new AS (SELECT COUNT(DISTINCT measurement_time::DATE), COALESCE(SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.), 0) AS kwh FROM electricity_measurements e, old WHERE measurement_time > old.updated AND measurement_time <= '{1}' AND DATE_PART('dow', measurement_time) = {0}) UPDATE electricity_statistics.electricity_statistics_dow AS e SET (kwh_avg, count, updated) = (((old.kwh_avg * old.count + new.kwh) / (old.count + new.count)), old.count + new.count, CURRENT_TIMESTAMP) FROM old, new WHERE dow = {0} RETURNING e.kwh_avg;""".format(dow, endtime)
+    cursor.execute(query)
+    kwh_avg_dow = cursor.fetchall()[0][0]
+    query = """WITH old AS (SELECT count, kwh_avg, updated, season FROM electricity_statistics.electricity_statistics_dow_season WHERE dow = {0} AND season = (SELECT season FROM meteorological_season WHERE doy = DATE_PART('doy', '{1}'::DATE))), new AS (SELECT COUNT(DISTINCT measurement_time::DATE), COALESCE(SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.), 0) AS kwh FROM electricity_measurements e INNER JOIN meteorological_season m ON date_part('doy', measurement_time)=m.doy, old WHERE measurement_time > old.updated AND measurement_time <= '{1}' AND DATE_PART('dow', measurement_time) = {0} AND m.season = old.season) UPDATE electricity_statistics.electricity_statistics_dow_season AS e SET (kwh_avg, count, updated) = (((old.kwh_avg * old.count + new.kwh) / (old.count + new.count)), old.count + new.count, CURRENT_TIMESTAMP) FROM old, new WHERE dow = {0} AND e.season = old.season RETURNING e.kwh_avg;""".format(dow, endtime)
+    cursor.execute(query)
+    kwh_avg_dow_season = cursor.fetchall()[0][0]
+    query = """UPDATE electricity_statistics.electricity_statistics_doy SET (current_year, kwh_avg, count, updated) = ({0}, ({0} + (kwh_avg * count)) / (count + 1), count + 1, CURRENT_TIMESTAMP) WHERE month = {1} AND day = {2} RETURNING kwh_avg, previous_year;""".format(kwh, opdate.month, opdate.day)
+    cursor.execute(query)
+    kwh_avg_doy, previous_year = cursor.fetchall()[0]
+    db.commit()
+    query = """INSERT INTO electricity_statistics.electricity_sums_daily (sum_date, kwh) VALUES ('{0}', {1});""".format(opdate.strftime('%Y-%m-%d'), kwh)
+    cursor.execute(query)
+    db.commit()
+    query = """INSERT INTO electricity_statistics.electricity_statistics_daily_minimum (measurement_date, watts) SELECT '{0}'::date, min(watts_ch1 + watts_ch2) AS watts FROM electricity_measurements WHERE measurement_time >= '{0} 00:00:00' and measurement_time::date = '{0}';""".format(opdate.strftime('%Y-%m-%d'))
+    cursor.execute(query)
+    db.commit()
+    return (kwh, kwh_avg_dow, kwh_avg_dow_season, kwh_avg_doy, previous_year)
+
+
+
+
 
 
 
@@ -173,6 +224,8 @@ if args.mode == 'hour':
     hour_query(now, opdate, hour, ophour, starttime, endtime, dow)
 elif args.mode == 'day':
     print 'Daily'
+    opdate, now, dow, nowdow, starttime, endtime, reset = day_calc(now)
+    print day_query(now, nowdow, opdate, dow, endtime, None)
 elif args.mode == 'month':
     print 'Monthly'
 elif args.mode == 'year':
