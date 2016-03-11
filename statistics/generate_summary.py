@@ -232,6 +232,9 @@ def month_query(now, opmonth, year):
     cursor.execute(query)
     kwh_avg = cursor.fetchall()[0][0]
     db.commit()
+    query = """INSERT INTO energy_statistics.electricity_sums_monthly (year, month, kwh) VALUES ({0}, {1}, {2});""".format(year, opmonth, kwh)
+    cursor.execute(query)
+    db.commit()
     return (kwh, kwh_avg, prevkwh)
 
 
