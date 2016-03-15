@@ -10,7 +10,7 @@
 
 print "read_currentcost.py starting up"
 
-import ConfigParser, datetime, serial, sys, psycopg2
+import ConfigParser, datetime, serial, sys, psycopg2, urllib2
 import xml.etree.ElementTree as ET 
 
 loud = sys.argv[1]
@@ -75,14 +75,21 @@ while True:
         cursor = db.cursor()
         # Get the database time to see if the database is still up
         try:
-            query = """SELECT CURRENT_TIMESTAMP;"""
-            cursor.execute(query)
-            db_timestamp = cursor.fetchall()
-            db.commit()
-        except psycopg2.OperationalError: # If not, add data to the datalist
-            print "The db connection failed at time inquiry."
-        except psycopg2.DatabaseError:
-            print "The db connection failed at time inquiry."
+            response = urllib2.urlopen('http://www.google.com', timeout=1)
+        except urllib2.URLError as err:
+            print "'net is down"
+#            print "timestamp query 1"
+#            query = """SELECT CURRENT_TIMESTAMP;"""
+#            cursor.execute(query)
+#            db_timestamp = cursor.fetchall()
+#            db.commit()
+#            print "timestamp query 2"
+#        except psycopg2.OperationalError: # If not, add data to the datalist
+#            print "The db connection failed at time inquiry."
+#            db.close()
+#        except psycopg2.DatabaseError:
+#            print "The db connection failed at time inquiry."
+#            db.close()
         else:
             while datalist:
                 data = datalist.pop(0)
@@ -118,6 +125,7 @@ while True:
                     if loud == 'yes':
                         print totalwatts, watts_ch1, watts_ch2, str(watts_ch3), temp, time
                 except Exception, msg:
+                    datalist.insert(0, data)
                     print msg, "in main"
         finally:
             cursor.close()
