@@ -10,7 +10,7 @@
 
 print "read_currentcost.py starting up"
 
-import ConfigParser, datetime, serial, sys, psycopg2, urllib2
+import ConfigParser, datetime, serial, sys, psycopg2, urllib2, socket
 import xml.etree.ElementTree as ET 
 
 loud = sys.argv[1]
@@ -83,20 +83,8 @@ while True:
             response = urllib2.urlopen('http://www.google.com', timeout=1)
         except urllib2.URLError as err:
             print "'net is down"
-	except socket.timeout as err:
-	    print "socket timeout"
-#            print "timestamp query 1"
-#            query = """SELECT CURRENT_TIMESTAMP;"""
-#            cursor.execute(query)
-#            db_timestamp = cursor.fetchall()
-#            db.commit()
-#            print "timestamp query 2"
-#        except psycopg2.OperationalError: # If not, add data to the datalist
-#            print "The db connection failed at time inquiry."
-#            db.close()
-#        except psycopg2.DatabaseError:
-#            print "The db connection failed at time inquiry."
-#            db.close()
+        except socket.timeout as err:
+            print "socket timeout"
         else:
             while datalist:
                 data = datalist.pop(0)
