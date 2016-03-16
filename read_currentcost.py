@@ -31,6 +31,12 @@ def dbcon(dbhost=dbhost, dbname=dbname, dbuser=dbuser, dbport=dbport):
 class fakedb:
     def __init__(self):
         self.closed = 1
+# Function to check network
+def check_net(url):
+    try:
+        response = urllib2.urlopen(url, timeout=1)
+    except Exception:
+        raise NameError('no net')
 
 # Connect to the database
 try:
@@ -80,11 +86,9 @@ while True:
         cursor = db.cursor()
         # Get the database time to see if the database is still up
         try:
-            response = urllib2.urlopen('http://www.google.com', timeout=1)
-        except urllib2.URLError as err:
+            check_net('http://www.google.com')
+        except NameError as err:
             print "'net is down"
-        except socket.timeout as err:
-            print "socket timeout"
         else:
             while datalist:
                 data = datalist.pop(0)
@@ -126,11 +130,13 @@ while True:
             cursor.close()
     else:
         print "The db connection has failed. Trying to reconnect..."
-        try:
-            db = dbcon(dbhost, dbname, dbuser, dbport)
-        except:
+        try:                                                                          
+            check_net('http://www.google.com')
+        except NameError as err:
             db = fakedb()
             print "    It didn't work this time..."
+        else:
+            db = dbcon(dbhost, dbname, dbuser, dbport)
 
 # Close the db connection if True ever becomes False! Also, be worried.
 db.close()
