@@ -27,11 +27,16 @@ dbport = config.get('pidb', 'DBPORT')
 def dbcon(dbhost=dbhost, dbname=dbname, dbuser=dbuser, dbport=dbport):
     db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
     return (db)
+# A fake db class as a hack for now
+class fakedb:
+    def __init__(self):
+        self.closed = 1
 
 # Connect to the database
 try:
     db = dbcon(dbhost, dbname, dbuser, dbport)
 except psycopg2.OperationalError, msg:
+    db = fakedb()
     print msg
 
 # Set the temperature adjustment factor
@@ -78,6 +83,8 @@ while True:
             response = urllib2.urlopen('http://www.google.com', timeout=1)
         except urllib2.URLError as err:
             print "'net is down"
+	except socket.timeout as err:
+	    print "socket timeout"
 #            print "timestamp query 1"
 #            query = """SELECT CURRENT_TIMESTAMP;"""
 #            cursor.execute(query)
@@ -131,10 +138,10 @@ while True:
             cursor.close()
     else:
         print "The db connection has failed. Trying to reconnect..."
-        db.close()
         try:
             db = dbcon(dbhost, dbname, dbuser, dbport)
         except:
+            db = fakedb()
             print "    It didn't work this time..."
 
 # Close the db connection if True ever becomes False! Also, be worried.
