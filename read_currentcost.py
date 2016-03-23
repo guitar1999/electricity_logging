@@ -83,13 +83,13 @@ while True:
     # Always get the data if you can!
     datalist.append(pullFromCurrentCost())
     if db.closed == 0:
-        cursor = db.cursor()
         # Get the database time to see if the database is still up
         try:
             check_net('http://www.google.com')
         except NameError as err:
             print "'net is down"
         else:
+            cursor = db.cursor()
             while datalist:
                 data = datalist.pop(0)
                 try:
@@ -103,7 +103,10 @@ while True:
                     totalwatts = int(data['watts1']) + int(data['watts2'])
                     watts_ch1 = int(data['watts1'])
                     watts_ch2 = int(data['watts2'])
-                    watts_ch3 = int(data['watts3'])
+                    if data['watts3'] != None:
+                        watts_ch3 = int(data['watts3'])
+                    else:
+                        watts_ch3 = 0
                     readtime = data['readtime']
                     time = data['time']
                     sql = """INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES ({0}, {1}, {2}, '{3}', '{4}');""".format(watts_ch1, watts_ch2, watts_ch3, readtime, time)
