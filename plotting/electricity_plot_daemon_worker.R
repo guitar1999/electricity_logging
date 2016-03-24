@@ -74,9 +74,9 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow_season.R')
         runtime <- runtime + plottime
         print("    dowseason")
-        # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily.R')
-        # runtime <- runtime + plottime
-        # print("    daily")
+        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily.R')
+        runtime <- runtime + plottime
+        print("    daily")
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_last_24_hours.R')
         runtime <- runtime + plottime
         print("    24 hours")
@@ -90,12 +90,12 @@ while(TRUE){
 
     # Run the daily every 15th loop and add the plotting times to the loop runtime
     if ((ticker %% 15 == 0 && ticker != 0) || ticker == 5){
-        # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_monthly.R')
-        # runtime <- runtime + plottime
-        # print("    monthly")
-        # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_yearly.R')
-        # runtime <- runtime + plottime
-        # print("    yearly")
+        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_monthly.R')
+        runtime <- runtime + plottime
+        print("    monthly")
+        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_yearly.R')
+        runtime <- runtime + plottime
+        print("    yearly")
  #       plottime <- genplot('/usr/local/gas_logging/generate_plot_gas_monthly.R')
 #        runtime <- runtime + plottime
 #        print("    gas monthly")
@@ -107,9 +107,9 @@ while(TRUE){
 
     # Run the monthly and daily 1year every 30th loop and add the plotting times to the loop runtime
     if (ticker %% 30 == 0){
-        # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily_1year.R')
-        # runtime <- runtime + plottime
-        # print("    daily 1year")
+        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily_1year.R')
+        runtime <- runtime + plottime
+        print("    daily 1year")
     }
 
 
