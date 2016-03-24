@@ -77,9 +77,9 @@ while(TRUE){
         # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily.R')
         # runtime <- runtime + plottime
         # print("    daily")
-        # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_last_24_hours.R')
-        # runtime <- runtime + plottime
-        # print("    24 hours")
+        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_last_24_hours.R')
+        runtime <- runtime + plottime
+        print("    24 hours")
   #      plottime <- genplot('/usr/local/gas_logging/generate_plot_gas_dow.R')
   #      runtime <- runtime + plottime
   #      print("    gas dow")

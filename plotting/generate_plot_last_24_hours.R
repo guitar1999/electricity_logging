@@ -4,7 +4,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 }
 
 
-query <- "select watts_ch1, watts_ch2, watts_ch3, measurement_time from electricity_measurements where measurement_time > CURRENT_TIMESTAMP - interval '4 hours' - interval '22 hours' - ((date_part('minute', CURRENT_TIMESTAMP - interval '4 hours') + 60) * interval '1 minute') - (date_part('second', CURRENT_TIMESTAMP - interval '4 hours') * interval '1 second');"
+query <- "select watts_ch1, watts_ch2, watts_ch3, measurement_time from electricity_measurements where measurement_time > CURRENT_TIMESTAMP - interval '22 hours' - ((date_part('minute', CURRENT_TIMESTAMP) + 60) * interval '1 minute') - (date_part('second', CURRENT_TIMESTAMP) * interval '1 second');"
 res <- dbGetQuery(con, query)
 #res$watts <- res$watts_ch1 + res$watts_ch2
 
@@ -45,4 +45,4 @@ lines(res$measurement_time, res$watts_ch2, col='blue')
 lines(res$measurement_time, res$watts_ch3, col='orange')
 dev.off()
 
-system(paste("scp", fname, "75.126.173.130:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
+system(paste("scp", fname, "75.126.173.130:/home/jessebishop/webapps/htdocs/home/frompi/electricity2/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
