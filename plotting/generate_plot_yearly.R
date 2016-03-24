@@ -7,7 +7,7 @@ source('/usr/local/electricity_logging/plotting/barplot.R')
 
 query <- "SELECT year AS label, kwh, complete FROM electricity_usage_yearly WHERE NOT year = date_part('year', CURRENT_TIMESTAMP) AND NOT updated IS NULL ORDER BY updated;"
 res <- dbGetQuery(con, query)
-if (dim(res[1]) > 0) {
+if (dim(res)[1] > 0) {
     res$kwh_avg <- NA
 }
 
