@@ -68,12 +68,12 @@ while(TRUE){
 
     # Run the dow every 10th loop and add the plotting times to the loop runtime
     if ((ticker %% 10 == 0 && ticker != 0) || ticker == 5){
-        # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow.R')
-        # runtime <- runtime + plottime
-        # print("    dow")
-        # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow_season.R')
-        # runtime <- runtime + plottime
-        # print("    dowseason")
+        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow.R')
+        runtime <- runtime + plottime
+        print("    dow")
+        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow_season.R')
+        runtime <- runtime + plottime
+        print("    dowseason")
         # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily.R')
         # runtime <- runtime + plottime
         # print("    daily")
