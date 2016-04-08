@@ -89,7 +89,7 @@ while(TRUE){
     }
 
     # Run the daily every 15th loop and add the plotting times to the loop runtime
-    if ((ticker %% 15 == 0 && ticker != 0) || ticker == 5){
+    if ((ticker %% 5 == 0 && ticker != 0) || ticker == 5){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_monthly.R')
         runtime <- runtime + plottime
         print("    monthly")

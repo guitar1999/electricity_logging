@@ -58,7 +58,7 @@ def pullFromCurrentCost():
     watts2 = None
     watts3 = None
     sensor = None
-    while watts1 == None:
+    while watts1 == None and watts2 == None:
         line2 = ser.readline()
         try:
             tree  = ET.XML(line2)
@@ -92,6 +92,7 @@ while True:
             cursor = db.cursor()
             while datalist:
                 data = datalist.pop(0)
+                print data
                 try:
                     temp = (float(data['temp']) + tempfactor - 32) * 5 / 9
                     sql4 = """INSERT INTO temperature_test (temperature, device_id) VALUES ({0}, 'current_cost');""".format(temp)
@@ -100,13 +101,19 @@ while True:
                 except Exception, msg:
                     print msg
                 try:
-                    totalwatts = int(data['watts1']) + int(data['watts2'])
-                    watts_ch1 = int(data['watts1'])
-                    watts_ch2 = int(data['watts2'])
+                    if data['watts1'] != None:
+                        watts_ch1 = int(data['watts1'])
+                    else:
+                        watts_ch1 = 0
+                    if data['watts2'] != None:
+                        watts_ch2 = int(data['watts2'])
+                    else:
+                        watts_ch2 = 0
                     if data['watts3'] != None:
                         watts_ch3 = int(data['watts3'])
                     else:
                         watts_ch3 = 0
+                    totalwatts = watts_ch1 + watts_ch2
                     readtime = data['readtime']
                     time = data['time']
                     sql = """INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES ({0}, {1}, {2}, '{3}', '{4}');""".format(watts_ch1, watts_ch2, watts_ch3, readtime, time)
