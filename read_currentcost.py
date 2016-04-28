@@ -137,7 +137,8 @@ while True:
                     datalist.insert(0, data)
                     print msg, "in main"
         finally:
-            cursor.close()
+            if cursor.closed == 0:
+                cursor.close()
     else:
         print "The db connection has failed. Trying to reconnect..."
         try:                                                                          
