@@ -1,7 +1,7 @@
 from celery import Celery
 import ConfigParser, psycopg2
 
-app = Celery('db_inserter', broker='amqp://energy@localhost')
+app = Celery('db_inserter', broker='amqp://energy:energy@localhost')
 
 @app.task
 def insert_electric(watts_ch1, watts_ch2, watts_ch3, readtime, time):
