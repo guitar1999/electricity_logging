@@ -1,0 +1,13 @@
+CREATE TABLE electricity_statistics.electricity_statistics_doy (
+    doy_noleap integer CHECK (doy_noleap >=1 AND doy_noleap <= 365),
+    doy_leap integer CHECK (doy_leap >= 1 AND doy_leap <= 366),
+    month integer CHECK (month >= 1 AND month <= 12),
+    day integer CHECK (day >=1 AND day <= 31),
+    count integer,
+    kwh_avg numeric,
+    previous_year numeric,
+    current_year numeric,
+    updated timestamp with time zone
+);
+\copy electricity_statistics.electricity_statistics_doy (doy_noleap, doy_leap, month, day) FROM 'doy_statistics.data'
+UPDATE electricity_statistics.electricity_statistics_doy SET (count, kwh_avg, previous_year, current_year, updated) = (0, 0, 0, 0, CURRENT_TIMESTAMP);

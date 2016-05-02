@@ -45,7 +45,7 @@ def pullFromCurrentCost():
     ser.flushInput()
     return temp, watts1, watts2, watts3, time
 while True:
-    n = datetime.now()
+    n = datetime.datetime.now().utcnow().isoformat()
     data = pullFromCurrentCost()
     try:
         temp = (float(data[0]) + tempfactor - 32) * 5 / 9

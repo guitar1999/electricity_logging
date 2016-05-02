@@ -1,0 +1,3 @@
+apt install rabbitmq-server
+sudo pip install celery
+

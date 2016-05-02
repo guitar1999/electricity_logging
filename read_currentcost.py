@@ -10,29 +10,16 @@
 
 print "read_currentcost.py starting up"
 
-import ConfigParser, datetime, serial, sys, psycopg2
+import ConfigParser, datetime, serial, sys, psycopg2, urllib2, socket
 import xml.etree.ElementTree as ET 
+from db_inserter import insert_electric, insert_temperature
 
 loud = sys.argv[1]
 
 # Get the db config from our config file
 config = ConfigParser.RawConfigParser()
 config.read('/home/jessebishop/.pyconfig')
-dbhost = config.get('pidb', 'DBHOST')
-dbname = config.get('pidb', 'DBNAME')
-dbuser = config.get('pidb', 'DBUSER')
-dbport = config.get('pidb', 'DBPORT')
 
-# A function to connect to the database
-def dbcon(dbhost=dbhost, dbname=dbname, dbuser=dbuser, dbport=dbport):
-    db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
-    return (db)
-
-# Connect to the database
-try:
-    db = dbcon(dbhost, dbname, dbuser, dbport)
-except psycopg2.OperationalError, msg:
-    print msg
 
 # Set the temperature adjustment factor
 tempfactor = 2
@@ -43,11 +30,11 @@ ser = serial.Serial(port='/dev/ttyUSB0',baudrate=57600)
 # Define a function to get data from the current cost
 def pullFromCurrentCost():
     # Read XML from Current Cost.  Try again if nothing is returned.
-    watts1  = None
+    watts1 = None
     watts2 = None
     watts3 = None
     sensor = None
-    while watts1 == None:
+    while watts1 == None and watts2 == None:
         line2 = ser.readline()
         try:
             tree  = ET.XML(line2)
@@ -64,68 +51,47 @@ def pullFromCurrentCost():
     outdict = {"temp" : temp, "watts1" : watts1, "watts2" : watts2, "watts3" : watts3, "time" : time, "readtime" : readtime}
     return outdict
 
-# Create an empty list to hold the data if necessary
-datalist = []
 
-# Loop infinetly, read the current cost (this is the time constraint), and do stuff with the data    
+# Loop infinitly, read the current cost (this is the time constraint), and do stuff with the data    
 while True:
     # Always get the data if you can!
-    datalist.append(pullFromCurrentCost())
-    if db.closed == 0:
-        cursor = db.cursor()
-        # Get the database time to see if the database is still up
-        try:
-            query = """SELECT CURRENT_TIMESTAMP;"""
-            cursor.execute(query)
-            db_timestamp = cursor.fetchall()
-            db.commit()
-        except psycopg2.OperationalError: # If not, add data to the datalist
-            print "The db connection failed at time inquiry."
+    data = pullFromCurrentCost()
+    print data
+    try:
+        temp = (float(data['temp']) + tempfactor - 32) * 5 / 9
+        insert_temperature.apply_async(args=[temp, 'current_cost'], queue='electric')
+    except Exception, msg:
+        print msg
+    try:
+        if data['watts1'] != None:
+            watts_ch1 = int(data['watts1'])
         else:
-            while datalist:
-                data = datalist.pop(0)
-                try:
-                    temp = (float(data['temp']) + tempfactor - 32) * 5 / 9
-                    sql4 = """INSERT INTO temperature_test (temperature, device_id) VALUES ({0}, 'current_cost');""".format(temp)
-                    cursor.execute(sql4)
-                    db.commit()
-                except Exception, msg:
-                    print msg
-                try:
-                    totalwatts = int(data['watts1']) + int(data['watts2'])
-                    watts_ch1 = int(data['watts1'])
-                    watts_ch2 = int(data['watts2'])
-                    watts_ch3 = int(data['watts3'])
-                    readtime = data['readtime']
-                    time = data['time']
-                    sql = """INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES ({0}, {1}, {2}, '{3}', '{4}');""".format(watts_ch1, watts_ch2, watts_ch3, readtime, time)
-                    cursor.execute(sql)
-                    db.commit()
-                    try:
-                        tw = str(totalwatts)
-                        while len(tw) < 4:
-                            tw = '0%s' % (tw)
-                        o = open('/var/www/electricity/instant.csv', 'w')
-                        o.write('kwh,a,b,c,d\n%s,%s,%s,%s,%s\n' % (totalwatts, tw[0], tw[1], tw[2], tw[3]))
-                        o.close()
-                        p = open('/var/www/electricity/hvac.csv', 'w')
-                        p.write('kwh\n%i\n' % (watts_ch3))
-                        p.close()
-                    except Exception, msg:
-                        print msg, "in tw"
-                    if loud == 'yes':
-                        print totalwatts, watts_ch1, watts_ch2, str(watts_ch3), temp, time
-                except Exception, msg:
-                    print msg, "in main"
-        finally:
-            cursor.close()
-    else:
-        print "The db connection has failed. Trying to reconnect..."
-        db.close()
+            watts_ch1 = 0
+        if data['watts2'] != None:
+            watts_ch2 = int(data['watts2'])
+        else:
+            watts_ch2 = 0
+        if data['watts3'] != None:
+            watts_ch3 = int(data['watts3'])
+        else:
+            watts_ch3 = 0
+        totalwatts = watts_ch1 + watts_ch2
+        readtime = data['readtime']
+        time = data['time']
+        insert_electric.apply_async(args=[watts_ch1, watts_ch2, watts_ch3, readtime, time], queue='electric')
         try:
-            db = dbcon(dbhost, dbname, dbuser, dbport)
-        except:
-            print "    It didn't work this time..."
-
-# Close the db connection if True ever becomes False! Also, be worried.
-db.close()
+            tw = str(totalwatts)
+            while len(tw) < 4:
+                tw = '0%s' % (tw)
+            o = open('/var/www/electricity/instant.csv', 'w')
+            o.write('kwh,a,b,c,d\n%s,%s,%s,%s,%s\n' % (totalwatts, tw[0], tw[1], tw[2], tw[3]))
+            o.close()
+            p = open('/var/www/electricity/hvac.csv', 'w')
+            p.write('kwh\n%i\n' % (watts_ch3))
+            p.close()
+        except Exception, msg:
+            print msg, "in tw"
+        if loud == 'yes':
+            print totalwatts, watts_ch1, watts_ch2, str(watts_ch3), temp, time
+    except Exception, msg:
+        print msg, "in main"
