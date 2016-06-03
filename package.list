@@ -1,7 +1,10 @@
-apt install rabbitmq-server
+sudo apt install rabbitmq-server
 sudo rabbitmqctl add_user energy energy
 sudo rabbitmqctl set_user_tags energy administrator
 sudo rabbitmqctl set_permissions -p / energy ".*" ".*" ".*"
+sudo rabbitmq-plugins enable rabbitmq_management
 
-sudo pip install celery
+sudo apt install upstart python-serial python-psycopg2 logwatch
+
+sudo pip install celery speedtest-cli tweepy
 
