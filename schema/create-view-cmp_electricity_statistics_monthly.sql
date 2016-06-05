@@ -5,6 +5,8 @@ CREATE VIEW electricity_cmp.cmp_electricity_statistics_monthly AS (
         count(*) AS count 
     FROM 
         electricity_cmp.cmp_electricity_sums_monthly_view
+    WHERE
+        complete = 'yes'
     GROUP BY 
         1
     ORDER BY 

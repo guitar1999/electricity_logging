@@ -2,7 +2,11 @@ CREATE VIEW electricity_cmp.cmp_electricity_sums_monthly_view AS (
     SELECT 
         date_part('year', start_date) AS year,
         date_part('month', start_date) AS month,
-        sum(kwh) AS kwh
+        sum(kwh) AS kwh,
+        CASE 
+            WHEN COUNT(*) / 24. = num_days(date_part('year', start_date)::INTEGER, date_part('month', start_date)::INTEGER) THEN 'yes' 
+            ELSE 'no' 
+        END AS complete
     FROM 
         electricity_cmp.cmp_electricity_sums_hourly
     GROUP BY 
