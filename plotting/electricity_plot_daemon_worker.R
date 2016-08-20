@@ -54,6 +54,9 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_hourly_dow_season.R')
         runtime <- runtime + plottime
         print("    hourlydowseason")
+        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_hourly_season_cmp.R')
+        runtime <- runtime + plottime
+        print("    hourlyseasoncmp")
  #       plottime <- genplot('/usr/local/gas_logging/generate_plot_gas_hourly.R')
  #       runtime <- runtime + plottime
  #       print("    gas hourly")
