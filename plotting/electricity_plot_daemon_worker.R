@@ -41,7 +41,7 @@ while(TRUE){
 
 
     # Run the hourlies every 2nd loop and add the plotting time to the loop runtime
-    if (ticker %% 2 == 0 && ticker != 0 && ticker != 2){
+    if (ticker %% 2 == 0 && ticker != 0){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_hourly.R')
         runtime <- runtime + plottime
         print("    hourly")
@@ -67,7 +67,7 @@ while(TRUE){
     }
 
     # Run the dow every 10th loop and add the plotting times to the loop runtime
-    if ((ticker %% 10 == 0 && ticker != 0) || ticker == 5){
+    if (ticker %% 2 == 0 && ticker != 0){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow.R')
         runtime <- runtime + plottime
         print("    dow")
@@ -89,7 +89,7 @@ while(TRUE){
     }
 
     # Run the daily every 15th loop and add the plotting times to the loop runtime
-    if ((ticker %% 5 == 0 && ticker != 0) || ticker == 5){
+    if (ticker %% 2 == 0 && ticker != 0){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_monthly.R')
         runtime <- runtime + plottime
         print("    monthly")
@@ -106,7 +106,7 @@ while(TRUE){
     }
 
     # Run the monthly and daily 1year every 30th loop and add the plotting times to the loop runtime
-    if (ticker %% 30 == 0){
+    if (ticker %% 2 == 0 && ticker != 0){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily_1year.R')
         runtime <- runtime + plottime
         print("    daily 1year")
