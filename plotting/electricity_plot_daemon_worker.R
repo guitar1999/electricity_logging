@@ -57,9 +57,9 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_hourly_season_cmp.R')
         runtime <- runtime + plottime
         print("    hourlyseasoncmp")
- #       plottime <- genplot('/usr/local/gas_logging/generate_plot_gas_hourly.R')
- #       runtime <- runtime + plottime
- #       print("    gas hourly")
+        plottime <- genplot('/usr/local/gas_logging/generate_plot_oil_hourly.R')
+        runtime <- runtime + plottime
+        print("    oil hourly")
     }
 
     # Run the month_to_month at 7 past the hour and add the plotting timest to the loop runtime
