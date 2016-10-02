@@ -35,7 +35,7 @@ while(TRUE){
     plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_last_hour.R')
     runtime <- runtime + plottime
     print("    line")
-#    plottime <- genplot('/usr/local/gas_logging/generate_plot_gas_last_hour.R')
+#    plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_last_hour.R')
 #    runtime <- runtime + plottime
 #    print("    gas line")
 
@@ -57,7 +57,7 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_hourly_season_cmp.R')
         runtime <- runtime + plottime
         print("    hourlyseasoncmp")
-        plottime <- genplot('/usr/local/gas_logging/generate_plot_oil_hourly.R')
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_hourly.R')
         runtime <- runtime + plottime
         print("    oil hourly")
     }
@@ -83,10 +83,10 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_last_24_hours.R')
         runtime <- runtime + plottime
         print("    24 hours")
-  #      plottime <- genplot('/usr/local/gas_logging/generate_plot_gas_dow.R')
+  #      plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_dow.R')
   #      runtime <- runtime + plottime
   #      print("    gas dow")
-  #      plottime <- genplot('/usr/local/gas_logging/generate_plot_gas_daily.R')
+  #      plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_daily.R')
   #      runtime <- runtime + plottime
   #      print("    gas daily")
     }
@@ -99,10 +99,10 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_yearly.R')
         runtime <- runtime + plottime
         print("    yearly")
- #       plottime <- genplot('/usr/local/gas_logging/generate_plot_gas_monthly.R')
+ #       plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_monthly.R')
 #        runtime <- runtime + plottime
 #        print("    gas monthly")
-#        plottime <- genplot('/usr/local/gas_logging/generate_plot_gas_yearly.R')
+#        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_yearly.R')
 #        runtime <- runtime + plottime
 #        print("    gas yearly")
 
