@@ -83,12 +83,12 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_last_24_hours.R')
         runtime <- runtime + plottime
         print("    24 hours")
-  #      plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_dow.R')
-  #      runtime <- runtime + plottime
-  #      print("    gas dow")
-  #      plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_daily.R')
-  #      runtime <- runtime + plottime
-  #      print("    gas daily")
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_dow.R')
+        runtime <- runtime + plottime
+        print("    gas dow")
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_daily.R')
+        runtime <- runtime + plottime
+        print("    gas daily")
     }
 
     # Run the daily every 15th loop and add the plotting times to the loop runtime
