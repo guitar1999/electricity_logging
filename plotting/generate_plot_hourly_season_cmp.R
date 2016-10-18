@@ -12,7 +12,7 @@ res <- dbGetQuery(con, query)
 query <- "SELECT MAX(sum_date) AS plot_date FROM electricity_cmp.cmp_electricity_sums_hourly_view;"
 today <- dbGetQuery(con, query)$plot_date
 yesterday <- today - 1
-currenthour <- res$label[24]
+currenthour <- res$label[length(res$label)]
 query3 <- paste("SELECT sunrise, sunset FROM astronomy_data WHERE date = '", today, "';", sep="")
 res3 <- dbGetQuery(con, query3)
 risehour <- as.numeric(strftime(strptime(res3$sunrise, format='%H:%M:%S'), format="%H"))

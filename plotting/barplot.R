@@ -40,9 +40,9 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
             gradient.rect(setpos + (risepos - setpos) / 2, 0, risepos, max(res$kwh), col=smoothColors('grey22', 255, 'white'), gradient='x', border=NA)
         } else {
             # Calculate start and end of gradient on either side of plot
-            gstart <- -1 * (b[24] + 0.7 - setpos)
+            gstart <- -1 * (b[length(b)] + 0.7 - setpos)
             gsmid <- gstart + (risepos - gstart) / 2
-            gend <- b[24] + 0.7 + risepos
+            gend <- b[length(b)] + 0.7 + risepos
             gemid <- gend - (gend - setpos) / 2
             gradient.rect(gstart, 0, gsmid, max(res$kwh), col=smoothColors('white', 255, 'grey22'), gradient='x', border=NA)
             gradient.rect(gsmid, 0, risepos, max(res$kwh), col=smoothColors('grey22', 255, 'white'), gradient='x', border=NA)
