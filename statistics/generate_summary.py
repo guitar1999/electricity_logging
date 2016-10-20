@@ -130,10 +130,11 @@ def year_calc(now, runyear=None):
 def reset_kwh():
     pass
 
-def hour_query(now, opdate, hour, ophour, starttime, endtime, dow):
-    query = """UPDATE electricity.electricity_usage_hourly SET (kwh, complete, updated) = (0, 'no', '{0}:00:00') WHERE hour = {1};""".format(now.strftime('%Y-%m-%d %H'), hour)
-    cursor.execute(query)
-    db.commit()
+def hour_query(now, opdate, hour, ophour, starttime, endtime, dow, reset):
+    if reset:
+        query = """UPDATE electricity.electricity_usage_hourly SET (kwh, complete, updated) = (0, 'no', '{0}:00:00') WHERE hour = {1};""".format(now.strftime('%Y-%m-%d %H'), hour)
+        cursor.execute(query)
+        db.commit()
     # Are the data complete
     query = """SELECT 't' = ANY(array_agg(tdiff * (watts_ch1 + watts_ch2) > 0)) FROM electricity.electricity_measurements WHERE measurement_time > '{0}' AND date_part('hour', measurement_time) = {1} AND tdiff >= 300 and tdiff * (watts_ch1 + watts_ch2) > 0;""".format(opdate.strftime('%Y-%m-%d'), ophour)
     cursor.execute(query)
@@ -167,7 +168,7 @@ def hour_query(now, opdate, hour, ophour, starttime, endtime, dow):
         print "Hourly sum already updated."
     db.commit()
 
-def day_query(now, nowdow, opdate, dow, endtime, rundate):
+def day_query(now, nowdow, opdate, dow, endtime, rundate, reset):
     if not rundate:
         query = """UPDATE electricity.electricity_usage_dow SET (kwh, complete, updated) = (0, 'no', '{0} 00:00:00') WHERE dow = {1};""".format(now.strftime('%Y-%m-%d'), nowdow)
         cursor.execute(query)
@@ -209,10 +210,11 @@ def day_query(now, nowdow, opdate, dow, endtime, rundate):
     db.commit()
     return (kwh, kwh_avg_dow, kwh_avg_dow_season, kwh_avg_doy, previous_year)
 
-def month_query(now, opmonth, year):
-    query = """UPDATE electricity.electricity_usage_monthly SET (kwh, complete, updated) = (0, 'no', '{0} 00:00:00') WHERE month = {1};""".format(now.strftime('%Y-%m-%d'), now.month)
-    cursor.execute(query)
-    db.commit()
+def month_query(now, opmonth, year, reset):
+    if reset:
+        query = """UPDATE electricity.electricity_usage_monthly SET (kwh, complete, updated) = (0, 'no', '{0} 00:00:00') WHERE month = {1};""".format(now.strftime('%Y-%m-%d'), now.month)
+        cursor.execute(query)
+        db.commit()
     query = """SELECT date_part('day', min(measurement_time)) = 1, date_part('day', max(measurement_time)) = num_days({0},{1}), max(tdiff) < 300  FROM electricity.electricity_measurements WHERE date_part('month', measurement_time) = {1} AND date_part('year', measurement_time) = {2};""".format(year, opmonth, year)
     cursor.execute(query)
     data = cursor.fetchall()
@@ -246,19 +248,30 @@ now = datetime.datetime.now()
 
 if args.mode == 'hour':
     print 'Hourly'
-    hour, now, ophour, opdate, dow, starttime, endtime, reset = hour_calc(now)
-    hour_query(now, opdate, hour, ophour, starttime, endtime, dow)
+    if args.rundate and args.runhour:
+        res = hour_calc(now, args.rundate, args.runhour)
+    else:
+        res = hour_calc(now)
+    hour, now, ophour, opdate, dow, starttime, endtime, reset = res
+    hour_query(now, opdate, hour, ophour, starttime, endtime, dow, reset)
 elif args.mode == 'day':
     print 'Daily'
-    opdate, now, dow, nowdow, starttime, endtime, reset = day_calc(now)
-    print day_query(now, nowdow, opdate, dow, endtime, None)
+    if args.rundate:
+        res = day_calc(now, args.rundate)
+    else:
+        res = day_calc(now)
+    opdate, now, dow, nowdow, starttime, endtime, reset = res
+    day_query(now, nowdow, opdate, dow, endtime, None, reset)
 elif args.mode == 'month':
     print 'Monthly'
-    opmonth, month, year, startime, endtime, reset = month_calc(now)
-    print month_query(now, opmonth, year)
+    if args.runmonth:
+        res = month_calc(now.rundate)
+    else:
+        res = month_calc(now)
+    opmonth, month, year, startime, endtime, reset = res
+    print month_query(now, opmonth, year, reset)
 elif args.mode == 'year':
     print 'Yearly'
-
 
 
 # Close DB

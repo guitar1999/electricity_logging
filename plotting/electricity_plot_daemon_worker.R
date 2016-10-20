@@ -2,7 +2,7 @@ require(plotrix)
 require(RPostgreSQL)
 
 # Make a connection to the database
-source('/home/jessebishop/.rconfig.R')
+source('/Users/jessebishop/.rconfig.R')
 
 # A function to run the plotting script and return the time
 genplot <- function(scr){
