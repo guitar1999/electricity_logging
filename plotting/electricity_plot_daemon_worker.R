@@ -99,12 +99,12 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_yearly.R')
         runtime <- runtime + plottime
         print("    yearly")
- #       plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_monthly.R')
-#        runtime <- runtime + plottime
-#        print("    gas monthly")
-#        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_yearly.R')
-#        runtime <- runtime + plottime
-#        print("    gas yearly")
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_monthly.R')
+        runtime <- runtime + plottime#        print("    gas monthly")
+        print("    gas monthly")
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_yearly.R')
+        runtime <- runtime + plottime
+        print("    gas yearly")
 
     }
 
