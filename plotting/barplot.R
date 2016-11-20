@@ -80,4 +80,14 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         res$kwh_avg_dow_pch[res$kwh_avg_dow > max(res$kwh)] <- 8
         points(b, res$kwh_avg_dow, col=pdcol, pch=res$kwh_avg_dow_pch)
     }
+    if ("btu_avg" %in% colnames(res)){
+        pdcol[res$btu > res$btu_avg] <- 'orange'
+        pdcol[res$btu <= res$btu_avg] <- 'orange'
+        pdcol[pcol == 'x'] <- 'darkorange'
+        res$btu_avg_plot <- res$btu_avg
+        res$btu_avg_plot[res$btu_avg > max(res$btu)] <- max(res$btu)
+        res$btu_avg_pch <- 19
+        res$btu_avg_pch[res$btu_avg > max(res$btu)] <- 8
+        points(b, res$btu_avg, col=pdcol, pch=res$btu_avg_pch)
+    }
 }
