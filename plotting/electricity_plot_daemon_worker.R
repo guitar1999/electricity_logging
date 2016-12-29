@@ -2,7 +2,7 @@ require(plotrix)
 require(RPostgreSQL)
 
 # Make a connection to the database
-source('/Users/jessebishop/.rconfig.R')
+source('/home/jessebishop/.rconfig.R')
 
 # A function to run the plotting script and return the time
 genplot <- function(scr){
@@ -86,9 +86,9 @@ while(TRUE){
         plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_dow.R')
         runtime <- runtime + plottime
         print("    gas dow")
-        # plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_daily.R')
-        # runtime <- runtime + plottime
-        # print("    gas daily")
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_daily.R')
+        runtime <- runtime + plottime
+        print("    gas daily")
     }
 
     # Run the daily every 15th loop and add the plotting times to the loop runtime
@@ -99,12 +99,12 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_yearly.R')
         runtime <- runtime + plottime
         print("    yearly")
- #       plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_monthly.R')
-#        runtime <- runtime + plottime
-#        print("    gas monthly")
-#        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_yearly.R')
-#        runtime <- runtime + plottime
-#        print("    gas yearly")
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_monthly.R')
+        runtime <- runtime + plottime#        print("    gas monthly")
+        print("    gas monthly")
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_yearly.R')
+        runtime <- runtime + plottime
+        print("    gas yearly")
 
     }
 
