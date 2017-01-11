@@ -2,6 +2,10 @@ if (! 'package:plotrix' %in% search()) {
     require(plotrix)
 }
 bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
+    # Hack to get btu avg plots working
+    n = names(res)
+    n[which(names(res) == 'btu')] <- 'kwh'
+    names(res) <- n
     # Define the barplotting function, since it may need to be called more than once depending on the graph.
     bpf <- function(kwh, label, col, main, xlab, ylab, xpd, las, add){
         barplot(kwh, names.arg=label, col=col, main=main, xlab=xlab, ylab=ylab, xpd=xpd, las=las, add=add)
@@ -82,13 +86,13 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     }
     if ("btu_avg" %in% colnames(res)){
 	print("hi")
-        pdcol[res$btu > res$btu_avg] <- 'darkorange'
-        pdcol[res$btu <= res$btu_avg] <- 'darkorange'
+        pdcol[res$kwh > res$btu_avg] <- 'darkorange'
+        pdcol[res$kwh <= res$btu_avg] <- 'darkorange'
         pdcol[pcol == 'x'] <- 'darkorange'
         res$btu_avg_plot <- res$btu_avg
-        res$btu_avg_plot[res$btu_avg > max(res$btu)] <- max(res$btu)
+        res$btu_avg_plot[res$btu_avg > max(res$kwh)] <- max(res$kwh)
         res$btu_avg_pch <- 19
-        res$btu_avg_pch[res$btu_avg > max(res$btu)] <- 8
+        res$btu_avg_pch[res$btu_avg > max(res$kwh)] <- 8
         points(b, res$btu_avg, col=pdcol, pch=res$btu_avg_pch)
     }
 }
