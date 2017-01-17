@@ -12,9 +12,15 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     }
     # Generate a vector of bar colors
     col <- rep('x', length(res$kwh))
-    col[res$kwh > res$kwh_avg] <- rgb(188/255, 143/255, 143/255, 175/255) #rosybrown 557
-    col[res$kwh <= res$kwh_avg] <- rgb(238/255, 221/255, 130/255, 200/255) #lightgoldenrod 410
-    col[col == 'x'] <- 'lightgoldenrod'
+    if ("btu_avg" %in% colnames(res)){
+        col[res$kwh > res$btu_avg] <- 'darkorange'
+        col[res$kwh <= res$btu_avg] <- 'orange'
+        col[col == 'x'] <- 'orange'
+    } else {
+        col[res$kwh > res$kwh_avg] <- rgb(188/255, 143/255, 143/255, 175/255) #rosybrown 557
+        col[res$kwh <= res$kwh_avg] <- rgb(238/255, 221/255, 130/255, 200/255) #lightgoldenrod 410
+        col[col == 'x'] <- 'lightgoldenrod'
+    }
     # Generate a vector of point colors
     pcol <- rep('x', length(res$kwh))
     pcol[res$kwh > res$kwh_avg] <- 'firebrick'
@@ -85,10 +91,9 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         points(b, res$kwh_avg_dow, col=pdcol, pch=res$kwh_avg_dow_pch)
     }
     if ("btu_avg" %in% colnames(res)){
-	print("hi")
-        pdcol[res$kwh > res$btu_avg] <- 'darkorange'
-        pdcol[res$kwh <= res$btu_avg] <- 'darkorange'
-        pdcol[pcol == 'x'] <- 'darkorange'
+        pdcol[res$kwh > res$btu_avg] <- 'darkorange3'
+        pdcol[res$kwh <= res$btu_avg] <- 'orange3'
+        pdcol[pcol == 'x'] <- 'orange3'
         res$btu_avg_plot <- res$btu_avg
         res$btu_avg_plot[res$btu_avg > max(res$kwh)] <- max(res$kwh)
         res$btu_avg_pch <- 19
