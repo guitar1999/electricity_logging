@@ -79,13 +79,13 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         }
         points(b, res$kwh_avg_plot, pch=res$kwh_avg_pch, col=pcol)
     }
-    # If this polot has an average by day of week value, draw the points
+    # If this plot has an average by day of week value, draw the points
     if ("kwh_avg_dow" %in% colnames(res)){
         pdcol[res$kwh > res$kwh_avg_dow] <- 'firebrick'
         pdcol[res$kwh <= res$kwh_avg_dow] <- 'darkgoldenrod'
         pdcol[pcol == 'x'] <- 'darkgoldenrod'
         res$kwh_avg_dow_plot <- res$kwh_avg_dow
-        res$kwh_avg_dow_plot[res$kwh_avg_dow > max(res$kwh)] <- max(res$kwh)
+        res$kwh_avg_dow_plot[res$kwh_avg_dow > max(res$kwh)] <- max(res$kwh) - max(res$kwh) / 100
         res$kwh_avg_dow_pch <- 19
         res$kwh_avg_dow_pch[res$kwh_avg_dow > max(res$kwh)] <- 8
         points(b, res$kwh_avg_dow, col=pdcol, pch=res$kwh_avg_dow_pch)
@@ -95,9 +95,9 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         pdcol[res$kwh <= res$btu_avg] <- 'orange3'
         pdcol[pcol == 'x'] <- 'orange3'
         res$btu_avg_plot <- res$btu_avg
-        res$btu_avg_plot[res$btu_avg > max(res$kwh)] <- max(res$kwh)
+        res$btu_avg_plot[res$btu_avg > max(res$kwh)] <- max(res$kwh) - max(res$kwh) / 100
         res$btu_avg_pch <- 19
         res$btu_avg_pch[res$btu_avg > max(res$kwh)] <- 8
-        points(b, res$btu_avg, col=pdcol, pch=res$btu_avg_pch)
+        points(b, res$btu_avg_plot, col=pdcol, pch=res$btu_avg_pch)
     }
 }
