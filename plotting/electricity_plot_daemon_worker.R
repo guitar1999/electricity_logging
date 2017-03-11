@@ -37,7 +37,7 @@ while(TRUE){
     print("    line")
 #    plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_last_hour.R')
 #    runtime <- runtime + plottime
-#    print("    gas line")
+#    print("    oil line")
 
 
     # Run the hourlies every 2nd loop and add the plotting time to the loop runtime
@@ -88,13 +88,13 @@ while(TRUE){
         print("    24 hours")
 	plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_dow.R')
         runtime <- runtime + plottime
-        print("    gas dow")
+        print("    oil dow")
         plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_dow_season.R')
         runtime <- runtime + plottime
-        print("    gas dowseason")
+        print("    oil dowseason")
         plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_daily.R')
         runtime <- runtime + plottime
-        print("    gas daily")
+        print("    oil daily")
     }
 
     # Run the daily every 15th loop and add the plotting times to the loop runtime
@@ -106,11 +106,11 @@ while(TRUE){
         runtime <- runtime + plottime
         print("    yearly")
         plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_monthly.R')
-        runtime <- runtime + plottime#        print("    gas monthly")
-        print("    gas monthly")
+        runtime <- runtime + plottime#        print("    oil monthly")
+        print("    oil monthly")
         plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_yearly.R')
         runtime <- runtime + plottime
-        print("    gas yearly")
+        print("    oil yearly")
 
     }
 
@@ -119,6 +119,9 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily_1year.R')
         runtime <- runtime + plottime
         print("    daily 1year")
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_daily_1year.R')
+        runtime <- runtime + plottime
+        print("    oil daily 1year")
     }
 
 
@@ -138,7 +141,7 @@ while(TRUE){
         }
     }
 
-    
+
     # Increment the loop ticker
     if (ticker < 59){
         ticker <- ticker + 1
