@@ -5,7 +5,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source('/usr/local/electricity_logging/plotting/barplot.R')
 
-query <- "SELECT u.hour AS label, u.kwh, s.kwh_avg, u.complete FROM electricity_usage_hourly u INNER JOIN electricity_statistics.electricity_statistics_hourly_dow s ON u.hour=s.hour AND s.dow = CASE WHEN u.hour > date_part('hour', CURRENT_TIMESTAMP) THEN date_part('dow', (CURRENT_TIMESTAMP - interval '1 day')) ELSE date_part('dow', CURRENT_TIMESTAMP) END WHERE NOT u.hour = date_part('hour', CURRENT_TIMESTAMP) ORDER BY u.updated;"
+query <- "SELECT u.hour AS label, COALESCE(u.kwh, 0) AS kwh, s.kwh_avg, u.complete FROM electricity_usage_hourly u INNER JOIN electricity_statistics.electricity_statistics_hourly_dow s ON u.hour=s.hour AND s.dow = CASE WHEN u.hour > date_part('hour', CURRENT_TIMESTAMP) THEN date_part('dow', (CURRENT_TIMESTAMP - interval '1 day')) ELSE date_part('dow', CURRENT_TIMESTAMP) END WHERE NOT u.hour = date_part('hour', CURRENT_TIMESTAMP) ORDER BY u.updated;"
 res <- dbGetQuery(con, query)
 
 #query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP) AS label, akwh AS kwh, kwh_avg, kwh_avg_dow, 'no'::text AS complete FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS akwh FROM electricity_measurements WHERE measurement_time > CURRENT_TIMESTAMP - interval '1 hour' AND date_part('hour', measurement_time) = date_part('hour', CURRENT_TIMESTAMP)) AS x, electricity_usage_hourly WHERE hour = date_part('hour', CURRENT_TIMESTAMP);"
