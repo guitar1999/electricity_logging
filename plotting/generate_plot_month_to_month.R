@@ -50,4 +50,4 @@ leg.col <- c(ghostcolors[1], 'white', ghostcolors[ghostyears], 'red', 'blue4', '
 legend("bottomright", legend=leg.txt, col=leg.col, lty=leg.lty, inset=0.01)
 dev.off()
 
-system(paste("scp", fname, "web309.webfaction.com:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
+system(paste("scp", fname, "207.38.86.222:/home/jessebishop/webapps/htdocs/home/frompi/electricity/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)

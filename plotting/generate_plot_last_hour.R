@@ -47,4 +47,4 @@ leg.col <- c('orange', 'rosybrown')
 legend('topright', legend=leg.txt, col=leg.col, lty=c(1,1), inset=0.01)
 dev.off()
 
-system(paste("scp", fname, "75.126.173.130:/home/jessebishop/webapps/htdocs/home/frompi/electricity2/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
+system(paste("scp", fname, "207.38.86.222:/home/jessebishop/webapps/htdocs/home/frompi/electricity2/", sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
