@@ -167,6 +167,15 @@ def hour_query(now, opdate, hour, ophour, starttime, endtime, dow, reset):
     except:
         print "Hourly sum already updated."
     db.commit()
+    # Predict the actual usage based on measured usage
+    query = """SELECT SUM((watts_ch1) * tdiff / 60 / 60 / 1000.) AS kwh_ch1, SUM((watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh_ch2, SUM((watts_ch3) * tdiff / 60 / 60 / 1000.) AS kwh_ch3 FROM electricity.electricity_measurements WHERE measurement_time > '{0}' AND measurement_time <= '{1}' AND date_part('hour', measurement_time) = {2};""".format(starttime, endtime, ophour)
+    cursor.execute(query)
+    kwh_ch1, kwh_ch2, kwh_ch3 = cursor.fetchone()
+    df = pd.DataFrame([(hour, kwh_ch1, kwh_ch2, kwh_ch3)], columns=['hour', 'kwh_ch1', 'kwh_ch2', 'kwh_ch3'])
+    pred = rf.predict(df)
+    query = """UPDATE electricity_statistics.electricity_sums_hourly SET kwh_modeled = {0} WHERE sum_date = '{1}' AND hour = {2};""".format(pred[0], opdate.strftime('%Y-%m-%d'), ophour)
+    cursor.execute(query)
+    db.commit()
 
 def day_query(now, nowdow, opdate, dow, endtime, rundate, reset):
     if not rundate:
@@ -248,6 +257,12 @@ now = datetime.datetime.now()
 
 if args.mode == 'hour':
     print 'Hourly'
+    # Load additional modules needed for electricity correction
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.externals import joblib
+    import pandas as pd
+    # Load the model file
+    rf = joblib.load('/usr/local/electricity_logging/statistics/hourly_correction_model.pkl')
     if args.rundate and args.runhour:
         res = hour_calc(now, args.rundate, args.runhour)
     else:
