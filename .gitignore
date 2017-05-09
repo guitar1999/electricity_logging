@@ -1,2 +1,3 @@
 *.pyc
 *.cpickle
+*.pkl
