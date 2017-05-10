@@ -14,7 +14,7 @@ source('/usr/local/electricity_logging/plotting/barplot.R')
 
 #res <- rbind(res, res2)
 
-query <- "SELECT s.month AS label, s.kwh, st.kwh_avg, s.complete FROM electricity_cmp.cmp_electricity_sums_monthly_view s LEFT JOIN electricity_cmp.cmp_electricity_statistics_monthly st ON s.month=st.month WHERE (s.year >= DATE_PART('year', CURRENT_TIMESTAMP) - 1 AND s.month > DATE_PART('month', CURRENT_TIMESTAMP)) OR s.year = DATE_PART('year', CURRENT_TIMESTAMP) ORDER BY s.year, s.month;"
+query <- "WITH add AS (SELECT DATE_PART('year', sum_date) AS year, DATE_PART('month', sum_date) AS month, SUM(kwh_modeled) AS kwh FROM electricity_statistics.electricity_sums_hourly WHERE sum_date > (SELECT MAX(sum_date) FROM electricity_cmp.cmp_electricity_sums_hourly_view) GROUP BY DATE_PART('year', sum_date), DATE_PART('month', sum_date)), joiner AS (SELECT COALESCE(s.year, add.year) AS year, COALESCE(s.month, add.month) AS month, COALESCE(s.kwh, 0) + COALESCE(add.kwh, 0) AS kwh, COALESCE(s.complete, 'no') AS complete FROM electricity_cmp.cmp_electricity_sums_monthly_view s FULL OUTER JOIN add ON s.year=add.year AND s.month=add.month) SELECT s.month AS label, s.kwh, st.kwh_avg, s.complete FROM joiner s LEFT JOIN electricity_cmp.cmp_electricity_statistics_monthly st ON s.month=st.month WHERE (s.year >= DATE_PART('year', CURRENT_TIMESTAMP) - 1 AND s.month > DATE_PART('month', CURRENT_TIMESTAMP)) OR s.year = DATE_PART('year', CURRENT_TIMESTAMP) ORDER BY s.year, s.month;"
 res <- dbGetQuery(con, query)
 
 #res$col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
