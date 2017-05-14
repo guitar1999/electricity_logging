@@ -5,19 +5,9 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source('/usr/local/electricity_logging/plotting/barplot.R')
 
-#query <- "SELECT u.hour AS label, COALESCE(u.kwh, 0) AS kwh, s.kwh_avg, u.complete FROM electricity_usage_hourly u INNER JOIN electricity_statistics.electricity_statistics_hourly_season s ON u.hour=s.hour AND s.season = CASE WHEN u.hour > date_part('hour', CURRENT_TIMESTAMP) THEN (SELECT season FROM meteorological_season WHERE doy = date_part('doy', (CURRENT_TIMESTAMP - interval '1 day'))) ELSE (SELECT season FROM meteorological_season WHERE doy = date_part('doy', CURRENT_TIMESTAMP)) END WHERE NOT u.hour = date_part('hour', CURRENT_TIMESTAMP) ORDER BY u.updated;"
-query <- "WITH u AS ((SELECT e.sum_date, e.hour, COALESCE(c.kwh, COALESCE(e.kwh_modeled, e.kwh)) AS kwh FROM electricity_statistics.electricity_sums_hourly e LEFT JOIN electricity_cmp.cmp_electricity_sums_hourly_view c ON e.sum_date=c.sum_date AND e.hour=c.hour ORDER BY e.sum_date DESC, e.hour DESC LIMIT 23) UNION (SELECT CURRENT_TIMESTAMP::DATE AS sum_date, DATE_PART('hour', CURRENT_TIMESTAMP) AS hour, kwh FROM electricity.electricity_usage_hourly u WHERE u.hour = DATE_PART('hour', CURRENT_TIMESTAMP))) SELECT u.sum_date, u.hour AS label, u.kwh, SUM(s.kwh_avg * s.count) / SUM(s.count) AS kwh_avg FROM u INNER JOIN electricity_cmp.cmp_electricity_statistics_hourly s ON u.hour=s.hour AND s.season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', sum_date)) GROUP BY u.sum_date, u.hour, u.kwh ORDER BY u.sum_date, u.hour;"
+query <- "SELECT * FROM electricity_plotting.electricity_hourly_season;"
 res <- dbGetQuery(con, query)
 
-#query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP) AS label, akwh AS kwh, kwh_avg, kwh_avg_dow, 'no'::text AS complete FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS akwh FROM electricity_measurements WHERE measurement_time > CURRENT_TIMESTAMP - interval '1 hour' AND date_part('hour', measurement_time) = date_part('hour', CURRENT_TIMESTAMP)) AS x, electricity_usage_hourly WHERE hour = date_part('hour', CURRENT_TIMESTAMP);"
-# Don't use the increment function here because we likely just did it for the daily plot
-#query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP) AS label, u.kwh, s.kwh_avg, complete FROM electricity_usage_hourly u INNER JOIN electricity_statistics.electricity_statistics_hourly_season s ON u.hour=s.hour WHERE u.hour = date_part('hour', CURRENT_TIMESTAMP) AND s.season = (SELECT season FROM meteorological_season WHERE doy = date_part('doy', CURRENT_TIMESTAMP));"
-#res2 <- dbGetQuery(con, query2)
-
-#res <- rbind(res, res2)
-#res$col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
-#res$col[res$kwh <= res$kwh_avg] <- 'lightgoldenrod' #410
-#res$kwh_avg <- res$kwh_avg_dow
 # Do some sunrise and sunset calculations
 today <- Sys.Date()
 yesterday <- today - 1
