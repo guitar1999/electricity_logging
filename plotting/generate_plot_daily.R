@@ -5,7 +5,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source('/usr/local/electricity_logging/plotting/barplot.R')
 
-query <- "SELECT label, kwh, previous_year AS kwh_avg, complete FROM electricity_plotting.electricity_daily WHERE row_number < 8;"
+query <- "SELECT label, kwh, previous_year AS kwh_avg, complete FROM electricity_plotting.electricity_daily WHERE row_number < 31;"
 res <- dbGetQuery(con, query)
 
 res$jday <- res$label # Fake it until I fix barplot function to take las as an argument
