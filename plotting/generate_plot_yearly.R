@@ -7,9 +7,6 @@ source('/usr/local/electricity_logging/plotting/barplot.R')
 
 query <- "SELECT label, kwh, previous_yeartodate_kwh AS kwh_avg, complete FROM electricity_plotting.electricity_yearly;"
 res <- dbGetQuery(con, query)
-if (dim(res)[1] > 0) {
-    res$kwh_avg <- NA
-}
 
 fname <- '/var/www/electricity/yearly.png'
 cname <- '/var/www/electricity/yearly.csv'
