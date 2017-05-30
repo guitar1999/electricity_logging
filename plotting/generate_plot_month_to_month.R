@@ -24,7 +24,7 @@ kwhavg <- dbGetQuery(con, query)
 # predline <- rbind(measurements[dim(measurements)[1],c("timestamp", "cumulative_kwh")], setNames(data.frame(prediction[dim(prediction)[1],]), c(names(measurements)[5], names(measurements)[8])))
 
 fname <- '/var/www/electricity/month_to_month.png'
-ymax <- max(c(measurements$cumulative_kwh, prediction$minute))
+ymax <- max(c(measurements$cumulative_kwh)#, prediction$minute))
 
 png(filename=fname, width=1200, height=500, units='px', pointsize=12, bg='white')
 # Set up empty plot
