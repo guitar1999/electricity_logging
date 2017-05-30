@@ -15,7 +15,7 @@ CREATE OR REPLACE VIEW electricity_statistics.electricity_sums_hourly_best_avail
             SELECT
                 CURRENT_DATE AS sum_date,
                 DATE_PART('hour', CURRENT_TIMESTAMP) AS hour,
-                SUM((watts_ch1 + watts_ch2) / 1000. / 60 / 60) AS kwh,
+                SUM((watts_ch1 + watts_ch2) * tdiff / 1000. / 60 / 60) AS kwh,
                 'no'::TEXT AS complete
             FROM
                 electricity.electricity_measurements
