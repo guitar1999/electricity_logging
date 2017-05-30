@@ -5,7 +5,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source('/usr/local/electricity_logging/plotting/barplot.R')
 
-query <- "SELECT * FROM electricity_plotting.electricity_hourly_season;"
+query <- "SELECT label, kwh, kwh_avg, complete FROM electricity_plotting.electricity_hourly_season;"
 res <- dbGetQuery(con, query)
 
 # Do some sunrise and sunset calculations

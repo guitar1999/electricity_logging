@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW electricity_plotting.electricity_hourly_season AS (
+CREATE OR REPLACE VIEW electricity_plotting.electricity_hourly_dow AS (
     WITH u AS (
         SELECT
             ROW_NUMBER() OVER (ORDER BY sum_date DESC, hour DESC),
@@ -22,24 +22,10 @@ CREATE OR REPLACE VIEW electricity_plotting.electricity_hourly_season AS (
         u
         INNER JOIN electricity_cmp.cmp_electricity_statistics_hourly s
             ON u.hour=s.hour
-            AND s.season =
+            AND s.dow =
                 CASE
-                    WHEN u.hour > date_part('hour', CURRENT_TIMESTAMP) THEN
-                        (SELECT
-                            season
-                        FROM
-                            meteorological_season
-                        WHERE
-                            doy = date_part('doy', (CURRENT_TIMESTAMP - interval '1 day'))
-                        )
-                    ELSE
-                        (SELECT
-                            season
-                        FROM
-                            meteorological_season
-                        WHERE
-                            doy = date_part('doy', CURRENT_TIMESTAMP)
-                        )
+                    WHEN u.hour > date_part('hour', CURRENT_TIMESTAMP) THEN date_part('dow', (CURRENT_TIMESTAMP - interval '1 day'))
+                    ELSE date_part('dow', CURRENT_TIMESTAMP)
                 END
     GROUP BY
         u.sum_date,

@@ -5,16 +5,8 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source('/usr/local/electricity_logging/plotting/barplot.R')
 
-query <- "SELECT u.hour AS label, COALESCE(u.kwh, 0) AS kwh, s.kwh_avg, u.complete FROM electricity_usage_hourly u INNER JOIN electricity_statistics_hourly s ON u.hour=s.hour WHERE NOT u.hour = date_part('hour', CURRENT_TIMESTAMP) ORDER BY u.updated;"
+query <- "SELECT label, kwh, kwh_avg, complete FROM electricity_plotting.electricity_hourly;"
 res <- dbGetQuery(con, query)
-
-#query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP) AS label, akwh AS kwh, kwh_avg, 'no'::text AS complete FROM (SELECT SUM((watts_ch1 + watts_ch2) * tdiff / 60 / 60 / 1000.) AS akwh FROM electricity_measurements WHERE measurement_time > CURRENT_TIMESTAMP - interval '1 hour' AND date_part('hour', measurement_time) = date_part('hour', CURRENT_TIMESTAMP)) AS x, electricity_usage_hourly WHERE hour = date_part('hour', CURRENT_TIMESTAMP);"
-query2 <- "SELECT date_part('hour', CURRENT_TIMESTAMP) AS label, increment_usage('electricity_usage_hourly', 'hour') AS kwh, s.kwh_avg, u.complete FROM electricity_usage_hourly u INNER JOIN electricity_statistics_hourly s ON u.hour=s.hour WHERE u.hour = date_part('hour', CURRENT_TIMESTAMP);"
-res2 <- dbGetQuery(con, query2)
-
-res <- rbind(res, res2)
-#res$col[res$kwh > res$kwh_avg] <- 'rosybrown' #557
-#res$col[res$kwh <= res$kwh_avg] <- 'lightgoldenrod' #410
 
 # Do some sunrise and sunset calculations
 today <- Sys.Date()
