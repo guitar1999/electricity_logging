@@ -66,16 +66,16 @@ while(TRUE){
 
     # Run the month_to_month at 7 past the hour and add the plotting timest to the loop runtime
     if (ticker == 7){
-        # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_month_to_month.R')
-        # runtime <- runtime + plottime
-        # print("    month to month")
+        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_month_to_month.R')
+        runtime <- runtime + plottime
+        print("    month to month")
     }
 
     # Run the dow every 2nd loop and add the plotting times to the loop runtime
     if (ticker %% 2 == 0 && ticker != 0){
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow.R')
-        runtime <- runtime + plottime
-        print("    dow")
+        # plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow.R')
+        # runtime <- runtime + plottime
+        # print("    dow")
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow_season.R')
         runtime <- runtime + plottime
         print("    dowseason")
