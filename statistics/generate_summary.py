@@ -168,10 +168,10 @@ def hour_query(now, opdate, hour, ophour, starttime, endtime, dow, reset):
         print "Hourly sum already updated."
     db.commit()
     # Predict the actual usage based on measured usage
-    query = """SELECT SUM((watts_ch1) * tdiff / 60 / 60 / 1000.) AS kwh_ch1, SUM((watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh_ch2, SUM((watts_ch3) * tdiff / 60 / 60 / 1000.) AS kwh_ch3 FROM electricity.electricity_measurements WHERE measurement_time > '{0}' AND measurement_time <= '{1}' AND date_part('hour', measurement_time) = {2};""".format(starttime, endtime, ophour)
+    query = """SELECT SUM((watts_ch1) * tdiff / 60 / 60 / 1000.) AS kwh_ch1, SUM((watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh_ch2, SUM((watts_ch3) * tdiff / 60 / 60 / 1000.) AS kwh_ch3, MIN(CASE s.season WHEN 'winter' THEN 0 WHEN 'spring' then 1 WHEN 'summer' THEN 2 WHEN 'fall' THEN 3 END) AS season, COUNT(*) AS measurement_count, MAX(tdiff) AS max_tdiff FROM electricity.electricity_measurements LEFT JOIN weather_data.meteorological_season s ON s.doy=DATE_PART('doy', measurement_time) WHERE measurement_time > '{0}' AND measurement_time <= '{1}' AND date_part('hour', measurement_time) = {2};""".format(starttime, endtime, ophour)
     cursor.execute(query)
-    kwh_ch1, kwh_ch2, kwh_ch3 = cursor.fetchone()
-    df = pd.DataFrame([(hour, kwh_ch1, kwh_ch2, kwh_ch3)], columns=['hour', 'kwh_ch1', 'kwh_ch2', 'kwh_ch3'])
+    kwh_ch1, kwh_ch2, kwh_ch3, season, measurement_count, max_tdiff = cursor.fetchone()
+    df = pd.DataFrame([(hour, kwh_ch1, kwh_ch2, kwh_ch3, season, measurement_count, max_tdiff)], columns=['hour', 'kwh_ch1', 'kwh_ch2', 'kwh_ch3', 'season', 'measurement_count', 'max_tdiff'])
     pred = rf.predict(df)
     query = """UPDATE electricity_statistics.electricity_sums_hourly SET kwh_modeled = {0} WHERE sum_date = '{1}' AND hour = {2};""".format(pred[0], opdate.strftime('%Y-%m-%d'), ophour)
     cursor.execute(query)
