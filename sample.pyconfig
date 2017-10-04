@@ -13,6 +13,9 @@ DBNAME =
 DBUSER = 
 DBPORT = 
 
+[pickledir]
+PICKLE_DIR = 
+
 [wfdb]
 DBHOST = 
 DBNAME = 
