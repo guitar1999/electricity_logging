@@ -34,6 +34,7 @@ dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
 dbport = config.get('pidb', 'DBPORT')
+pickledir = config.get('pickledir', 'PICKLE_DIR')
 
 
 ###########################
@@ -262,7 +263,7 @@ if args.mode == 'hour':
     from sklearn.externals import joblib
     import pandas as pd
     # Load the model file
-    rf = joblib.load('/usr/local/electricity_logging/statistics/hourly_correction_model.pkl')
+    rf = joblib.load('{0}/hourly_correction_model.pkl'.format(pickledir))
     if args.rundate and args.runhour:
         res = hour_calc(now, args.rundate, args.runhour)
     else:

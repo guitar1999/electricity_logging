@@ -23,12 +23,15 @@ kwhavg <- dbGetQuery(con, query)
 # prediction <- rbind(prediction, setNames(data.frame(xmax, prediction$minute[length(prediction$minute)]), names(prediction)))
 # predline <- rbind(measurements[dim(measurements)[1],c("timestamp", "cumulative_kwh")], setNames(data.frame(prediction[dim(prediction)[1],]), c(names(measurements)[5], names(measurements)[8])))
 
+hseq <- seq(min(measurements$plotstamp), max(measurements$plotstamp) + 86400, 86400) - 3599
+
 fname <- '/var/www/electricity/month_to_month.png'
 ymax <- max(c(measurements$cumulative_kwh))#, prediction$minute))
 
 png(filename=fname, width=1200, height=500, units='px', pointsize=12, bg='white')
 # Set up empty plot
 plot(measurements$plotstamp, measurements$cumulative_kwh, type='l', col='white', ylim=c(0,ymax), xlab='', ylab='Cumulative kwh')
+abline(v=hseq, col='lightgrey', lty=2)
 years <- seq(min(measurements$year), max(measurements$year))
 ghostyears <- length(years) - 1
 ghostcolors <- grey.colors(ghostyears,start=0.8, end=0.5)

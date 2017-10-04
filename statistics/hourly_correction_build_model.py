@@ -17,6 +17,7 @@ dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
 dbport = config.get('pidb', 'DBPORT')
+pickledir = config.get('pickledir', 'PICKLE_DIR')
 
 # Create SQLAlchemy Engine
 engine = create_engine('postgres://{0}@{1}:{2}/{3}'.format(dbuser, dbhost, dbport, dbname))
@@ -36,7 +37,7 @@ rf = RandomForestRegressor(n_estimators=500, n_jobs=-1)
 rf.fit(df[features], df['kwh'])
 
 # Dump the file for later use
-joblib.dump(rf, '/usr/local/electricity_logging/statistics/hourly_correction_model.pkl')
+joblib.dump(rf, '{0}/hourly_correction_model.pkl'.format(pickledir))
 
 # Get data to be predicted
 # query = '''SELECT sum_date, hour, kwh_ch1, kwh_ch2, kwh_ch3 FROM electricity_statistics.electricity_sums_hourly_modeling_view WHERE NOT sum_date = CURRENT_TIMESTAMP::DATE OR NOT hour = DATE_PART('hour', CURRENT_TIMESTAMP);'''
@@ -67,4 +68,3 @@ db.close()
 
 # select * into temp_electricity_sums_hourly_modeled_python_20170828_all_extra from temp_electricity_sums_hourly_modeled_python2 limit 1;
 # delete from temp_electricity_sums_hourly_modeled_python_20170828_all_extra;
-    
