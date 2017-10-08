@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import argparse, ConfigParser, datetime, os, psycopg2
+import argparse, ConfigParser, datetime, os, psycopg2, pytz
 
 
 #####################
@@ -254,7 +254,7 @@ def month_query(now, opmonth, year, reset):
 
 
 # Main stuff here
-now = datetime.datetime.now()
+now = pytz.utc.localize(datetime.datetime.utcnow()).astimezone(pytz.timezone('America/New_York'))
 
 if args.mode == 'hour':
     print 'Hourly'
