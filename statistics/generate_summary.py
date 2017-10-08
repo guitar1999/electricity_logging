@@ -35,7 +35,7 @@ dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
 dbport = config.get('pidb', 'DBPORT')
 pickledir = config.get('pickledir', 'PICKLE_DIR')
-
+tz = config.get('location', 'TZ')
 
 ###########################
 # Connect to the database #
@@ -254,7 +254,7 @@ def month_query(now, opmonth, year, reset):
 
 
 # Main stuff here
-now = pytz.utc.localize(datetime.datetime.utcnow()).astimezone(pytz.timezone('America/New_York'))
+now = pytz.utc.localize(datetime.datetime.utcnow()).astimezone(pytz.timezone(tz))
 
 if args.mode == 'hour':
     print 'Hourly'
