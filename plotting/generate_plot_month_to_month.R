@@ -74,9 +74,6 @@ if (ghostyears == 0) {
 leg.txt <- c(ghosttext, years[length(years)], "predicted total runtime", "average runtime")
 leg.lty <- c(1, 1, 1, 1, 2, 1)
 leg.col <- c(ghostcolor, 'red', 'blue4', 'orange')
-leg.txt <- c(years[1], '. . .', years[ghostyears], years[length(years)], "predicted total kwh", "average kwh")
-leg.lty <- c(1, 1, 1, 1, 2, 1)
-leg.col <- c(ghostcolors[1], 'white', ghostcolors[ghostyears], 'red', 'blue4', 'orange')
 legend("bottomright", legend=leg.txt, col=leg.col, lty=leg.lty, inset=0.01)
 dev.off()
 
