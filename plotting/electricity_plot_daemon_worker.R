@@ -69,6 +69,9 @@ while(TRUE){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_month_to_month.R')
         runtime <- runtime + plottime
         print("    month to month")
+        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_month_to_month.R')
+        runtime <- runtime + plottime
+        print("    oil month to month")
     }
 
     # Run the dow every 2nd loop and add the plotting times to the loop runtime
