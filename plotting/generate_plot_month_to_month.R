@@ -29,7 +29,8 @@ query <- paste("SELECT kwh_avg FROM cmp_electricity_statistics_monthly WHERE mon
 kwhavg <- dbGetQuery(con, query)
 
 # query <- "SELECT time, CASE WHEN minuteh IS NULL THEN minute ELSE minuteh END AS minute FROM prediction_test WHERE date_part('year', time) = date_part('year', CURRENT_TIMESTAMP) AND date_part('month', time) = date_part('month', CURRENT_TIMESTAMP) AND minute > 0 ORDER BY time;"
-# prediction <- dbGetQuery(con, query)
+query <- "SELECT timestamp, cumulative_kwh FROM electricity_plotting.cumulative_predicted_use_this_month_view;"
+prediction <- dbGetQuery(con, query)
 # prediction <- rbind(prediction, setNames(data.frame(xmax, prediction$minute[length(prediction$minute)]), names(prediction)))
 # predline <- rbind(measurements[dim(measurements)[1],c("timestamp", "cumulative_kwh")], setNames(data.frame(prediction[dim(prediction)[1],]), c(names(measurements)[5], names(measurements)[8])))
 
@@ -37,7 +38,7 @@ hseq <- seq(min(measurements$plotstamp), max(measurements$plotstamp) + 86400, 86
 
 fname <- '/var/www/electricity/month_to_month.png'
 fname2 <- paste('month_to_month_', month, '.png', sep='')
-ymax <- max(c(measurements$cumulative_kwh))#, prediction$minute))
+ymax <- max(c(measurements$cumulative_kwh, prediction$cumulative_kwh))
 
 png(filename=fname, width=1200, height=500, units='px', pointsize=12, bg='white')
 # Set up empty plot
@@ -55,7 +56,7 @@ for (i in seq(1, length(years))){
     }
     lines(plotdata$plotstamp, plotdata$cumulative_kwh, col=linecolor, lwd=1.5)
 }
-# lines(prediction$time, prediction$minute, col='blue4', lty=2)
+lines(prediction$timestamp, prediction$cumulative_kwh, col='blue4', lty=2)
 # lines(predline, col='darkred', lty=2, lwd=1.5)
 abline(h=kwhavg, col='orange')
 if (ghostyears == 0) {
