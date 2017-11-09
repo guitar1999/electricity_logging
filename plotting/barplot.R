@@ -93,7 +93,7 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     if ("btu_avg" %in% colnames(res)){
         pdcol[res$kwh > res$btu_avg] <- 'darkorange3'
         pdcol[res$kwh <= res$btu_avg] <- 'orange3'
-        pdcol[pcol == 'x'] <- 'orange3'
+        pdcol[pdcol == 'x'] <- 'orange3'
         res$btu_avg_plot <- res$btu_avg
         res$btu_avg_plot[res$btu_avg > max(res$kwh)] <- max(res$kwh) - max(res$kwh) / 100
         res$btu_avg_pch <- 19
