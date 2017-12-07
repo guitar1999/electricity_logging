@@ -32,17 +32,17 @@ json_string = f.read()
 parsed_json = json.loads(json_string)
 
 # Get the data (more later?)
-hdd = parsed_json['history']['dailysummary'][0]['heatingdegreedays']
-meandewpti = parsed_json['history']['dailysummary'][0]['meandewpti']
-meanpressurei = parsed_json['history']['dailysummary'][0]['meanpressurei']
-meantempi = parsed_json['history']['dailysummary'][0]['meantempi']
-meanvisi = parsed_json['history']['dailysummary'][0]['meanvisi']
-meanwdird = parsed_json['history']['dailysummary'][0]['meanwdird']
-meanwindspdi = parsed_json['history']['dailysummary'][0]['meanwindspdi']
+hdd = parsed_json['history']['dailysummary'][0]['heatingdegreedays'] or None
+meandewpti = parsed_json['history']['dailysummary'][0]['meandewpti'] or None
+meanpressurei = parsed_json['history']['dailysummary'][0]['meanpressurei'] or None
+meantempi = parsed_json['history']['dailysummary'][0]['meantempi'] or None
+meanvisi = parsed_json['history']['dailysummary'][0]['meanvisi'] or None
+meanwdird = parsed_json['history']['dailysummary'][0]['meanwdird'] or None
+meanwindspdi = parsed_json['history']['dailysummary'][0]['meanwindspdi'] or None
 
 # Stick it in the database
-query = """INSERT INTO weather_daily_mean_data (weather_date, hdd, mean_dewpoint, mean_pressure, mean_temperature, mean_visibility, mean_wind_direction, mean_wind_speed) VALUES ('{0}', '{1}', {2}, {3}, {4}, {5}, {6}, {7});""".format(opdate.date(), hdd, meandewpti ,meanpressurei ,meantempi ,meanvisi ,meanwdird ,meanwindspdi)
-cursor.execute(query)
+query = """INSERT INTO weather_daily_mean_data (weather_date, hdd, mean_dewpoint, mean_pressure, mean_temperature, mean_visibility, mean_wind_direction, mean_wind_speed) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
+cursor.execute(query, (opdate.date(), hdd, meandewpti ,meanpressurei ,meantempi ,meanvisi ,meanwdird ,meanwindspdi))
 db.commit()
 cursor.close()
 db.close()
