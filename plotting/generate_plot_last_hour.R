@@ -37,7 +37,7 @@ plot(res$measurement_time, res$watts, type='l', col='white', xlim=c(mintime, min
 axis(side=1, at=hseq, labels=substr(hseq, 12, 16))
 axis(side=2, at=vseq, labels=vlab, las=1)
 abline(v=mintime + 3600, col='black')
-abline(h=vseq, col='grey', lty=2)
+abline(h=vseq, col='grey', lty=3)
 abline(v=res2$sunrise, lty=2, col='orange')
 abline(v=res2$sunset, lty=2, col='orange')
 lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
