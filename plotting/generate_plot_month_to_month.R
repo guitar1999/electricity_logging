@@ -46,6 +46,7 @@ plot(measurements$plotstamp, measurements$cumulative_kwh, type='l', col='white',
 abline(v=hseq, col='lightgrey', lty=3)
 years <- seq(min(measurements$year), max(measurements$year))
 ghostyears <- length(years) - 1
+ghostlty <- rep(1, ghostyears)
 ghostcolors <- grey.colors(ghostyears,start=0.8, end=0.5)
 for (i in seq(1, length(years))){
     plotdata <- subset(measurements, measurements$year == years[i])
@@ -73,7 +74,7 @@ if (ghostyears == 0) {
   ghostcolor <- c(ghostcolors[1], 'white', ghostcolors[ghostyears])
 }
 leg.txt <- c(ghosttext, years[length(years)], "predicted total kwh", "average kwh")
-leg.lty <- c(1, 1, 1, 1, 2, 1)
+leg.lty <- c(ghostlty, 1, 5, 1)
 leg.col <- c(ghostcolor, 'red', 'blue4', 'orange')
 legend("bottomright", legend=leg.txt, col=leg.col, lty=leg.lty, inset=0.01)
 dev.off()
