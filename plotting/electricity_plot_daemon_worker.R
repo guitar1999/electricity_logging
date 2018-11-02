@@ -65,7 +65,7 @@ while(TRUE){
     }
 
     # Run the month_to_month every six minutes and add the plotting timest to the loop runtime
-    if (ticker %% 6 == 0){
+    if (ticker %% 2 == 0){
         plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_month_to_month.R')
         runtime <- runtime + plottime
         print("    month to month")

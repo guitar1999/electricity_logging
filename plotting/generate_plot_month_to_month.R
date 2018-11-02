@@ -27,6 +27,8 @@ pxmin <- max(measurements$timestamp)
 
 query <- paste("SELECT kwh_avg FROM cmp_electricity_statistics_monthly WHERE month = ", month, ";", sep="")
 kwhavg <- dbGetQuery(con, query)
+query <- paste("SELECT timestamp, monthly_cum_avg_kwh FROM electricity_plotting.electricity_cumulative_averages WHERE DATE_PART('MONTH', timestamp) = ", month, " ORDER BY timestamp;", sep="")
+cumkwhavg <- dbGetQuery(con, query)
 
 # query <- "SELECT time, CASE WHEN minuteh IS NULL THEN minute ELSE minuteh END AS minute FROM prediction_test WHERE date_part('year', time) = date_part('year', CURRENT_TIMESTAMP) AND date_part('month', time) = date_part('month', CURRENT_TIMESTAMP) AND minute > 0 ORDER BY time;"
 query <- "SELECT timestamp, cumulative_kwh FROM electricity_plotting.cumulative_predicted_use_this_month_view;"
@@ -59,7 +61,8 @@ for (i in seq(1, length(years))){
 }
 lines(prediction$timestamp, prediction$cumulative_kwh, col='blue4', lty=5)
 # lines(predline, col='darkred', lty=2, lwd=1.5)
-abline(h=kwhavg, col='orange')
+# abline(h=kwhavg, col='orange')
+lines(cumkwhavg$timestamp, cumkwhavg$monthly_cum_avg_kwh, col='orange')
 if (ghostyears == 0) {
   ghosttext <- ''
   ghostcolor <- 'white'
