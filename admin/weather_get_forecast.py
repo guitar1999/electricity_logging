@@ -18,27 +18,23 @@ db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
 cursor = db.cursor()
 
 # Connect to wunderground and get historical_data
-url = 'http://api.wunderground.com/api/{0}/forecast10day/q/USA/ME/BRUNSWICK.json'.format(apikey)
+url = 'https://api.weather.gov/gridpoints/GYX/79,71/forecast'
 f = urllib2.urlopen(url)
 json_string = f.read()
 parsed_json = json.loads(json_string)
 
-query = "TRUNCATE weather_data.weather_forecast;"
+query = "DELETE FROM weather_data.weather_forecast_data WHERE NOT start_time::DATE = CURRENT_DATE;"
 cursor.execute(query)
 
-for fd in parsed_json['forecast']['simpleforecast']['forecastday']:
-    # date
-    fdd = fd['date']
-    fdate = '''{0}-{1}-{2}'''.format(fdd['year'], fdd['month'], fdd['day'])
-    high_temp = fd['high']['fahrenheit']
-    low_temp = fd['low']['fahrenheit']
-    avg_temp = (int(high_temp) + int(low_temp)) / 2.0
-    if avg_temp < 65:
-        hdd = round(65 - avg_temp, 0)
-    else:
-        hdd = 0
-    query = """INSERT INTO weather_data.weather_forecast (forecast_date, hdd) VALUES ('{0}', {1});""".format(fdate, hdd)
+for p in parsed_json['properties']['periods']:
+    starttime = p['startTime']
+    endtime = p['endTime']
+    temperature = p['temperature']
+    forecast = p['shortForecast']
+    daytime = p['isDaytime']
+    query = '''INSERT INTO weather_data.weather_forecast_data (start_time, end_time, temperature, daytime, forecast) VALUES ('{0}', '{1}', {2}, {3}, '{4}');'''.format(starttime, endtime, temperature, daytime, forecast)
     cursor.execute(query)
     db.commit()
 cursor.close()
 db.close()
+
