@@ -35,6 +35,11 @@ for p in parsed_json['properties']['periods']:
     query = '''INSERT INTO weather_data.weather_forecast_data (start_time, end_time, temperature, daytime, forecast) VALUES ('{0}', '{1}', {2}, {3}, '{4}');'''.format(starttime, endtime, temperature, daytime, forecast)
     cursor.execute(query)
     db.commit()
+
+# Temporarily delete and update until we can unwind the views dependent on "weather_forecast" and turn that into a view
+query = '''DELETE FROM weather_data.weather_forecast; INSERT INTO weather_data.weather_forecast (SELECT forecast_date, CASE WHEN (max_temp + min_temp) / 2.0 < 65 THEN ROUND(65 - ((max_temp + min_temp) / 2.0), 0) ELSE 0 END AS hdd FROM (SELECT start_time::DATE AS forecast_date, MAX(temperature) FILTER (WHERE NOT daytime) AS min_temp, MAX(temperature) FILTER (WHERE daytime) AS max_temp FROM weather_data.weather_forecast_data WHERE end_time - start_time = interval '12 hours' GROUP BY start_time::DATE ORDER BY start_time::DATE ) AS x WHERE NOT max_temp IS NULL AND NOT min_temp IS NULL);'''
+cursor.execute(query)
+db.commit()
 cursor.close()
 db.close()
 

@@ -2,7 +2,11 @@ CREATE OR REPLACE VIEW electricity_statistics.electricity_sums_hourly_best_avail
     SELECT
         COALESCE(cmp.sum_date, pi.sum_date, c.sum_date) AS sum_date,
         COALESCE(cmp.hour, pi.hour, c.hour) AS hour,
-        COALESCE(cmp.kwh, pi.kwh_modeled, pi.kwh, c.kwh, 0) AS kwh,
+        CASE
+            WHEN COALESCE(cmp.sum_date, pi.sum_date, c.sum_date) > '2018-11-03' -- electrician wired generator this day and measurements seem closer to correct, so we won't model until we have enough data to build a new model. we'll take this out then.
+            THEN COALESCE(cmp.kwh, pi.kwh, c.kwh, 0)
+            ELSE COALESCE(cmp.kwh, pi.kwh_modeled, pi.kwh, c.kwh, 0)
+        END AS kwh,
         CASE
             WHEN NOT cmp.kwh IS NULL THEN 'yes'::TEXT
             ELSE 'no'::TEXT
