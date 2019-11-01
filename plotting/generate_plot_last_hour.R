@@ -10,7 +10,7 @@ res <- dbGetQuery(con, query)
 fname <- '/var/www/electricity/last_hours.png'
 mintime <- min(res$measurement_time)
 maxtime <- max(res$measurement_time)
-maxwatts <- max(res$watts)
+maxwatts <- max(res$watts, res$watts_ch3)
 if (maxwatts - min(res$watts) < 6000) {
     vseq <- seq(0, maxwatts, ifelse(maxwatts > 4000, 500, ifelse(maxwatts > 1000, 200, 100)))
     vlab <- vseq
@@ -42,7 +42,7 @@ abline(v=res2$sunrise, lty=2, col='orange')
 abline(v=res2$sunset, lty=2, col='orange')
 lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
 lines(res$measurement_time, res$watts_ch3, col='orange', lwd=1.5)
-leg.txt <- c('HVAC', 'Total')
+leg.txt <- c('HVAC', 'Utility Power')
 leg.col <- c('orange', 'rosybrown')
 legend('topright', legend=leg.txt, col=leg.col, lty=c(1,1), inset=0.01)
 dev.off()
