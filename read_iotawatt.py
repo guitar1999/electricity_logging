@@ -23,8 +23,8 @@ except Exception as msg:
     sys.exit(1)
 
 parser = argparse.ArgumentParser(prog='generate_summary.py', description='Summarize Electricity Usage')
-parser.add_argument('-s', '--start', dest='start', required=True, default='m-1m', help='''The start time to get data from iotawatt.''')
-parser.add_argument('-e', '--end', dest='end', required=True, default='m', help='''The start time to get data from iotawatt.''')
+parser.add_argument('-s', '--start', dest='start', default='m-1m', help='''The start time to get data from iotawatt.''')
+parser.add_argument('-e', '--end', dest='end', default='m', help='''The start time to get data from iotawatt.''')
 args = parser.parse_args()
 
 # Get the data
