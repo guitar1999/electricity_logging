@@ -4,13 +4,13 @@ if (! 'package:RPostgreSQL' %in% search()) {
 }
 
 
-query <- "select watts_ch1 + watts_ch2 AS watts, watts_ch3, measurement_time from electricity_measurements where measurement_time > (CURRENT_TIMESTAMP) - ((date_part('minute', (CURRENT_TIMESTAMP)) + 60) * interval '1 minute') - (date_part('second', (CURRENT_TIMESTAMP)) * interval '1 second') ORDER BY measurement_time;"
+query <- "select watts_main_1 + watts_main_2 AS watts, watts_boiler, measurement_time from electricity_iotawatt.electricity_measurements where measurement_time > (CURRENT_TIMESTAMP) - ((date_part('minute', (CURRENT_TIMESTAMP)) + 60) * interval '1 minute') - (date_part('second', (CURRENT_TIMESTAMP)) * interval '1 second') ORDER BY measurement_time;"
 res <- dbGetQuery(con, query)
 
 fname <- '/var/www/electricity/last_hours.png'
 mintime <- min(res$measurement_time)
 maxtime <- max(res$measurement_time)
-maxwatts <- max(res$watts, res$watts_ch3)
+maxwatts <- max(res$watts, res$watts_boiler)
 if (maxwatts - min(res$watts) < 6000) {
     vseq <- seq(0, maxwatts, ifelse(maxwatts > 4000, 500, ifelse(maxwatts > 1000, 200, 100)))
     vlab <- vseq
@@ -20,8 +20,8 @@ if (maxwatts - min(res$watts) < 6000) {
     vlab <- 10^vseq
     maxwatts <- log10(maxwatts)
     res$watts <- ifelse(res$watts > 0, log10(res$watts), 0)
-    res$watts_ch3 <- ifelse(res$watts_ch3 > 0, log10(res$watts_ch3), 0)
-    ymin <- min(c(min(res$watts),min(res$watts_ch3, na.rm = TRUE)))
+    res$watts_boiler <- ifelse(res$watts_boiler > 0, log10(res$watts_boiler), 0)
+    ymin <- min(c(min(res$watts),min(res$watts_boiler, na.rm = TRUE)))
 }
 
 hseq <- seq(mintime, mintime + 7200, 600)
@@ -41,7 +41,7 @@ abline(h=vseq, col='grey', lty=3)
 abline(v=res2$sunrise, lty=2, col='orange')
 abline(v=res2$sunset, lty=2, col='orange')
 lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
-lines(res$measurement_time, res$watts_ch3, col='orange', lwd=1.5)
+lines(res$measurement_time, res$watts_boiler, col='orange', lwd=1.5)
 leg.txt <- c('HVAC', 'Utility Power')
 leg.col <- c('orange', 'rosybrown')
 legend('topright', legend=leg.txt, col=leg.col, lty=c(1,1), inset=0.01)
