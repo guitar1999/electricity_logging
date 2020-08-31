@@ -18,9 +18,9 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         col[res$kwh <= res$btu_avg] <- 'orange'
         col[col == 'x'] <- 'orange'
     } else if ("gallons_avg" %in% colnames(res)) {
-        col[res$kwh > res$btu_avg] <- 'darkblue'
-        col[res$kwh <= res$btu_avg] <- 'blue'
-        col[col == 'x'] <- 'blue'
+        col[res$kwh > res$btu_avg] <- 'steelblue4'
+        col[res$kwh <= res$btu_avg] <- 'steelblue1'
+        col[col == 'x'] <- 'steelblue1'
     } else {
         col[res$kwh > res$kwh_avg] <- rgb(188/255, 143/255, 143/255, 175/255) #rosybrown 557
         col[res$kwh <= res$kwh_avg] <- rgb(238/255, 221/255, 130/255, 200/255) #lightgoldenrod 410
@@ -106,9 +106,9 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         points(b, res$btu_avg_plot, col=pdcol, pch=res$btu_avg_pch)
     }
     if ("gallons_avg" %in% colnames(res)){
-        pdcol[res$kwh > res$gallons_avg] <- 'midnightblue'
-        pdcol[res$kwh <= res$gallons_avg] <- 'blue3'
-        pdcol[pdcol == 'x'] <- 'blue3'
+        pdcol[res$kwh > res$gallons_avg] <- 'steelblue1'
+        pdcol[res$kwh <= res$gallons_avg] <- 'steelblue4'
+        pdcol[pdcol == 'x'] <- 'steelblue4'
         res$gallons_avg_plot <- res$gallons_avg
         res$gallons_avg_plot[res$gallons_avg > max(res$kwh)] <- max(res$kwh) - max(res$kwh) / 100
         res$gallons_avg_pch <- 19

@@ -8,13 +8,13 @@ source('/usr/local/electricity_logging/plotting/barplot.R')
 query <- "SELECT label, gallons AS gallons, previous_yeartodate_gallons AS gallons_avg, complete FROM water_plotting.water_yearly_plot_view;"
 res <- dbGetQuery(con, query)
 
-res$gallons <- res$gallons
-res$gallons_avg <- res$gallons_avg
+res$gallons <- res$gallons / 1000
+res$gallons_avg <- res$gallons_avg / 1000
 
 fname <- '/var/www/electricity/water_yearly.png'
 title <- "Water Extracted By Year"
 label.x <- "Year"
-label.y <- "Gallons"
+label.y <- "Thousand Gallons"
 
 png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 #b <- barplot(res$gallons, names.arg=res$label, col='orange', las=1, main=title, ylab=label.y)
