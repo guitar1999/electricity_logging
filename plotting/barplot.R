@@ -18,8 +18,8 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         col[res$kwh <= res$btu_avg] <- 'orange'
         col[col == 'x'] <- 'orange'
     } else if ("gallons_avg" %in% colnames(res)) {
-        col[res$kwh > res$btu_avg] <- 'steelblue4'
-        col[res$kwh <= res$btu_avg] <- 'steelblue1'
+        col[res$kwh > res$gallons_avg] <- 'steelblue4'
+        col[res$kwh <= res$gallons_avg] <- 'steelblue1'
         col[col == 'x'] <- 'steelblue1'
     } else {
         col[res$kwh > res$kwh_avg] <- rgb(188/255, 143/255, 143/255, 175/255) #rosybrown 557
