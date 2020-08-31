@@ -4,7 +4,8 @@ if (! 'package:plotrix' %in% search()) {
 bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     # Hack to get btu avg plots working
     n = names(res)
-    n[which(names(res) == 'btu' || names(res) == 'gallons')] <- 'kwh'
+    n[which(names(res) == 'btu')] <- 'kwh'
+    n[which(names(res) == 'gallons')] <- 'kwh'
     names(res) <- n
     # Define the barplotting function, since it may need to be called more than once depending on the graph.
     bpf <- function(kwh, label, col, main, xlab, ylab, xpd, las, add){
