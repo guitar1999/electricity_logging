@@ -4,7 +4,7 @@ if (! 'package:plotrix' %in% search()) {
 bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     # Hack to get btu avg plots working
     n = names(res)
-    n[which(names(res) == 'btu')] <- 'kwh'
+    n[which(names(res) == 'btu' || names(res) == 'gallons')] <- 'kwh'
     names(res) <- n
     # Define the barplotting function, since it may need to be called more than once depending on the graph.
     bpf <- function(kwh, label, col, main, xlab, ylab, xpd, las, add){
@@ -12,10 +12,14 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     }
     # Generate a vector of bar colors
     col <- rep('x', length(res$kwh))
-    if ("btu_avg" %in% colnames(res)){
+    if ("btu_avg" %in% colnames(res)) {
         col[res$kwh > res$btu_avg] <- 'darkorange'
         col[res$kwh <= res$btu_avg] <- 'orange'
         col[col == 'x'] <- 'orange'
+    } else if ("gallons_avg" %in% colnames(res)) {
+        col[res$kwh > res$btu_avg] <- 'darkblue'
+        col[res$kwh <= res$btu_avg] <- 'blue'
+        col[col == 'x'] <- 'blue'
     } else {
         col[res$kwh > res$kwh_avg] <- rgb(188/255, 143/255, 143/255, 175/255) #rosybrown 557
         col[res$kwh <= res$kwh_avg] <- rgb(238/255, 221/255, 130/255, 200/255) #lightgoldenrod 410
@@ -99,5 +103,15 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         res$btu_avg_pch <- 19
         res$btu_avg_pch[res$btu_avg > max(res$kwh)] <- 8
         points(b, res$btu_avg_plot, col=pdcol, pch=res$btu_avg_pch)
+    }
+    if ("gallons_avg" %in% colnames(res)){
+        pdcol[res$kwh > res$gallons_avg] <- 'darkblue3'
+        pdcol[res$kwh <= res$gallons_avg] <- 'blue3'
+        pdcol[pdcol == 'x'] <- 'blue3'
+        res$gallons_avg_plot <- res$gallons_avg
+        res$gallons_avg_plot[res$gallons_avg > max(res$kwh)] <- max(res$kwh) - max(res$kwh) / 100
+        res$gallons_avg_pch <- 19
+        res$gallons_avg_pch[res$gallons_avg > max(res$kwh)] <- 8
+        points(b, res$gallons_avg_plot, col=pdcol, pch=res$gallons_avg_pch)
     }
 }
