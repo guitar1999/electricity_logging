@@ -106,7 +106,7 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
         points(b, res$btu_avg_plot, col=pdcol, pch=res$btu_avg_pch)
     }
     if ("gallons_avg" %in% colnames(res)){
-        pdcol[res$kwh > res$gallons_avg] <- 'darkblue3'
+        pdcol[res$kwh > res$gallons_avg] <- 'midnightblue'
         pdcol[res$kwh <= res$gallons_avg] <- 'blue3'
         pdcol[pdcol == 'x'] <- 'blue3'
         res$gallons_avg_plot <- res$gallons_avg
