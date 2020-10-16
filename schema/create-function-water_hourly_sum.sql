@@ -8,7 +8,13 @@ $$
             INSERT INTO water_statistics.water_sums_hourly (sum_date, hour, kwh, gallons, cycles, total_runtime, avg_runtime, min_runtime, max_runtime)
             SELECT (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::DATE AS sum_date,
                 DATE_PART('HOUR', DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL) AS hour,
-                ws.*
+                COALESCE(ws.kwh, 0),
+                COALESCE(ws.gallons, 0),
+                COALESCE(ws.cycles, 0),
+                COALESCE(ws.total_runtime, 0),
+                COALESCE(ws.avg_runtime, 0),
+                COALESCE(ws.min_runtime, 0),
+                COALESCE(ws.max_runtime, 0)
             FROM water_summary( (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::TIMESTAMP, (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::TIMESTAMP + '00:59:59'::INTERVAL ) AS ws;
             RETURN NEW;
         ELSE

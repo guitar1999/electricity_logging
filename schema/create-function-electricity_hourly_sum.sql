@@ -10,7 +10,7 @@ $$
             SELECT 
                 (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::DATE AS sum_date,
                 DATE_PART('HOUR', DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL) AS hour,
-                SUM((watts_ch1 + watts_ch2) * tdiff / 1000 / 60 / 60) AS kwh
+                COALESCE(SUM((watts_ch1 + watts_ch2) * tdiff / 1000 / 60 / 60), 0) AS kwh
             FROM 
                 electricity.electricity_measurements
             WHERE 
