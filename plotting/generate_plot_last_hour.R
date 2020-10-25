@@ -4,13 +4,13 @@ if (! 'package:RPostgreSQL' %in% search()) {
 }
 
 
-query <- "select watts_main_1 + watts_main_2 AS watts, watts_boiler, measurement_time from electricity_iotawatt.electricity_measurements where measurement_time > (CURRENT_TIMESTAMP) - ((date_part('minute', (CURRENT_TIMESTAMP)) + 60) * interval '1 minute') - (date_part('second', (CURRENT_TIMESTAMP)) * interval '1 second') AND watts_main_1 IS NOT NULL AND watts_main_2 IS NOT NULL ORDER BY measurement_time;"
+query <- "SELECT watts_main_1 + watts_main_2 AS watts, watts_boiler, watts_generator_1 + watts_generator_2 AS watts_generator, measurement_time FROM electricity_iotawatt.electricity_measurements WHERE measurement_time > (CURRENT_TIMESTAMP) - ((DATE_PART('MINUTE', (CURRENT_TIMESTAMP)) + 60) * INTERVAL '1 MINUTE') - (DATE_PART('SECOND', (CURRENT_TIMESTAMP)) * INTERVAL '1 SECOND') AND watts_main_1 IS NOT NULL AND watts_main_2 IS NOT NULL ORDER BY measurement_time;"
 res <- dbGetQuery(con, query)
 
 fname <- '/var/www/electricity/last_hours.png'
 mintime <- min(res$measurement_time)
 maxtime <- max(res$measurement_time)
-maxwatts <- max(res$watts, res$watts_boiler)
+maxwatts <- max(res$watts, res$watts_generator, res$watts_boiler)
 if (maxwatts - min(res$watts) < 6000) {
     vseq <- seq(0, maxwatts, ifelse(maxwatts > 4000, 500, ifelse(maxwatts > 1000, 200, 100)))
     vlab <- vseq
@@ -40,10 +40,16 @@ abline(v=mintime + 3600, col='black')
 abline(h=vseq, col='grey', lty=3)
 abline(v=res2$sunrise, lty=2, col='orange')
 abline(v=res2$sunset, lty=2, col='orange')
-lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
+if (res$watts_generator > 10) {
+    lines(res$measurement_time, res$watts_generator, col='gold', lwd=1.5)
+    leg.txt <- c('HVAC', 'Generator Power')
+    leg.col <- c('orange', 'gold')
+} else {
+    lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
+    leg.txt <- c('HVAC', 'Utility Power')
+    leg.col <- c('orange', 'rosybrown')
+}
 lines(res$measurement_time, res$watts_boiler, col='orange', lwd=1.5)
-leg.txt <- c('HVAC', 'Utility Power')
-leg.col <- c('orange', 'rosybrown')
 legend('topright', legend=leg.txt, col=leg.col, lty=c(1,1), inset=0.01)
 dev.off()
 
