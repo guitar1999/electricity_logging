@@ -3,8 +3,8 @@ $$
     DECLARE
         old_hour INTEGER;
     BEGIN
-        SELECT DATE_PART('HOUR', (SELECT MAX(measurement_time) FROM electricity_iotawatt.electricity_measurements WHERE NOT emid = NEW.emid)) INTO old_hour;
-        IF old_hour != DATE_PART('HOUR', NEW.measurement_time) THEN
+        SELECT DATE_PART('HOUR', (SELECT MAX(measurement_time) FROM electricity_iotawatt.electricity_measurements WHERE NOT emid = NEW.emid AND measurement_time < NEW.measurement_time)) INTO old_hour;
+        IF (old_hour = DATE_PART('HOUR', NEW.measurement_time) - 1) OR (old_hour = 23 AND DATE_PART('HOUR', NEW.measurement_time) = 0) THEN
             INSERT INTO water_statistics.water_sums_hourly (sum_date, hour, kwh, gallons, cycles, total_runtime, avg_runtime, min_runtime, max_runtime)
             SELECT (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::DATE AS sum_date,
                 DATE_PART('HOUR', DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL) AS hour,
