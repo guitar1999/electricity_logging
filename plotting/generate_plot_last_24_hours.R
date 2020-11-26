@@ -12,7 +12,7 @@ fname <- '/var/www/electricity/last_24_hours.png'
 mintime <- min(res$measurement_time)
 maxtime <- max(res$measurement_time)
 maxwatts <- max(rbind(res$watts_main_1, res$watts_main_2))
-if (maxwatts - min(rbind(res$watts_main_1, res$watts_main_2)) < 4000) {
+if (maxwatts - min(rbind(res$watts_main_1, res$watts_main_2)) < 8000) {
     vseq <- seq(0, maxwatts, ifelse(maxwatts > 1000, 200, 100))
     vlab <- vseq
 } else {
