@@ -45,4 +45,4 @@ lines(res$measurement_time, res$watts_main_2, col='blue')
 lines(res$measurement_time, res$watts_boiler, col='orange')
 dev.off()
 
-system(paste("scp", fname, paste(webhost, ":/home/jessebishop/webapps/htdocs/home/frompi/electricity2/", sep=""), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
+system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity2', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
