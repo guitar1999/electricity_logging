@@ -16,7 +16,7 @@ plotlimit <- 1440
 
 png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 #barplot(res, names.arg=res$label, col='orange', las=1, main=title, ylab=label.y)
-bp(res, title, label.x, label.y)
+bp(res, title, label.x, label.y, NULL, NULL, plotlimit)
 dev.off()
 
 system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)

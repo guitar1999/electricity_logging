@@ -74,7 +74,7 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL, plotlimi
     bpf(res$kwh, res$label, col, title, label.x, label.y, FALSE, ifelse("jday" %in% colnames(res),2,1), TRUE)
     # Draw a limit line, if provided
     if (! is.null(plotlimit)) {
-        abline(h=plotlimit, col=darkred, lwd=1)
+        abline(h=plotlimit, col='darkred', lwd=1)
     }
     # If this plot has an average value, draw the points
     if ("kwh_avg" %in% colnames(res)){
