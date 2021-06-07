@@ -12,6 +12,7 @@ fname <- '/var/www/electricity/water_dow_season.png'
 title <- "Water Extracted in the Last Week"
 label.x <- "Day"
 label.y <- "Gallons"
+plotlimit <- 1440
 
 png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 #barplot(res, names.arg=res$label, col='orange', las=1, main=title, ylab=label.y)
