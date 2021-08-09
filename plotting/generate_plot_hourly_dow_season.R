@@ -1,9 +1,9 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source('/Users/jbishop/.rconfig.R')
 }
 
-source('/usr/local/electricity_logging/plotting/barplot.R')
+source('/Users/jbishop/git/electricity_logging/plotting/barplot.R')
 
 query <- "SELECT label, kwh, kwh_avg, complete FROM electricity_plotting.electricity_hourly_dow;"
 res <- dbGetQuery(con, query)
@@ -29,7 +29,7 @@ if (sethour > currenthour) {
     sunset <- res3$sunset
 }
 
-fname <- '/var/www/electricity/hourly_dow_season.png'
+fname <- '/tmp/hourly_dow_season.png'
 title <- "Electricity Used in the Last Day (Seasonal DOW Averaging)"
 label.x <- "Hour"
 label.y <- "kwh"

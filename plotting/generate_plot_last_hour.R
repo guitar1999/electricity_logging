@@ -1,13 +1,13 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source('/Users/jbishop/.rconfig.R')
 }
 
 
 query <- "SELECT watts_main_1 + watts_main_2 AS watts, watts_boiler, watts_generator_1 + watts_generator_2 AS watts_generator, measurement_time FROM electricity_iotawatt.electricity_measurements WHERE measurement_time > (CURRENT_TIMESTAMP) - ((DATE_PART('MINUTE', (CURRENT_TIMESTAMP)) + 60) * INTERVAL '1 MINUTE') - (DATE_PART('SECOND', (CURRENT_TIMESTAMP)) * INTERVAL '1 SECOND') AND watts_main_1 IS NOT NULL AND watts_main_2 IS NOT NULL ORDER BY measurement_time;"
 res <- dbGetQuery(con, query)
 
-fname <- '/var/www/electricity/last_hours.png'
+fname <- '/tmp/last_hours.png'
 mintime <- min(res$measurement_time)
 maxtime <- max(res$measurement_time)
 maxwatts <- max(res$watts, res$watts_generator, res$watts_boiler)

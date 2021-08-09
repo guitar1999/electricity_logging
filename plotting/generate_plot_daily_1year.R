@@ -1,16 +1,16 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source('/Users/jbishop/.rconfig.R')
 }
 
-source('/usr/local/electricity_logging/plotting/barplot.R')
+source('/Users/jbishop/git/electricity_logging/plotting/barplot.R')
 
 query <- "SELECT label, kwh, previous_year AS kwh_avg, complete FROM electricity_plotting.electricity_daily WHERE row_number < 366;"
 res <- dbGetQuery(con, query)
 
 res$jday <- res$label
 
-fname <- '/var/www/electricity/daily_1year.png'
+fname <- '/tmp/daily_1year.png'
 title <- "Electricity Used Daily"
 label.x <- ""
 label.y <- "kwh"

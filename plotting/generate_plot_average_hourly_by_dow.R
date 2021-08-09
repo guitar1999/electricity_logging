@@ -1,6 +1,6 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source('/Users/jbishop/.rconfig.R')
 }
 
 dd <- data.frame(dow = seq(0,6), day = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
@@ -10,7 +10,7 @@ res <- dbGetQuery(con, query)
 
 res <- merge(res,dd)
 
-fname <- '/var/www/electricity/average_hourly_by_dow.png'
+fname <- '/tmp/average_hourly_by_dow.png'
 
 png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 dev.off()

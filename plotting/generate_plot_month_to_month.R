@@ -1,6 +1,6 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source('/Users/jbishop/.rconfig.R')
 }
 
 # Parse args in case we want to run another month
@@ -38,7 +38,7 @@ prediction <- dbGetQuery(con, query)
 
 hseq <- seq(min(measurements$plotstamp), max(measurements$plotstamp) + 86400, 86400) - 3599
 
-fname <- '/var/www/electricity/month_to_month.png'
+fname <- '/tmp/month_to_month.png'
 fname2 <- paste('month_to_month_', month, '.png', sep='')
 ymax <- max(c(measurements$cumulative_kwh, prediction$cumulative_kwh))
 

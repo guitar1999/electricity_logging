@@ -1,5 +1,5 @@
 library('randomForest')
-load('/usr/local/electricity_logging/statistics/hourly_correction_model.RData')
+load('/Users/jbishop/git/electricity_logging/statistics/hourly_correction_model.RData')
 
 # Get args
 args <- commandArgs(trailingOnly=TRUE)

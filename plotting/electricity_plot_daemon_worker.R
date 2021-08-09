@@ -2,7 +2,7 @@ require(plotrix)
 require(RPostgreSQL)
 
 # Make a connection to the database
-source('/home/jessebishop/.rconfig.R')
+source('/Users/jbishop/.rconfig.R')
 
 # A function to run the plotting script and return the time
 genplot <- function(scr){
@@ -32,92 +32,92 @@ while(TRUE){
     print(paste("    Starting runtime is ",runtime, sep=""))
 
     # Run the first plot (every loop) and add the plotting time to the loop runtime
-    plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_last_hour.R')
+    plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_last_hour.R')
     runtime <- runtime + plottime
     print("    line")
 
     # Run the hourlies every 2nd loop and add the plotting time to the loop runtime
     if (ticker %% 2 == 0 && ticker != 0){
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_hourly_season.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_hourly_season.R')
         runtime <- runtime + plottime
         print("    electricity hourly season")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_hourly_season_cmp.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_hourly_season_cmp.R')
         runtime <- runtime + plottime
         print("    electricity hourly season cmp")
-        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_hourly_dow_season.R')
+        plottime <- genplot('/Users/jbishop/git/gas_logging/plotting/generate_plot_oil_hourly_dow_season.R')
         runtime <- runtime + plottime
         print("    oil hourly dow season")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_water_hourly_dow_season.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_water_hourly_dow_season.R')
         runtime <- runtime + plottime
         print("    water hourly dow season")
     }
 
     # Run the month_to_month every 5 minutes and add the plotting timest to the loop runtime
     if (ticker %% 5 == 0){
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_month_to_month.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_month_to_month.R')
         runtime <- runtime + plottime
         print("    electricity month to month")
-        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_month_to_month.R')
+        plottime <- genplot('/Users/jbishop/git/gas_logging/plotting/generate_plot_oil_month_to_month.R')
         runtime <- runtime + plottime
         print("    oil month to month")
     }
 
     # Run the dow every 2nd loop and add the plotting times to the loop runtime
     if (ticker %% 2 == 0 && ticker != 0){
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_dow_season.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_dow_season.R')
         runtime <- runtime + plottime
         print("    electricity dow season")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_daily.R')
         runtime <- runtime + plottime
         print("    electricity daily")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_last_24_hours.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_last_24_hours.R')
         runtime <- runtime + plottime
         print("    electricity 24 hours")
-        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_dow_season.R')
+        plottime <- genplot('/Users/jbishop/git/gas_logging/plotting/generate_plot_oil_dow_season.R')
         runtime <- runtime + plottime
         print("    oil dow season")
-        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_daily.R')
+        plottime <- genplot('/Users/jbishop/git/gas_logging/plotting/generate_plot_oil_daily.R')
         runtime <- runtime + plottime
         print("    oil daily")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_water_dow_season.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_water_dow_season.R')
         runtime <- runtime + plottime
         print("    water dow season")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_water_daily.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_water_daily.R')
         runtime <- runtime + plottime
         print("    water daily")
     }
 
     # Run the daily every 2nd and add the plotting times to the loop runtime
     if (ticker %% 2 != 0 && ticker != 0){
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_monthly.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_monthly.R')
         runtime <- runtime + plottime
         print("    electricity monthly")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_yearly.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_yearly.R')
         runtime <- runtime + plottime
         print("    electricity yearly")
-        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_monthly.R')
+        plottime <- genplot('/Users/jbishop/git/gas_logging/plotting/generate_plot_oil_monthly.R')
         runtime <- runtime + plottime#        print("    oil monthly")
         print("    oil monthly")
-        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_yearly.R')
+        plottime <- genplot('/Users/jbishop/git/gas_logging/plotting/generate_plot_oil_yearly.R')
         runtime <- runtime + plottime
         print("    oil yearly")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_water_monthly.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_water_monthly.R')
         runtime <- runtime + plottime
         print("    water monthly")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_water_yearly.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_water_yearly.R')
         runtime <- runtime + plottime
         print("    water yearly")
     }
 
     # Run the monthly and daily 1year every 30th loop and add the plotting times to the loop runtime
     if (ticker %% 2 != 0 && ticker != 0){
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_daily_1year.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_daily_1year.R')
         runtime <- runtime + plottime
         print("    electricity daily 1year")
-        plottime <- genplot('/usr/local/gas_logging/plotting/generate_plot_oil_daily_1year.R')
+        plottime <- genplot('/Users/jbishop/git/gas_logging/plotting/generate_plot_oil_daily_1year.R')
         runtime <- runtime + plottime
         print("    oil daily 1year")
-        plottime <- genplot('/usr/local/electricity_logging/plotting/generate_plot_water_daily_1year.R')
+        plottime <- genplot('/Users/jbishop/git/electricity_logging/plotting/generate_plot_water_daily_1year.R')
         runtime <- runtime + plottime
         print("    water daily 1year")
     }
