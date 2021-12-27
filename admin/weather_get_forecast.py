@@ -1,13 +1,14 @@
-#!/usr/local/bin/python2.7
+#!/bin/env python
 
-import ConfigParser, datetime, json, psycopg2, urllib2
-
+import os
+import ConfigParser, datetime, json, psycopg2 #, urllib2
+import requests
 opdate = datetime.datetime.now()
 
 # Get the api key from our config file
 config = ConfigParser.RawConfigParser()
-config.read('/home/jessebishop/.pyconfig')
-apikey = config.get('wunderground', 'APIKEY')
+config.read(os.environ.get('HOME') + '/.pyconfig')
+#apikey = config.get('wunderground', 'APIKEY')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')
@@ -19,8 +20,11 @@ cursor = db.cursor()
 
 # Connect to wunderground and get historical_data
 url = 'https://api.weather.gov/gridpoints/GYX/79,71/forecast'
-f = urllib2.urlopen(url)
-json_string = f.read()
+#f = urllib2.urlopen(url)
+#json_string = f.read()
+headers = {"User Agent": "blackosprey.com info@blackosprey.com"}
+f = requests.get(url, headers=headers)
+json_string = f.text
 parsed_json = json.loads(json_string)
 
 query = "DELETE FROM weather_data.weather_forecast_data WHERE NOT start_time::DATE = CURRENT_DATE;"
