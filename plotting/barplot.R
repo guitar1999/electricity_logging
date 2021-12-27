@@ -1,7 +1,7 @@
 if (! 'package:plotrix' %in% search()) {
     require(plotrix)
 }
-bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
+bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL, plotlimit=NULL){
     # Hack to get btu avg plots working
     n = names(res)
     n[which(names(res) == 'btu')] <- 'kwh'
@@ -72,6 +72,10 @@ bp <- function(res, title, label.x, label.y, sunrise=NULL, sunset=NULL){
     abline(h=yseq, col='darkgray', lty=3)
     # Draw the barplot again over the gradient
     bpf(res$kwh, res$label, col, title, label.x, label.y, FALSE, ifelse("jday" %in% colnames(res),2,1), TRUE)
+    # Draw a limit line, if provided
+    if (! is.null(plotlimit)) {
+        abline(h=plotlimit, col='darkred', lwd=1)
+    }
     # If this plot has an average value, draw the points
     if ("kwh_avg" %in% colnames(res)){
         res$kwh_avg_plot <- res$kwh_avg
