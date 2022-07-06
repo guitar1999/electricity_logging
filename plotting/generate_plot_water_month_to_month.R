@@ -1,6 +1,6 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/Users/jbishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
 # Parse args in case we want to run another month
@@ -13,7 +13,7 @@ if (length(args) == 0) {
   month <- args[1]
 }
 
-query <- paste("SELECT DATE_PART('year', sum_date) AS year, DATE_PART('month', sum_date) AS month, DATE_PART('day', sum_date) AS day, hour, (sum_date || ' ' || hour || ':59:59')::timestamp AS timestamp, ((sum_date + ((DATE_PART('year', CURRENT_TIMESTAMP) - DATE_PART('year', sum_date))::integer || ' year')::interval)::date || ' ' || hour || ':59:59')::timestamp AS plotstamp, gallons, SUM(gallons) OVER (PARTITION BY date_part('year', sum_date) ORDER BY date_part('day', sum_date), hour) AS cumulative_gallons FROM water_statistics.water_sums_hourly WHERE DATE_PART('month', sum_date) = ", month, " ORDER BY DATE_PART('year', sum_date), DATE_PART('day', sum_date), hour;", sep="")
+query <- paste("SELECT DATE_PART('year', sum_date) AS year, DATE_PART('month', sum_date) AS month, DATE_PART('day', sum_date) AS day, hour, (sum_date || ' ' || hour || ':59:59')::timestamp with time zone AS timestamp, ((sum_date + ((DATE_PART('year', CURRENT_TIMESTAMP) - DATE_PART('year', sum_date))::integer || ' year')::interval)::date || ' ' || hour || ':59:59')::timestamp with time zone AS plotstamp, gallons, SUM(gallons) OVER (PARTITION BY date_part('year', sum_date) ORDER BY date_part('day', sum_date), hour) AS cumulative_gallons FROM water_statistics.water_sums_hourly WHERE DATE_PART('month', sum_date) = ", month, " ORDER BY DATE_PART('year', sum_date), DATE_PART('day', sum_date), hour;", sep="")
 measurements <- dbGetQuery(con, query)
 measurements$cumulative_gallons <- measurements$cumulative_gallons
 
@@ -27,20 +27,20 @@ pxmin <- max(measurements$timestamp)
 pymin <- max(measurements$cumulative_gallons[measurements$timestamp == pxmin])
 
 query <- paste("SELECT gallons_avg FROM water_statistics.water_statistics_monthly_view WHERE month = ", month, ";", sep="")
-gallonsavg <- dbGetQuery(con, query) / 60
+gallonsavg <- dbGetQuery(con, query)
 query <- paste("SELECT timestamp, monthly_cum_avg_gallons FROM water_plotting.water_cumulative_averages WHERE DATE_PART('MONTH', timestamp) = ", month, " ORDER BY timestamp;", sep="")
 cumgallonsavg <- dbGetQuery(con, query)
 # query <- "SELECT time, CASE WHEN minuteh IS NULL THEN minute ELSE minuteh END AS minute FROM prediction_test WHERE date_part('year', time) = date_part('year', CURRENT_TIMESTAMP) AND date_part('month', time) = date_part('month', CURRENT_TIMESTAMP) AND minute > 0 ORDER BY time;"
-query <- "SELECT timestamp, gallons FROM water_plotting.cumulative_predicted_use_this_month_view ORDER BY timestamp;"
-prediction <- dbGetQuery(con, query)
-prediction$gallons <- prediction$gallons / 60
-prediction <- rbind(measurements[dim(measurements)[1],c("timestamp", "cumulative_gallons")], setNames(data.frame(prediction), c(names(measurements)[5], names(measurements)[8])))
+# query <- "SELECT timestamp, gallons FROM water_plotting.cumulative_predicted_use_this_month_view ORDER BY timestamp;"
+# prediction <- dbGetQuery(con, query)
+# prediction$gallons <- prediction$gallons / 60
+# prediction <- rbind(measurements[dim(measurements)[1],c("timestamp", "cumulative_gallons")], setNames(data.frame(prediction), c(names(measurements)[5], names(measurements)[8])))
 
 hseq <- seq(min(measurements$plotstamp), max(measurements$plotstamp) + 86400, 86400) - 3599
 
 fname <- '/tmp/water_month_to_month.png'
 fname2 <- paste('water_month_to_month_', month, '.png', sep='')
-ymax <- max(c(measurements$cumulative_gallons, prediction$cumulative_gallons))
+ymax <- max(c(measurements$cumulative_gallons))#, prediction$cumulative_gallons))
 
 png(filename=fname, width=1200, height=500, units='px', pointsize=12, bg='white')
 # Set up empty plot
@@ -59,10 +59,10 @@ for (i in seq(1, length(years))){
     }
     lines(plotdata$plotstamp, plotdata$cumulative_gallons, col=linecolor, lwd=1.5)
 }
-lines(prediction$timestamp, prediction$cumulative_gallons, col='blue4', lty=5)
+# lines(prediction$timestamp, prediction$cumulative_gallons, col='blue4', lty=5)
 # lines(predline, col='darkred', lty=2, lwd=1.5)
 #abline(h=gallonsavg, col='orange')
-lines(cumgallonsavg$timestamp, cumgallonsavg$monthly_cum_avg_gallons / 60, col='orange')
+lines(cumgallonsavg$timestamp, cumgallonsavg$monthly_cum_avg_gallons, col='orange')
 if (ghostyears == 0) {
   ghosttext <- ''
   ghostcolor <- 'white'
@@ -76,7 +76,7 @@ if (ghostyears == 0) {
   ghosttext <- c(years[1], '. . . ', years[ghostyears])
   ghostcolor <- c(ghostcolors[1], 'white', ghostcolors[ghostyears])
 }
-leg.txt <- c(ghosttext, years[length(years)], "predicted total gallons", "average gallons")
+leg.txt <- c(ghosttext, years[length(years)]) #, "predicted total gallons", "average gallons")
 leg.lty <- c(ghostlty, 1, 5, 1)
 leg.col <- c(ghostcolor, 'red', 'blue4', 'orange')
 legend("bottomright", legend=leg.txt, col=leg.col, lty=leg.lty, inset=0.01)

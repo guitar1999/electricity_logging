@@ -1,9 +1,9 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/Users/jbishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-source('/Users/jbishop/git/electricity_logging/plotting/barplot.R')
+source(paste(githome, '/electricity_logging/plotting/barplot.R', sep=''))
 
 query <- "SELECT label, gallons AS gallons, previous_year AS gallons_avg, complete FROM water_plotting.water_daily_plot_view WHERE row_number < 366;"
 res <- dbGetQuery(con, query)

@@ -1,9 +1,9 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/Users/jbishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-source('/Users/jbishop/git/electricity_logging/plotting/barplot.R')
+source(paste(githome, '/electricity_logging/plotting/barplot.R', sep=''))
 
 query <- "WITH opdate AS (SELECT MAX(sum_date) AS plot_date FROM electricity_cmp.cmp_electricity_sums_hourly_view) SELECT su.hour AS label, su.kwh, SUM(st.kwh_avg * st.count) / SUM(st.count) AS kwh_avg, 'yes'::TEXT AS complete FROM opdate, electricity_cmp.cmp_electricity_sums_hourly_view su INNER JOIN electricity_cmp.cmp_electricity_statistics_hourly st ON su.hour=st.hour INNER JOIN weather_data.meteorological_season m ON m.doy=DATE_PART('doy', su.sum_date) WHERE su.sum_date = opdate.plot_date AND st.season = m.season GROUP BY su.hour, su.kwh ORDER BY su.hour;"
 res <- dbGetQuery(con, query)
