@@ -10,7 +10,11 @@
 
 print "update_db_from_csv.py starting up"
 
-import ConfigParser, sys, psycopg2, datetime
+import ConfigParser
+import sys
+import os
+import psycopg2
+import datetime
 from dateutil import parser
 
 loud = sys.argv[1]
@@ -22,7 +26,7 @@ conv = False
 
 # Get the db config from our config file
 config = ConfigParser.RawConfigParser()
-config.read('/home/jessebishop/.pyconfig')
+config.read(os.environ.get('HOME') + '/.pyconfig')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')

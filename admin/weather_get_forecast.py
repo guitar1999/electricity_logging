@@ -1,12 +1,17 @@
 #!/usr/local/bin/python2.7
 
-import ConfigParser, datetime, json, psycopg2, urllib2
+import ConfigParser
+import datetime
+import json
+import os
+import psycopg2
+import urllib2
 
 opdate = datetime.datetime.now()
 
 # Get the api key from our config file
 config = ConfigParser.RawConfigParser()
-config.read('/home/jessebishop/.pyconfig')
+config.read(os.environ.get('HOME') + '/.pyconfig')
 apikey = config.get('wunderground', 'APIKEY')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')

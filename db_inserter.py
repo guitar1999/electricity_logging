@@ -1,5 +1,7 @@
 from celery import Celery
-import ConfigParser, psycopg2
+import ConfigParser
+import os
+import psycopg2
 
 app = Celery('db_inserter', broker='amqp://energy:energy@localhost')
 
@@ -9,7 +11,7 @@ def insert_electric(watts_ch1, watts_ch2, watts_ch3, readtime, time):
     while not success:
         try:
             config = ConfigParser.RawConfigParser()
-            config.read('/home/jessebishop/.pyconfig')
+            config.read(os.environ.get('HOME') + '/.pyconfig')
             dbhost = config.get('pidb', 'DBHOST')
             dbname = config.get('pidb', 'DBNAME')
             dbuser = config.get('pidb', 'DBUSER')
@@ -32,7 +34,7 @@ def insert_temperature(temperature, device):
     while not success:
         try:
             config = ConfigParser.RawConfigParser()
-            config.read('/home/jessebishop/.pyconfig')
+            config.read(os.environ.get('HOME') + '/.pyconfig')
             dbhost = config.get('pidb', 'DBHOST')
             dbname = config.get('pidb', 'DBNAME')
             dbuser = config.get('pidb', 'DBUSER')
@@ -55,7 +57,7 @@ def insert_iotawatt_electric(measurement_time, watts_main_1,watts_main_2,watts_b
     while not success:
         try:
             config = ConfigParser.RawConfigParser()
-            config.read('/home/jessebishop/.pyconfig')
+            config.read(os.environ.get('HOME') + '/.pyconfig')
             dbhost = config.get('pidb', 'DBHOST')
             dbname = config.get('pidb', 'DBNAME')
             dbuser = config.get('pidb', 'DBUSER')
