@@ -40,10 +40,15 @@ abline(v=mintime + 3600, col='black')
 abline(h=vseq, col='grey', lty=3)
 abline(v=res2$sunrise, lty=2, col='orange')
 abline(v=res2$sunset, lty=2, col='orange')
-if (max(res$watts_generator) > 10) {
+if (max(res$watts_generator) > 10 && max(res$watts) <= 10) {
     lines(res$measurement_time, res$watts_generator, col='gold', lwd=1.5)
     leg.txt <- c('HVAC', 'Generator Power')
     leg.col <- c('orange', 'gold')
+} else if (max(res$watts_generator) > 10 && max(res$watts) > 10) {
+    lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
+    lines(res$measurement_time, res$watts_generator, col='gold', lwd=1.5)
+    leg.txt <- c('HVAC', 'Utility Power', 'Generator Power')
+    leg.col <- c('orange', 'rosybrown', 'gold')
 } else {
     lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
     leg.txt <- c('HVAC', 'Utility Power')
