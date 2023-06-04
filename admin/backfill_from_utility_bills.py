@@ -1,10 +1,13 @@
 #!/usr/bin/python
 
-import ConfigParser, datetime, psycopg2
+import ConfigParser
+import datetime
+import os
+import psycopg2
 
 # Get the db config from our config file
 config = ConfigParser.RawConfigParser()
-config.read('/home/jessebishop/.pyconfig')
+config.read(os.environ.get('HOME') + '/.pyconfig')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')

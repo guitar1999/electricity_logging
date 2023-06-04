@@ -1,9 +1,9 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-source('/usr/local/electricity_logging/plotting/barplot.R')
+source(paste(githome, '/electricity_logging/plotting/barplot.R', sep=''))
 
 query <- "SELECT label, gallons AS gallons, previous_year AS gallons_avg, complete FROM water_plotting.water_daily_plot_view WHERE row_number < 366;"
 res <- dbGetQuery(con, query)
@@ -15,7 +15,7 @@ year.this <- format(today, '%Y')
 year.last <- as.numeric(year.this) - 1
 
 
-fname <- '/var/www/electricity/water_daily_1year.png'
+fname <- '/tmp/water_daily_1year.png'
 title <- "Water Extracted in the Last Month"
 label.x <- ""
 label.y <- "Gallons"

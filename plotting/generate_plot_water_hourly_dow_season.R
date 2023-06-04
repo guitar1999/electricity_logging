@@ -1,9 +1,9 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-source('/usr/local/electricity_logging/plotting/barplot.R')
+source(paste(githome, '/electricity_logging/plotting/barplot.R', sep=''))
 
 query <- "SELECT label, gallons AS gallons, gallons_avg AS gallons_avg, complete FROM water_plotting.water_hourly_dow_season_plot_view;"
 res <- dbGetQuery(con, query)
@@ -32,7 +32,7 @@ if (sethour > currenthour) {
 # res$gallons <- res$gallons / 1000
 # res$gallons_avg <- res$gallons_avg / 1000
 
-fname <- '/var/www/electricity/water_hourly_dow_season.png'
+fname <- '/tmp/water_hourly_dow_season.png'
 title <- "Water Extracted in the Last Day"
 label.x <- "Hour"
 label.y <- "Gallons"

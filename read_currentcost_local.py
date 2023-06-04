@@ -12,13 +12,14 @@ print "read_currentcost.py starting up"
 
 import ConfigParser, serial, sys#, psycopg2
 import xml.etree.ElementTree as ET 
+import os
 from datetime import datetime
 loud = sys.argv[1]
 
 # Connect to the database
-t = open('/home/jessebishop/temps12.csv', 'w')
-e = open('/home/jessebishop/elec12.csv', 'w')
-s = open('/home/jessebishop/dbinserts12.sql', 'w')
+t = open(os.environ.get('HOME') + '/temps12.csv', 'w')
+e = open(os.environ.get('HOME') + '/elec12.csv', 'w')
+s = open(os.environ.get('HOME') + '/dbinserts12.sql', 'w')
 
 tempfactor = 2
 

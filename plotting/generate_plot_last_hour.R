@@ -1,13 +1,13 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
 
 query <- "SELECT watts_main_1 + watts_main_2 AS watts, watts_boiler, watts_generator_1 + watts_generator_2 AS watts_generator, measurement_time FROM electricity_iotawatt.electricity_measurements WHERE measurement_time > (CURRENT_TIMESTAMP) - ((DATE_PART('MINUTE', (CURRENT_TIMESTAMP)) + 60) * INTERVAL '1 MINUTE') - (DATE_PART('SECOND', (CURRENT_TIMESTAMP)) * INTERVAL '1 SECOND') AND watts_main_1 IS NOT NULL AND watts_main_2 IS NOT NULL ORDER BY measurement_time;"
 res <- dbGetQuery(con, query)
 
-fname <- '/var/www/electricity/last_hours.png'
+fname <- '/tmp/last_hours.png'
 mintime <- min(res$measurement_time)
 maxtime <- max(res$measurement_time)
 maxwatts <- max(res$watts, res$watts_generator, res$watts_boiler)
@@ -40,10 +40,15 @@ abline(v=mintime + 3600, col='black')
 abline(h=vseq, col='grey', lty=3)
 abline(v=res2$sunrise, lty=2, col='orange')
 abline(v=res2$sunset, lty=2, col='orange')
-if (max(res$watts_generator) > 10) {
+if (max(res$watts_generator) > 10 && max(res$watts) <= 10) {
     lines(res$measurement_time, res$watts_generator, col='gold', lwd=1.5)
     leg.txt <- c('HVAC', 'Generator Power')
     leg.col <- c('orange', 'gold')
+} else if (max(res$watts_generator) > 10 && max(res$watts) > 10) {
+    lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
+    lines(res$measurement_time, res$watts_generator, col='gold', lwd=1.5)
+    leg.txt <- c('HVAC', 'Utility Power', 'Generator Power')
+    leg.col <- c('orange', 'rosybrown', 'gold')
 } else {
     lines(res$measurement_time, res$watts, col='rosybrown', lwd=1.5)
     leg.txt <- c('HVAC', 'Utility Power')

@@ -1,14 +1,14 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-source('/usr/local/electricity_logging/plotting/barplot.R')
+source(paste(githome, '/electricity_logging/plotting/barplot.R', sep=''))
 
 query <- "SELECT label, gallons AS gallons, gallons_avg AS gallons_avg, complete FROM water_plotting.water_dow_season_plot_view;"
 res <- dbGetQuery(con, query)
 
-fname <- '/var/www/electricity/water_dow_season.png'
+fname <- '/tmp/water_dow_season.png'
 title <- "Water Extracted in the Last Week"
 label.x <- "Day"
 label.y <- "Gallons"

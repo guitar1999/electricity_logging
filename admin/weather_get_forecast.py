@@ -1,5 +1,13 @@
 #!/bin/env python
 
+import ConfigParser
+import datetime
+import json
+import os
+import psycopg2
+import urllib2
+
+
 import os
 import ConfigParser, datetime, json, psycopg2 #, urllib2
 import requests
@@ -8,7 +16,9 @@ opdate = datetime.datetime.now()
 # Get the api key from our config file
 config = ConfigParser.RawConfigParser()
 config.read(os.environ.get('HOME') + '/.pyconfig')
+
 #apikey = config.get('wunderground', 'APIKEY')
+
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')

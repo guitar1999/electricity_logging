@@ -1,9 +1,9 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-source('/usr/local/electricity_logging/plotting/barplot.R')
+source(paste(githome, '/electricity_logging/plotting/barplot.R', sep=''))
 
 # Get historic data
 query <- "SELECT label, gallons AS gallons, gallons_avg AS gallons_avg, complete FROM water_plotting.water_hourly_plot_view;"
@@ -32,7 +32,7 @@ if (sethour > currenthour) {
 
 # res$gallons <- res$gallons / 1000
 
-fname <- '/var/www/electricity/water_hourly.png'
+fname <- '/tmp/water_hourly.png'
 title <- "Water Extracted in the Last Day"
 label.x <- "Hour"
 label.y <- "Gallons"
