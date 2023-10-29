@@ -33,7 +33,7 @@ url = 'https://api.weather.gov/gridpoints/GYX/79,71/forecast'
 #f = urllib2.urlopen(url)
 #json_string = f.read()
 headers = {"User Agent": "blackosprey.com info@blackosprey.com"}
-f = requests.get(url, headers=headers)
+f = requests.get(url)
 json_string = f.text
 parsed_json = json.loads(json_string)
 
