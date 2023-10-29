@@ -3,7 +3,9 @@
 import os
 import ConfigParser, datetime, json, psycopg2 #, urllib2
 import requests
+import time
 opdate = datetime.datetime.now()
+print(opdate)
 
 # Get the api key from our config file
 config = ConfigParser.RawConfigParser()
@@ -23,9 +25,26 @@ url = 'https://api.weather.gov/gridpoints/GYX/79,71/forecast'
 #f = urllib2.urlopen(url)
 #json_string = f.read()
 headers = {"User Agent": "blackosprey.com info@blackosprey.com"}
-f = requests.get(url, headers=headers)
-json_string = f.text
-parsed_json = json.loads(json_string)
+success = False
+tries = 0
+while success != True:
+    f = requests.get(url)#, headers=headers)
+    tries += 1
+    status_code = f.status_code
+    if status_code != 200:
+        time.sleep(60)
+        continue
+    json_string = f.text
+    #print(json_string)
+    parsed_json = json.loads(json_string)
+    # This is dumb, but I keep getting a cached version of the data on the first call, so let's try again if we get the cached data
+    updated_time = parsed_json['properties']['updated']
+    print('updated_time: {0}'.format(updated_time))
+    if opdate - datetime.datetime.strptime(updated_time.split('+')[0], '%Y-%m-%dT%H:%M:%S') > datetime.timedelta(1):
+        time.sleep(60)
+        continue
+    success = True
+    print('tries: {0}'.format(tries))
 
 query = "DELETE FROM weather_data.weather_forecast_data WHERE NOT start_time::DATE = CURRENT_DATE;"
 cursor.execute(query)
