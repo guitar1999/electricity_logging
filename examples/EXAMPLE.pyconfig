@@ -1,0 +1,40 @@
+[Twitter-OAuth]
+CONSUMER_KEY =
+CONSUMER_SECRET =
+ACCESS_TOKEN_KEY =
+ACCESS_TOKEN_SECRET =
+
+[wunderground]
+APIKEY =
+
+[pidb]
+DBHOST =
+DBNAME =
+DBUSER =
+DBPORT =
+
+[pickledir]
+PICKLE_DIR =
+
+[wfdb]
+DBHOST =
+DBNAME =
+DBUSER =
+
+[location]
+LAT =
+LON =
+TZ =
+
+[zwave]
+PI_IP =
+PI_PORT =
+
+[iotawatt]
+IWHOST =
+IWQUERY =
+
+[slack]
+WEBHOOK_URL =
+TRUCK_WEBHOOK_URL =
+RUN_WEBHOOK_URL =
