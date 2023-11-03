@@ -8,7 +8,7 @@ from matplotlib import dates
 
 # Get the db config from our config file
 config = ConfigParser.RawConfigParser()
-config.read('/home/jessebishop/.pyconfig')
+config.read(os.environ.get('HOME') + '/.pyconfig')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
 dbuser = config.get('pidb', 'DBUSER')

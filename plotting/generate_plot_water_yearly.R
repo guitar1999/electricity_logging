@@ -1,9 +1,9 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-source('/usr/local/electricity_logging/plotting/barplot.R')
+source(paste(githome, '/electricity_logging/plotting/barplot.R', sep=''))
 
 query <- "SELECT label, gallons AS gallons, previous_yeartodate_gallons AS gallons_avg, complete FROM water_plotting.water_yearly_plot_view;"
 res <- dbGetQuery(con, query)
@@ -11,7 +11,7 @@ res <- dbGetQuery(con, query)
 res$gallons <- res$gallons / 1000
 res$gallons_avg <- res$gallons_avg / 1000
 
-fname <- '/var/www/electricity/water_yearly.png'
+fname <- '/tmp/water_yearly.png'
 title <- "Water Extracted By Year"
 label.x <- "Year"
 label.y <- "Thousand Gallons"

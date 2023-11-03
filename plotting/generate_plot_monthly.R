@@ -1,15 +1,15 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-source('/usr/local/electricity_logging/plotting/barplot.R')
+source(paste(githome, '/electricity_logging/plotting/barplot.R', sep=''))
 
 query <- "SELECT label, kwh, kwh_avg, complete FROM electricity_plotting.electricity_monthly;"
 res <- dbGetQuery(con, query)
 
 
-fname <- '/var/www/electricity/monthly.png'
+fname <- '/tmp/monthly.png'
 title <- "Electricity Used in the Last Year"
 label.x <- "Month"
 label.y <- "kwh"

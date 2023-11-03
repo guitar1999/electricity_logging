@@ -1,6 +1,6 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
 
@@ -8,7 +8,7 @@ query <- "select watts_main_1, watts_main_2, watts_boiler, measurement_time from
 res <- dbGetQuery(con, query)
 #res$watts <- res$watts_main_1 + res$watts_main_2
 
-fname <- '/var/www/electricity/last_24_hours.png'
+fname <- '/tmp/last_24_hours.png'
 mintime <- min(res$measurement_time)
 maxtime <- max(res$measurement_time)
 maxwatts <- max(rbind(res$watts_main_1, res$watts_main_2))

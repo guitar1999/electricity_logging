@@ -1,9 +1,9 @@
 if (! 'package:RPostgreSQL' %in% search()) {
     library(RPostgreSQL)
-    source('/home/jessebishop/.rconfig.R')
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-source('/usr/local/electricity_logging/plotting/barplot.R')
+source(paste(githome, '/electricity_logging/plotting/barplot.R', sep=''))
 
 query <- "SELECT label, kwh, kwh_avg, complete FROM electricity_plotting.electricity_hourly;"
 res <- dbGetQuery(con, query)
@@ -30,7 +30,7 @@ if (sethour > currenthour) {
 }
 
 
-fname <- '/var/www/electricity/hourly.png'
+fname <- '/tmp/hourly.png'
 title <- "Electricity Used in the Last Day"
 label.x <- "Hour"
 label.y <- "kwh"

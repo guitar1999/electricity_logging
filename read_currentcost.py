@@ -10,6 +10,7 @@
 
 print "read_currentcost.py starting up"
 
+import os
 import ConfigParser, datetime, serial, sys, psycopg2, urllib2, socket
 import xml.etree.ElementTree as ET 
 from db_inserter import insert_electric, insert_temperature
@@ -18,7 +19,7 @@ loud = sys.argv[1]
 
 # Get the db config from our config file
 config = ConfigParser.RawConfigParser()
-config.read('/home/jessebishop/.pyconfig')
+config.read(os.environ.get('HOME') + '/.pyconfig')
 
 
 # Set the temperature adjustment factor

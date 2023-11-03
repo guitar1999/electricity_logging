@@ -1,5 +1,7 @@
 library('randomForest')
-load('/usr/local/electricity_logging/statistics/hourly_correction_model.RData')
+source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
+
+load(paste(githome, '/electricity_logging/statistics/hourly_correction_model.RData', sep=''))
 
 # Get args
 args <- commandArgs(trailingOnly=TRUE)
