@@ -73,6 +73,10 @@ for p in parsed_json['properties']['periods']:
 query = '''DELETE FROM weather_data.weather_forecast; INSERT INTO weather_data.weather_forecast (SELECT forecast_date, CASE WHEN (max_temp + min_temp) / 2.0 < 65 THEN ROUND(65 - ((max_temp + min_temp) / 2.0), 0) ELSE 0 END AS hdd FROM (SELECT start_time::DATE AS forecast_date, MAX(temperature) FILTER (WHERE NOT daytime) AS min_temp, MAX(temperature) FILTER (WHERE daytime) AS max_temp FROM weather_data.weather_forecast_data WHERE end_time - start_time = interval '12 hours' GROUP BY start_time::DATE ORDER BY start_time::DATE ) AS x WHERE NOT max_temp IS NULL AND NOT min_temp IS NULL);'''
 cursor.execute(query)
 db.commit()
+# Move today's forecast HDD into the long term weather archive until we get a more reliable way to get this data (starting 2023-11-03)
+query = '''INSERT INTO weather_data.weather_daily_mean_data (weather_date, hdd) SELECT forecast_date, hdd FROM weather_data.weather_forecast WHERE forecast_date = CURRENT_DATE ON CONFLICT (weather_date) DO NOTHING;'''
+cursor.execute(query)
+db.commit()
 cursor.close()
 db.close()
 
