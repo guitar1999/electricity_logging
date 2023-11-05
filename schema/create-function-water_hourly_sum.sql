@@ -15,7 +15,9 @@ $$
                 COALESCE(ws.avg_runtime, 0),
                 COALESCE(ws.min_runtime, 0),
                 COALESCE(ws.max_runtime, 0)
-            FROM water_summary( (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::TIMESTAMP, (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::TIMESTAMP + '00:59:59'::INTERVAL ) AS ws;
+            FROM water_summary( (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::TIMESTAMP, (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::TIMESTAMP + '00:59:59'::INTERVAL ) AS ws
+            ON CONFLICT (sum_date, hour) DO
+            UPDATE SET (kwh, gallons, cycles, total_runtime, avg_runtime, min_runtime, max_runtime) = (EXCLUDED.kwh, EXCLUDED.gallons, EXCLUDED.cycles, EXCLUDED.total_runtime, EXCLUDED.avg_runtime, EXCLUDED.min_runtime, EXCLUDED.max_runtime);
             RETURN NEW;
         ELSE
             RETURN NEW;
