@@ -18,7 +18,9 @@ $$
                 AND measurement_time::DATE = (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::DATE
                 AND DATE_PART('HOUR', measurement_time) = DATE_PART('HOUR', DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)
             GROUP BY 1,
-                    2;
+                    2
+            ON CONFLICT (sum_date, hour) DO
+            UPDATE SET kwh = EXCLUDED.kwh;
             RETURN NEW;
         ELSE
             RETURN NEW;
