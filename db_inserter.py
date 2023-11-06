@@ -62,7 +62,7 @@ def insert_iotawatt_electric(measurement_time, watts_main_1,watts_main_2,watts_b
             dbport = config.get('pidb', 'DBPORT')
             db = psycopg2.connect(host=dbhost, port=dbport, database=dbname, user=dbuser)
             cursor = db.cursor()
-            query = "INSERT INTO electricity_iotawatt.electricity_measurements (measurement_time, watts_main_1,watts_main_2,watts_boiler,watts_subpanel_1,watts_subpanel_2,watts_water_pump,watts_generator_1,watts_generator_2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            query = "INSERT INTO electricity_iotawatt.electricity_measurements (measurement_time, watts_main_1,watts_main_2,watts_boiler,watts_subpanel_1,watts_subpanel_2,watts_water_pump,watts_generator_1,watts_generator_2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (measurement_time) DO NOTHING"
             cursor.execute(query, (measurement_time, watts_main_1,watts_main_2,watts_boiler,watts_subpanel_1,watts_subpanel_2,watts_water_pump,watts_generator_1,watts_generator_2))
             db.commit()
             cursor.close()
