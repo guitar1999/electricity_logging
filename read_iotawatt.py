@@ -40,8 +40,19 @@ except Exception as msg:
 # Stick the data into the celery queue to be loaded to postgres
 for rec in data['data']:
     try:
-        insert_iotawatt_electric.apply_async(args=rec, queue='electric')
+        time, main_1, main_2, boiler, sbpanel_1, sbpanel_2, water_pmp, generator_1, generator_2 = rec
+        if main_1 + main_2 >= generator_1 + generator_2:
+            generator_1 = 0.0
+            generator_2 = 0.0
+        elif main_1 + main_2 < generator_1 + generator_2:
+            main_1 = 0.0
+            main_2 = 0.0
+        new_rec = [time, main_1, main_2, boiler, sbpanel_1, sbpanel_2, water_pmp, generator_1, generator_2]
     except Exception as msg:
         print(msg)
         print(rec)
-
+    try:
+        insert_iotawatt_electric.apply_async(args=new_rec, queue='electric')
+    except Exception as msg:
+        print(msg)
+        print(rec)
