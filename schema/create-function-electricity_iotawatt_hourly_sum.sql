@@ -6,11 +6,12 @@ $$
         SELECT DATE_PART('HOUR', (SELECT MAX(measurement_time) FROM electricity_iotawatt.electricity_measurements WHERE NOT emid = NEW.emid AND measurement_time < NEW.measurement_time)) INTO old_hour;
         IF (old_hour = DATE_PART('HOUR', NEW.measurement_time) - 1) OR (old_hour = 23 AND DATE_PART('HOUR', NEW.measurement_time) = 0) THEN
             INSERT INTO 
-                electricity_iotawatt_statistics.electricity_sums_hourly (sum_date, hour, kwh)
+                electricity_iotawatt_statistics.electricity_sums_hourly (sum_date, hour, kwh, generator_usage)
             SELECT 
                 (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::DATE AS sum_date,
                 DATE_PART('HOUR', DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL) AS hour,
-                COALESCE(SUM((watts_main_1 + watts_main_2) * tdiff / 1000 / 60 / 60), 0) AS kwh
+                COALESCE(SUM((watts_main_1 + watts_main_2 + watts_generator_1 + watts_generator_2) * tdiff / 1000 / 60 / 60), 0) AS kwh,
+                BOOL_OR(watts_generator_1 + watts_generator_2 > 0)
             FROM 
                 electricity_iotawatt.electricity_measurements
             WHERE 
@@ -20,7 +21,9 @@ $$
             GROUP BY 1,
                     2
             ON CONFLICT (sum_date, hour) DO
-            UPDATE SET kwh = EXCLUDED.kwh;
+            UPDATE SET 
+                kwh = EXCLUDED.kwh,
+                generator_usage = EXCLUDED.generator_usage;
             RETURN NEW;
         ELSE
             RETURN NEW;
