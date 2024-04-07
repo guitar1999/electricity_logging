@@ -41,10 +41,10 @@ except Exception as msg:
 for rec in data['data']:
     try:
         time, main_1, main_2, boiler, sbpanel_1, sbpanel_2, water_pmp, generator_1, generator_2 = rec
-        if main_1 + main_2 >= generator_1 + generator_2:
+        if main_1 and main_1 + main_2 >= generator_1 + generator_2:
             generator_1 = 0.0
             generator_2 = 0.0
-        elif main_1 + main_2 < generator_1 + generator_2:
+        elif main_1 and main_1 + main_2 < generator_1 + generator_2:
             main_1 = 0.0
             main_2 = 0.0
         new_rec = [time, main_1, main_2, boiler, sbpanel_1, sbpanel_2, water_pmp, generator_1, generator_2]
