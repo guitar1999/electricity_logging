@@ -12,7 +12,7 @@ CREATE OR REPLACE VIEW electricity_statistics.electricity_sums_hourly_best_avail
             hour,
             kwh,
             'yes' AS complete,
-            1 AS rank,
+            2 AS rank,
             'cmp' AS source
         FROM 
             electricity_cmp.cmp_electricity_sums_hourly_view
@@ -22,7 +22,10 @@ CREATE OR REPLACE VIEW electricity_statistics.electricity_sums_hourly_best_avail
             hour,
             kwh,
             'no' AS complete,
-            2 AS rank,
+            CASE
+                WHEN generator_usage THEN 1
+                ELSE 3 
+            END AS rank,
             'iotawatt' AS source
         FROM 
             electricity_iotawatt_statistics.electricity_sums_hourly_view
@@ -32,7 +35,7 @@ CREATE OR REPLACE VIEW electricity_statistics.electricity_sums_hourly_best_avail
                 hour,
                 kwh,
                 'no' AS complete,
-                3 AS rank,
+                4 AS rank,
                 'current_cost' AS source
         FROM 
             electricity_statistics.electricity_sums_hourly_view 
