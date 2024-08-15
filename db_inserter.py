@@ -23,7 +23,7 @@ def insert_electric(watts_ch1, watts_ch2, watts_ch3, readtime, time):
             db.commit()
             cursor.close()
             db.close()
-        except Exception, msg:
+        except Exception as msg:
             success = False
         else:
             success = True
@@ -46,7 +46,7 @@ def insert_temperature(temperature, device):
             db.commit()
             cursor.close()
             db.close()
-        except Exception, msg:
+        except Exception as msg:
             success = False
         else:
             success = True
@@ -69,7 +69,7 @@ def insert_iotawatt_electric(measurement_time, watts_main_1,watts_main_2,watts_b
             db.commit()
             cursor.close()
             db.close()
-        except Exception, msg:
+        except Exception as msg:
             success = False
         else:
             success = True
