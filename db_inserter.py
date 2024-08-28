@@ -1,9 +1,9 @@
 from celery import Celery
-import ConfigParser
+import configparser
 import os
 import psycopg2
 
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 config.read(os.environ.get('HOME') + '/.pyconfig')
 rabbitmq_host = config.get('rabbitmq', 'RABBITMQ_HOST')
 rabbitmq_user = config.get('rabbitmq', 'RABBITMQ_USER')
@@ -16,7 +16,7 @@ def insert_iotawatt_electric(measurement_time, watts_main_1,watts_main_2,watts_b
     success = False
     while not success:
         try:
-            config = ConfigParser.RawConfigParser()
+            config = configparser.RawConfigParser()
             config.read(os.environ.get('HOME') + '/.pyconfig')
             dbhost = config.get('pidb', 'DBHOST')
             dbname = config.get('pidb', 'DBNAME')

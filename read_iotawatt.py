@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import argparse
-import ConfigParser
+import configparser
 import os
 import requests
 import sys
@@ -10,7 +10,7 @@ from db_inserter import insert_iotawatt_electric
 
 # Get info from our config file
 try:
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read('{0}/.pyconfig'.format(os.environ.get('HOME')))
     dbhost = config.get('pidb', 'DBHOST')
     dbname = config.get('pidb', 'DBNAME')
