@@ -31,8 +31,6 @@ args = parser.parse_args()
 try:
     r = requests.get('http://{0}/query?{1}'.format(iwhost, iwquery.format(args.start, args.end)))
     data = r.json()
-#    print(r.status_code)
-#    print(r.headers['content-type'])
 except Exception as msg:
     print(msg)
     sys.exit(1)
