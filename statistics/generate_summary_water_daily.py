@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import argparse
-import ConfigParser
+import configparser
 import datetime
 import json
 import os
@@ -14,7 +14,7 @@ p.add_argument('-date', dest="rundate", required=False, help="The date to run in
 args = p.parse_args()
 
 # Get the db config from our config file
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 config.read(os.environ.get('HOME') + '/.pyconfig')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
