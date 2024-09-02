@@ -3,3 +3,7 @@
 *.pkl*
 *.code-workspace
 temporary
+bin
+lib
+lib64
+pyvenv.cfg
