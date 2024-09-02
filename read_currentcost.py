@@ -8,7 +8,7 @@
 # 2013-03-14
 #
 
-print "read_currentcost.py starting up"
+print("read_currentcost.py starting up")
 
 import os
 import ConfigParser, datetime, serial, sys, psycopg2, urllib2, socket
@@ -44,7 +44,7 @@ def pullFromCurrentCost():
             watts2  = tree.findtext("ch2/watts")
             watts3  = tree.findtext("ch3/watts")
             temp = tree.findtext("tmprF")
-        except Exception, inst: # Catch XML errors
+        except Exception as inst: # Catch XML errors
             sys.stderr.write("XML error: " + str(inst) + "\n")
             line2 = None
     ser.flushInput()
@@ -57,12 +57,12 @@ def pullFromCurrentCost():
 while True:
     # Always get the data if you can!
     data = pullFromCurrentCost()
-    print data
+    print(data)
     try:
         temp = (float(data['temp']) + tempfactor - 32) * 5 / 9
         insert_temperature.apply_async(args=[temp, 'current_cost'], queue='electric')
-    except Exception, msg:
-        print msg
+    except Exception as msg:
+        print(msg)
     try:
         if data['watts1'] != None:
             watts_ch1 = int(data['watts1'])
@@ -90,9 +90,9 @@ while True:
             p = open('/var/www/electricity/hvac.csv', 'w')
             p.write('kwh\n%i\n' % (watts_ch3))
             p.close()
-        except Exception, msg:
-            print msg, "in tw"
+        except Exception as msg:
+            print(msg, "in tw")
         if loud == 'yes':
-            print totalwatts, watts_ch1, watts_ch2, str(watts_ch3), temp, time
-    except Exception, msg:
-        print msg, "in main"
+            print(totalwatts, watts_ch1, watts_ch2, str(watts_ch3), temp, time)
+    except Exception as msg:
+        print(msg, "in main")

@@ -37,7 +37,7 @@ for wfd in wfdata:
         w2 = 0
         tdiff = 60 * 60 * 24
         if dt < datetime.date(2013,3,22):
-            print dt
+            print(dt)
             #query = """INSERT INTO electricity_historical_utility_measurements (measurement_time, device_time, watts, tdiff) VALUES ('%s', '%s', %s, %s);""" % (mt, devtime, watts, tdiff)
             query = """INSERT INTO electricity_measurements (measurement_time, device_time, watts_ch1, watts_ch2, tdiff) VALUES ('%s', '%s', %s, %s, %s);""" % (mt, devtime, watts, w2, tdiff)
             cursor.execute(query)

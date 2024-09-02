@@ -8,7 +8,7 @@
 # 2013-03-14
 #
 
-print "read_currentcost.py starting up"
+print("read_currentcost.py starting up")
 
 import ConfigParser, serial, sys#, psycopg2
 import xml.etree.ElementTree as ET 
@@ -40,7 +40,7 @@ def pullFromCurrentCost():
             watts2  = tree.findtext("ch2/watts")
             watts3  = tree.findtext("ch3/watts")
             temp = tree.findtext("tmprF")
-        except Exception, inst: # Catch XML errors
+        except Exception as inst: # Catch XML errors
             sys.stderr.write("XML error: " + str(inst) + "\n")
             line2 = None
     ser.flushInput()
@@ -55,8 +55,8 @@ while True:
 #        db.commit()
         t.write('{0},current_cost,{1}\n'.format(temp,n))
         t.flush()
-    except Exception, msg:
-        print msg
+    except Exception as msg:
+        print(msg)
     try:
         totalwatts = int(data[1]) + int(data[2])
         watts_ch1 = int(data[1])
@@ -81,8 +81,8 @@ while True:
         s.write(sql2 + '\n')
         s.write(sql3 + '\n')
         s.flush()
-    except Exception, msg:
-        print msg, "in main"
+    except Exception as msg:
+        print(msg, "in main")
 
 t.close()
 e.close()

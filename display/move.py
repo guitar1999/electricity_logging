@@ -42,10 +42,10 @@ class Motor(object):
         steps = (steps % self.steps_per_rev)
         if steps > self.steps_per_rev / 2:
             steps -= self.steps_per_rev
-            print "moving " + `steps` + " steps"
+            print("moving " + `steps` + " steps")
             self._move_acw(-steps / 8)
         else:
-            print "moving " + `steps` + " steps"
+            print("moving " + `steps` + " steps")
             self._move_cw(steps / 8)
         self.step_angle = target_step_angle
  
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         GPIO.setmode(GPIO.BOARD)
         m = Motor([11,12,13,15])
         m.rpm = 6
-        print "Pause in seconds: " + `m._T`
+        print("Pause in seconds: " + `m._T`)
         m.move_to(180)
         sleep(1)
         m.move_to(0)
@@ -118,11 +118,11 @@ if __name__ == "__main__":
             if watts > maxrange:
                 watts = maxrange
             degrees = watts * 180. / maxrange
-            print "moving to {0} watts ({1} degrees)".format(watts, degrees)
+            print("moving to {0} watts ({1} degrees)".format(watts, degrees))
             m.move_to(degrees)
             sleep(10)
-    except Exception, msg:
-        print str(msg)
+    except Exception as msg:
+        print(str(msg))
     finally:
         m.move_to(0)
         GPIO.cleanup()

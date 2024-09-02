@@ -1,13 +1,12 @@
 #!/usr/bin/python
 
 import argparse
-import ConfigParser
+import configparser
 import datetime
 import json
 import os
 import psycopg2
 import requests
-from tweet import tweet
 
 # Allow the script to be run on a specific day of the week
 p = argparse.ArgumentParser(prog="generate_summary_boiler_daily.py")
@@ -15,7 +14,7 @@ p.add_argument('-date', dest="rundate", required=False, help="The date to run in
 args = p.parse_args()
 
 # Get the db config from our config file
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 config.read(os.environ.get('HOME') + '/.pyconfig')
 dbhost = config.get('pidb', 'DBHOST')
 dbname = config.get('pidb', 'DBNAME')
@@ -60,7 +59,6 @@ qualifier = 'more' if gallons > gallons_avg else 'less'
 
 status = """Extracted {0} gallons of water. That's {4} than average for a {5} in the {6}. Water Pump: {1} cycles, mean of {2} min/cycle using {3} kwh. """.format(round(gallons, 1), cycles, round(avg_runtime, 1), round(kwh, 1), qualifier, day.strip(), season)
 if not args.rundate:
-    tweet(status)
     headers = {'Content-type': 'application/json'}
     payload = {'text': '{0}'.format(status), 'link_names': 1}
     r = requests.post(slackhook, headers=headers, data=json.dumps(payload))

@@ -8,7 +8,7 @@
 # 2013-03-14
 #
 
-print "update_db_from_csv.py starting up"
+print("update_db_from_csv.py starting up")
 
 import ConfigParser
 import sys
@@ -53,11 +53,11 @@ for line in f.readlines():
     watts_ch1 = int(watts_ch1)
     watts_ch2 = int(watts_ch2)
     watts_ch3 = int(watts_ch3)
-    print watts_ch1, watts_ch2, watts_ch3, current_time
+    print(watts_ch1, watts_ch2, watts_ch3, current_time)
         
     try:
         sql = "INSERT INTO electricity_measurements (watts_ch1, watts_ch2, watts_ch3, measurement_time, device_time) VALUES (%i, %i, %i, '%s', '%s') RETURNING emid;" % (watts_ch1, watts_ch2, watts_ch3, current_time, time)
-        #print sql
+        #print(sql)
         cursor.execute(sql)
         tid = cursor.fetchone()[0]
         sql2 = """UPDATE electricity_measurements SET tdiff = (SELECT date_part FROM (SELECT date_part('epoch', measurement_time - LAG(measurement_time) OVER (ORDER BY measurement_time)) FROM electricity_measurements WHERE emid IN (%s,(SELECT MAX(emid) FROM electricity_measurements WHERE emid < %s))) AS temp1 WHERE NOT date_part IS NULL) WHERE emid = %s;""" % (tid, tid, tid)
@@ -65,8 +65,8 @@ for line in f.readlines():
         sql3 = """UPDATE electricity_measurements SET tdiff_device_time = (SELECT date_part FROM (SELECT date_part('epoch', device_time - LAG(device_time) OVER (ORDER BY device_time)) FROM electricity_measurements WHERE emid IN (%s,(SELECT MAX(emid) FROM electricity_measurements WHERE emid < %s))) AS temp1 WHERE NOT date_part IS NULL) WHERE emid = %s;""" % (tid, tid, tid)
         cursor.execute(sql3)
         db.commit()
-    except Exception, msg:
-        print msg, "in main"
+    except Exception as msg:
+        print(msg, "in main")
         break
 
 cursor.close()

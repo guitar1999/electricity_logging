@@ -166,7 +166,7 @@ def hour_query(now, opdate, hour, ophour, starttime, endtime, dow, reset):
     try:
         cursor.execute(query)
     except:
-        print "Hourly sum already updated."
+        print("Hourly sum already updated.")
     db.commit()
     # Predict the actual usage based on measured usage
     query = """SELECT SUM((watts_ch1) * tdiff / 60 / 60 / 1000.) AS kwh_ch1, SUM((watts_ch2) * tdiff / 60 / 60 / 1000.) AS kwh_ch2, SUM((watts_ch3) * tdiff / 60 / 60 / 1000.) AS kwh_ch3, MIN(CASE s.season WHEN 'winter' THEN 0 WHEN 'spring' then 1 WHEN 'summer' THEN 2 WHEN 'fall' THEN 3 END) AS season, COUNT(*) AS measurement_count, MAX(tdiff) AS max_tdiff FROM electricity.electricity_measurements LEFT JOIN weather_data.meteorological_season s ON s.doy=DATE_PART('doy', measurement_time) WHERE measurement_time > '{0}' AND measurement_time <= '{1}' AND date_part('hour', measurement_time) = {2};""".format(starttime, endtime, ophour)
@@ -257,7 +257,7 @@ def month_query(now, opmonth, year, reset):
 now = pytz.utc.localize(datetime.datetime.utcnow()).astimezone(pytz.timezone(tz))
 
 if args.mode == 'hour':
-    print 'Hourly'
+    print('Hourly')
     # Load additional modules needed for electricity correction
     from sklearn.ensemble import RandomForestRegressor
     from sklearn.externals import joblib
@@ -271,7 +271,7 @@ if args.mode == 'hour':
     hour, now, ophour, opdate, dow, starttime, endtime, reset = res
     hour_query(now, opdate, hour, ophour, starttime, endtime, dow, reset)
 elif args.mode == 'day':
-    print 'Daily'
+    print('Daily')
     if args.rundate:
         res = day_calc(now, args.rundate)
     else:
@@ -279,15 +279,15 @@ elif args.mode == 'day':
     opdate, now, dow, nowdow, starttime, endtime, reset = res
     day_query(now, nowdow, opdate, dow, endtime, None, reset)
 elif args.mode == 'month':
-    print 'Monthly'
+    print('Monthly')
     if args.runmonth:
         res = month_calc(now.rundate)
     else:
         res = month_calc(now)
     opmonth, month, year, startime, endtime, reset = res
-    print month_query(now, opmonth, year, reset)
+    print(month_query(now, opmonth, year, reset))
 elif args.mode == 'year':
-    print 'Yearly'
+    print('Yearly')
 
 
 # Close DB
