@@ -36,7 +36,7 @@ plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_
 runtime <- runtime + plottime
 print("    line")
 
-# Run the hourlies every 2nd loop and add the plotting time to the loop runtime
+if (ticker %% 2 == 1) {
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_hourly_season.R', sep=''))
     runtime <- runtime + plottime
     print("    electricity hourly season")
@@ -51,7 +51,6 @@ print("    line")
     print("    water hourly dow season")
 
 
-# Run the month_to_month every 5 minutes and add the plotting timest to the loop runtime
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_month_to_month.R', sep=''))
     runtime <- runtime + plottime
     print("    electricity month to month")
@@ -62,7 +61,6 @@ print("    line")
     runtime <- runtime + plottime
     print("    water month to month")
 
-# Run the dow every 2nd loop and add the plotting times to the loop runtime
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_dow_season.R', sep=''))
     runtime <- runtime + plottime
     print("    electricity dow season")
@@ -86,7 +84,6 @@ print("    line")
     print("    water daily")
 
 
-# Run the daily every 2nd and add the plotting times to the loop runtime
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_monthly.R', sep=''))
     runtime <- runtime + plottime
     print("    electricity monthly")
@@ -107,7 +104,6 @@ print("    line")
     print("    water yearly")
 
 
-# Run the monthly and daily 1year every 30th loop and add the plotting times to the loop runtime
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_daily_1year.R', sep=''))
     runtime <- runtime + plottime
     print("    electricity daily 1year")
@@ -117,6 +113,6 @@ print("    line")
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_daily_1year.R', sep=''))
     runtime <- runtime + plottime
     print("    water daily 1year")
-
+}
 
 
