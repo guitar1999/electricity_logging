@@ -1,17 +1,13 @@
 #!/bin/env python
 
+import os
 import ConfigParser
 import datetime
 import json
-import os
 import psycopg2
-import urllib2
-
-
-import os
-import ConfigParser, datetime, json, psycopg2 #, urllib2
 import requests
 import time
+
 opdate = datetime.datetime.now()
 print(opdate)
 
@@ -48,13 +44,13 @@ while success != True:
     #print(json_string)
     parsed_json = json.loads(json_string)
     # This is dumb, but I keep getting a cached version of the data on the first call, so let's try again if we get the cached data
-    updated_time = parsed_json['properties']['updated']
-    print('updated_time: {0}'.format(updated_time))
+    updated_time = parsed_json['properties']['updateTime']
+    print(f'updated_time: {updated_time}')
     if opdate - datetime.datetime.strptime(updated_time.split('+')[0], '%Y-%m-%dT%H:%M:%S') > datetime.timedelta(1):
         time.sleep(60)
         continue
     success = True
-    print('tries: {0}'.format(tries))
+    print(f'tries: {tries}')
 
 query = "DELETE FROM weather_data.weather_forecast_data WHERE NOT start_time::DATE = CURRENT_DATE;"
 cursor.execute(query)
@@ -79,4 +75,3 @@ cursor.execute(query)
 db.commit()
 cursor.close()
 db.close()
-
