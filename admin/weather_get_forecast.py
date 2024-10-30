@@ -45,12 +45,12 @@ while success != True:
     parsed_json = json.loads(json_string)
     # This is dumb, but I keep getting a cached version of the data on the first call, so let's try again if we get the cached data
     updated_time = parsed_json['properties']['updateTime']
-    print(f'updated_time: {updated_time}')
+    print('updated_time: {0}'.format(updated_time))
     if opdate - datetime.datetime.strptime(updated_time.split('+')[0], '%Y-%m-%dT%H:%M:%S') > datetime.timedelta(1):
         time.sleep(60)
         continue
     success = True
-    print(f'tries: {tries}')
+    print('tries: {0}'.format(tries))
 
 query = "DELETE FROM weather_data.weather_forecast_data WHERE NOT start_time::DATE = CURRENT_DATE;"
 cursor.execute(query)
