@@ -91,7 +91,7 @@ if (ticker %% 2 == 1) {
     runtime <- runtime + plottime
     print("    electricity yearly")
     plottime <- genplot(paste(githome, '/gas_logging/plotting/generate_plot_oil_monthly.R', sep=''))
-    runtime <- runtime + plottime#        print("    oil monthly")
+    runtime <- runtime + plottime
     print("    oil monthly")
     plottime <- genplot(paste(githome, '/gas_logging/plotting/generate_plot_oil_yearly.R', sep=''))
     runtime <- runtime + plottime
@@ -113,6 +113,14 @@ if (ticker %% 2 == 1) {
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_daily_1year.R', sep=''))
     runtime <- runtime + plottime
     print("    water daily 1year")
+
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_year_to_year.R', sep=''))
+    runtime <- runtime + plottime
+    print("    electricity year to year")
+    plottime <- genplot(paste(githome, '/gas_logging/plotting/generate_plot_oil_year_to_year.R', sep=''))
+    runtime <- runtime + plottime
+    print("    oil year to year")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_year_to_year.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water year to year")
 }
-
-
