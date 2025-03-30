@@ -11,3 +11,4 @@ CREATE TABLE electricity_iotawatt.electricity_measurements (
     watts_generator_1 NUMERIC,
     watts_generator_2 NUMERIC
 );
+ALTER TABLE electricity_iotawatt.electricity_measurements ADD COLUMN measurement_time_utc TIMESTAMP WITH TIME ZONE UNIQUE;
