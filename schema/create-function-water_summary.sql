@@ -18,13 +18,13 @@ BEGIN
             event_group,
             status
         ) SELECT
-            SUM(ROUND(cycles.kwh,3)),
-            SUM(CASE WHEN cycles.status = 'ON' THEN cycles.gallons ELSE 0::NUMERIC END),
-            COUNT(CASE WHEN cycles.status = 'ON' THEN cycles.*  END)::INTEGER,
-            SUM(CASE WHEN cycles.status = 'ON' THEN cycles.runtime ELSE 0::NUMERIC END),
-            AVG(CASE WHEN cycles.status = 'ON' THEN cycles.runtime ELSE 0::NUMERIC END),
-            MIN(CASE WHEN cycles.status = 'ON' THEN cycles.runtime ELSE 0::NUMERIC END),
-            MAX(CASE WHEN cycles.status = 'ON' THEN cycles.runtime ELSE 0::NUMERIC END)
+            COALESCE(SUM(ROUND(cycles.kwh,3)), 0),
+            COALESCE(SUM(cycles.gallons) FILTER (WHERE cycles.status = 'ON'), 0)::NUMERIC,
+            COALESCE(COUNT(cycles.*) FILTER (WHERE cycles.status = 'ON'), 0)::INTEGER,
+            COALESCE(SUM(cycles.runtime) FILTER (WHERE cycles.status = 'ON'), 0)::NUMERIC,
+            COALESCE(AVG(cycles.runtime) FILTER (WHERE cycles.status = 'ON'), 0)::NUMERIC,
+            COALESCE(MIN(cycles.runtime) FILTER (WHERE cycles.status = 'ON'), 0)::NUMERIC,
+            COALESCE(MAX(cycles.runtime) FILTER (WHERE cycles.status = 'ON'), 0)::NUMERIC
         FROM
             cycles;
 END;
