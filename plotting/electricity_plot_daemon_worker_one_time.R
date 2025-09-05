@@ -104,6 +104,11 @@ if (ticker %% 2 == 1) {
     print("    water yearly")
 
 
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_time.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water cycle time")
+
+
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_daily_1year.R', sep=''))
     runtime <- runtime + plottime
     print("    electricity daily 1year")
