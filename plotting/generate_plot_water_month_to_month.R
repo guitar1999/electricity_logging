@@ -31,7 +31,7 @@ gallonsavg <- dbGetQuery(con, query)
 query <- paste("SELECT timestamp, (make_date(2000, DATE_PART('month', timestamp)::integer, DATE_PART('day', timestamp)::integer) || ' ' || to_char(timestamp, 'HH24:MI:SS'))::timestamp with time zone AS plotstamp, monthly_cum_avg_gallons FROM water_plotting.water_cumulative_averages WHERE DATE_PART('MONTH', timestamp) = ", month, " ORDER BY timestamp;", sep="")
 cumgallonsavg <- dbGetQuery(con, query)
 # query <- "SELECT time, CASE WHEN minuteh IS NULL THEN minute ELSE minuteh END AS minute FROM prediction_test WHERE date_part('year', time) = date_part('year', CURRENT_TIMESTAMP) AND date_part('month', time) = date_part('month', CURRENT_TIMESTAMP) AND minute > 0 ORDER BY time;"
-# query <- "SELECT timestamp, gallons FROM water_plotting.cumulative_predicted_use_this_month_view ORDER BY timestamp;"
+# query <- "SELECT timestamp, (make_date(2000, DATE_PART('month', timestamp)::integer, DATE_PART('day', timestamp)::integer) || ' ' || to_char(timestamp, 'HH24:MI:SS'))::timestamp with time zone AS plotstamp, gallons FROM water_plotting.cumulative_predicted_use_this_month_view ORDER BY timestamp;"
 # prediction <- dbGetQuery(con, query)
 # prediction$gallons <- prediction$gallons / 60
 # prediction <- rbind(measurements[dim(measurements)[1],c("timestamp", "cumulative_gallons")], setNames(data.frame(prediction), c(names(measurements)[5], names(measurements)[8])))
@@ -59,7 +59,7 @@ for (i in seq(1, length(years))){
     }
     lines(plotdata$plotstamp, plotdata$cumulative_gallons, col=linecolor, lwd=1.5)
 }
-# lines(prediction$timestamp, prediction$cumulative_gallons, col='blue4', lty=5)
+# lines(prediction$plotstamp, prediction$cumulative_gallons, col='blue4', lty=5)
 # lines(predline, col='darkred', lty=2, lwd=1.5)
 #abline(h=gallonsavg, col='orange')
 lines(cumgallonsavg$plotstamp, cumgallonsavg$monthly_cum_avg_gallons, col='orange')

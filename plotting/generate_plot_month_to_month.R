@@ -31,7 +31,7 @@ query <- paste("SELECT timestamp, (make_date(2000, DATE_PART('month', timestamp)
 cumkwhavg <- dbGetQuery(con, query)
 
 # query <- "SELECT time, CASE WHEN minuteh IS NULL THEN minute ELSE minuteh END AS minute FROM prediction_test WHERE date_part('year', time) = date_part('year', CURRENT_TIMESTAMP) AND date_part('month', time) = date_part('month', CURRENT_TIMESTAMP) AND minute > 0 ORDER BY time;"
-query <- "SELECT timestamp, cumulative_kwh FROM electricity_plotting.cumulative_predicted_use_this_month_view;"
+query <- "SELECT timestamp, (make_date(2000, DATE_PART('month', timestamp)::integer, DATE_PART('day', timestamp)::integer) || ' ' || to_char(timestamp, 'HH24:MI:SS'))::timestamp with time zone AS plotstamp, cumulative_kwh FROM electricity_plotting.cumulative_predicted_use_this_month_view ORDER BY timestamp;"
 prediction <- dbGetQuery(con, query)
 # prediction <- rbind(prediction, setNames(data.frame(xmax, prediction$minute[length(prediction$minute)]), names(prediction)))
 # predline <- rbind(measurements[dim(measurements)[1],c("timestamp", "cumulative_kwh")], setNames(data.frame(prediction[dim(prediction)[1],]), c(names(measurements)[5], names(measurements)[8])))
@@ -59,7 +59,7 @@ for (i in seq(1, length(years))){
     }
     lines(plotdata$plotstamp, plotdata$cumulative_kwh, col=linecolor, lwd=1.5)
 }
-lines(prediction$timestamp, prediction$cumulative_kwh, col='blue4', lty=5)
+lines(prediction$plotstamp, prediction$cumulative_kwh, col='blue4', lty=5)
 # lines(predline, col='darkred', lty=2, lwd=1.5)
 # abline(h=kwhavg, col='orange')
 lines(cumkwhavg$plotstamp, cumkwhavg$monthly_cum_avg_kwh, col='orange')
