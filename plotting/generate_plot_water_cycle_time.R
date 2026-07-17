@@ -39,7 +39,7 @@ abline(h=vseq, col='grey', lty=3)
 abline(h=res$lifetime_median_cycle_time[1], col='darkblue')
 lines(res$sum_date, res$median_cycle_time, col='lightblue', lwd=3)
 lines(res$sum_date, res$rolling_avg_cycle_time_median_90d, col='orange')
-legend('topleft', legend=c('Daily Median', '90d Median', 'Overall Median'), col=c('lightblue', 'orange', 'darkblue'), lty=c(1,1,1), inset=0.01)
+legend('topleft', legend=c('Daily Median', '90d Avg Daily Median', 'Overall Median'), col=c('lightblue', 'orange', 'darkblue'), lty=c(1,1,1), inset=0.01)
 dev.off()
 
 system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
