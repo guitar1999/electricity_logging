@@ -121,29 +121,17 @@ CREATE OR REPLACE VIEW water_statistics.water_statistics_daily_cycle_view AS (
             WHERE
                 dd.sum_date BETWEEN d.sum_date - '89 days'::INTERVAL AND d.sum_date
         ) AS rolling_runtime_median_90d,
-        (
-            SELECT
-                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY wc.runtime)
-            FROM
-                water_statistics.water_cycles wc
-            WHERE
-                wc.sum_date BETWEEN d.sum_date - '6 days'::INTERVAL AND d.sum_date
+        AVG(dm.median_cycle_time) OVER (
+            ORDER BY d.sum_date::TIMESTAMP
+            RANGE BETWEEN '6 days'::INTERVAL PRECEDING AND CURRENT ROW
         ) AS rolling_avg_cycle_time_median_7d,
-        (
-            SELECT
-                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY wc.runtime)
-            FROM
-                water_statistics.water_cycles wc
-            WHERE
-                wc.sum_date BETWEEN d.sum_date - '29 days'::INTERVAL AND d.sum_date
+        AVG(dm.median_cycle_time) OVER (
+            ORDER BY d.sum_date::TIMESTAMP
+            RANGE BETWEEN '29 days'::INTERVAL PRECEDING AND CURRENT ROW
         ) AS rolling_avg_cycle_time_median_30d,
-        (
-            SELECT
-                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY wc.runtime)
-            FROM
-                water_statistics.water_cycles wc
-            WHERE
-                wc.sum_date BETWEEN d.sum_date - '89 days'::INTERVAL AND d.sum_date
+        AVG(dm.median_cycle_time) OVER (
+            ORDER BY d.sum_date::TIMESTAMP
+            RANGE BETWEEN '89 days'::INTERVAL PRECEDING AND CURRENT ROW
         ) AS rolling_avg_cycle_time_median_90d,
         lm.median_cycle_time AS lifetime_median_cycle_time
     FROM
