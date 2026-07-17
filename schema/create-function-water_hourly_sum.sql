@@ -2,6 +2,7 @@ CREATE OR REPLACE FUNCTION water_hourly_sum() RETURNS TRIGGER AS
 $$
     DECLARE
         old_hour INTEGER;
+        cycle_lookback INTERVAL := '1 hour 15 minutes'::INTERVAL;
     BEGIN
         SELECT DATE_PART('HOUR', (SELECT MAX(measurement_time) FROM electricity_iotawatt.electricity_measurements WHERE NOT emid = NEW.emid AND measurement_time < NEW.measurement_time)) INTO old_hour;
         IF (old_hour = DATE_PART('HOUR', NEW.measurement_time) - 1) OR (old_hour = 23 AND DATE_PART('HOUR', NEW.measurement_time) = 0) THEN
@@ -18,6 +19,23 @@ $$
             FROM water_summary( (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::TIMESTAMP, (DATE_TRUNC('HOUR', NEW.measurement_time) - '1 HOUR'::INTERVAL)::TIMESTAMP + '00:59:59'::INTERVAL ) AS ws
             ON CONFLICT (sum_date, hour) DO
             UPDATE SET (kwh, gallons, cycles, total_runtime, avg_runtime, min_runtime, max_runtime) = (EXCLUDED.kwh, EXCLUDED.gallons, EXCLUDED.cycles, EXCLUDED.total_runtime, EXCLUDED.avg_runtime, EXCLUDED.min_runtime, EXCLUDED.max_runtime);
+
+            INSERT INTO water_statistics.water_cycles (cycle_start, cycle_end, sum_date, hour, runtime)
+            SELECT
+                wc.cycle_start,
+                wc.cycle_end,
+                wc.cycle_start::DATE AS sum_date,
+                DATE_PART('HOUR', wc.cycle_start)::INTEGER AS hour,
+                wc.runtime
+            FROM
+                water_completed_cycles((DATE_TRUNC('HOUR', NEW.measurement_time) - cycle_lookback)::TIMESTAMP, NEW.measurement_time::TIMESTAMP) wc
+            ON CONFLICT (cycle_start) DO
+            UPDATE SET
+                cycle_end = EXCLUDED.cycle_end,
+                sum_date = EXCLUDED.sum_date,
+                hour = EXCLUDED.hour,
+                runtime = EXCLUDED.runtime;
+
             RETURN NEW;
         ELSE
             RETURN NEW;
