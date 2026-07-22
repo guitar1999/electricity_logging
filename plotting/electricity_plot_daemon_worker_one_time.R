@@ -35,6 +35,9 @@ print(paste("    Starting runtime is ",runtime, sep=""))
 plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_last_hour.R', sep=''))
 runtime <- runtime + plottime
 print("    line")
+plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_last_2_hours.R', sep=''))
+runtime <- runtime + plottime
+print("    water pump line")
 
 if (ticker %% 2 == 1) {
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_hourly_season.R', sep=''))
@@ -70,6 +73,30 @@ if (ticker %% 2 == 1) {
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_last_24_hours.R', sep=''))
     runtime <- runtime + plottime
     print("    electricity 24 hours")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_last_24_hours.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water pump 24 hours")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_timeline_24_hours.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water pump cycle timeline 24 hours")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_runtime_24_hours.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water pump cycle runtime 24 hours")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_cadence_24_hours.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water pump cycle cadence 24 hours")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_runtime_distribution.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water pump cycle runtime distribution")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_fingerprint_30_days.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water pump cycle fingerprint 30 days")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_start_heatmap.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water pump cycle start heatmap")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_anomalies_7_days.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water pump cycle anomalies 7 days")
     plottime <- genplot(paste(githome, '/gas_logging/plotting/generate_plot_oil_dow_season.R', sep=''))
     runtime <- runtime + plottime
     print("    oil dow season")

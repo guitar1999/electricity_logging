@@ -1,0 +1,39 @@
+if (! 'package:RPostgreSQL' %in% search()) {
+    library(RPostgreSQL)
+    source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
+}
+
+
+query <- "WITH bounds AS (SELECT CURRENT_TIMESTAMP - INTERVAL '24 HOURS' AS start_time, CURRENT_TIMESTAMP AS end_time) SELECT wc.cycle_start, wc.runtime FROM water_statistics.water_cycles wc, bounds b WHERE wc.cycle_start >= b.start_time AND wc.cycle_start <= b.end_time ORDER BY wc.cycle_start;"
+res <- dbGetQuery(con, query)
+
+fname <- '/tmp/water_cycle_runtime_24_hours.png'
+mintime <- Sys.time() - 86400
+maxtime <- Sys.time()
+maxruntime <- ifelse(nrow(res) > 0, max(1, res$runtime, na.rm=TRUE), 1)
+vseq <- seq(0, ceiling(maxruntime), 1)
+hseq <- seq(mintime, maxtime, 1800)
+hourseq <- seq(mintime, maxtime, 3600)
+
+# Do some sunrise and sunset calculations
+today <- Sys.Date()
+query2 <- paste("SELECT (date || ' ' || sunrise)::timestamp AS sunrise, (date || ' ' || sunset)::timestamp AS sunset FROM astronomy_data WHERE date IN ('", today - 1, "', '", today, "') ORDER BY date;", sep="")
+res2 <- dbGetQuery(con, query2)
+
+
+png(filename=fname, width=10240, height=700, units='px', pointsize=12, bg='white')
+plot(c(mintime, maxtime), c(0, maxruntime), type='n', xlim=c(mintime, maxtime), ylim=c(0,maxruntime), xlab="Time", ylab="Minutes", main="Well Pump Cycle Runtime - Last 24 Hours", xaxt='n', yaxt='n')
+axis(side=1, at=hseq, labels=substr(hseq, 12, 16))
+axis(side=2, at=vseq, labels=vseq, las=1)
+abline(v=hourseq, col='black')
+abline(h=vseq, col='grey', lty=2)
+abline(v=res2$sunrise, lty=2, col='orange')
+abline(v=res2$sunset, lty=2, col='orange')
+if (nrow(res) > 0) {
+    segments(res$cycle_start, 0, res$cycle_start, res$runtime, col='lightblue', lwd=1.5)
+    points(res$cycle_start, res$runtime, col='steelblue', pch=19)
+}
+legend('topright', legend=c('Cycle Runtime'), col=c('steelblue'), pch=c(19), inset=0.01)
+dev.off()
+
+system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity2', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
