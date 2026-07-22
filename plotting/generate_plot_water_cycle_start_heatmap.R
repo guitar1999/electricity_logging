@@ -16,7 +16,7 @@ if (nrow(res) > 0) {
 }
 colors <- colorRampPalette(c('white', 'lightblue', 'steelblue', 'navy'))(20)
 
-png(filename=fname, width=1024, height=500, units='px', pointsize=12, bg='white')
+png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 image(0:23, 0:6, counts, col=colors, xlab="Hour of Day", ylab="Day of Week", main="Well Pump Cycle Starts by Hour and Day - Last 90 Days", xaxt='n', yaxt='n')
 axis(side=1, at=seq(0,23,2), labels=seq(0,23,2))
 axis(side=2, at=0:6, labels=c('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'), las=1)

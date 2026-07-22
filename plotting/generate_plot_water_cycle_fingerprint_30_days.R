@@ -13,7 +13,7 @@ res$day_index <- match(res$cycle_date, dates)
 maxruntime <- ifelse(nrow(res) > 0, max(1, res$runtime, na.rm=TRUE), 1)
 pointsize <- ifelse(nrow(res) > 0, 0.8 + 2.2 * pmin(res$runtime / maxruntime, 1), 1)
 
-png(filename=fname, width=1024, height=700, units='px', pointsize=12, bg='white')
+png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 plot(c(0, 24), c(1, length(dates)), type='n', xlim=c(0,24), ylim=c(1,length(dates)), xlab="Hour of Day", ylab="Date", main="Well Pump Cycle Fingerprint - Last 30 Days", xaxt='n', yaxt='n')
 axis(side=1, at=seq(0,24,2), labels=seq(0,24,2))
 axis(side=2, at=seq(1, length(dates), 2), labels=format(dates[seq(1, length(dates), 2)], '%m-%d'), las=1)

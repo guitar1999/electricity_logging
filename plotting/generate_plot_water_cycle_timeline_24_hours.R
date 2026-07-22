@@ -19,7 +19,7 @@ query2 <- paste("SELECT (date || ' ' || sunrise)::timestamp AS sunrise, (date ||
 res2 <- dbGetQuery(con, query2)
 
 
-png(filename=fname, width=10240, height=350, units='px', pointsize=12, bg='white')
+png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 plot(c(mintime, maxtime), c(0, 1), type='n', xlim=c(mintime, maxtime), ylim=c(0, 1), xlab="Time", ylab="", main="Well Pump Cycles - Last 24 Hours", xaxt='n', yaxt='n')
 axis(side=1, at=hseq, labels=substr(hseq, 12, 16))
 abline(v=hourseq, col='black')

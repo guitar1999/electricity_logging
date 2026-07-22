@@ -15,7 +15,7 @@ vseq <- seq(0, ceiling(maxruntime), 1)
 hseq <- seq(mintime, maxtime, 86400)
 pointcol <- ifelse(nrow(res) > 0 & res$runtime >= res$runtime_p95, 'red', ifelse(nrow(res) > 0 & res$runtime <= res$runtime_p05, 'darkgoldenrod', 'steelblue'))
 
-png(filename=fname, width=2048, height=700, units='px', pointsize=12, bg='white')
+png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 plot(c(mintime, maxtime), c(0, maxruntime), type='n', xlim=c(mintime, maxtime), ylim=c(0,maxruntime), xlab="Date", ylab="Minutes", main="Well Pump Runtime Anomalies - Last 7 Days", xaxt='n', yaxt='n')
 axis(side=1, at=hseq, labels=format(hseq, '%m-%d %H:%M'))
 axis(side=2, at=vseq, labels=vseq, las=1)

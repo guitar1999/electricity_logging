@@ -22,7 +22,7 @@ query2 <- paste("SELECT (date || ' ' || sunrise)::timestamp AS sunrise, (date ||
 res2 <- dbGetQuery(con, query2)
 
 
-png(filename=fname, width=10240, height=700, units='px', pointsize=12, bg='white')
+png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
 plot(c(mintime, maxtime), c(0, max(vseq)), type='n', xlim=c(mintime, maxtime), ylim=c(0,max(vseq)), xlab="Time", ylab="Minutes", main="Well Pump Cycle Cadence - Last 24 Hours", xaxt='n', yaxt='n')
 axis(side=1, at=hseq, labels=substr(hseq, 12, 16))
 axis(side=2, at=vseq, labels=vseq, las=1)
