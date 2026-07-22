@@ -3,6 +3,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
     source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
+source(paste(githome, '/electricity_logging/plotting/water_cycle_plot_style.R', sep=''))
 
 query <- "SELECT runtime, CASE WHEN cycle_start >= CURRENT_TIMESTAMP - INTERVAL '7 DAYS' THEN '7d' WHEN cycle_start >= CURRENT_TIMESTAMP - INTERVAL '30 DAYS' THEN '30d' ELSE '90d' END AS window FROM water_statistics.water_cycles WHERE cycle_start >= CURRENT_TIMESTAMP - INTERVAL '90 DAYS' ORDER BY runtime;"
 res <- dbGetQuery(con, query)
@@ -29,11 +30,16 @@ if (length(runtime7) > 0) {
 }
 plotmax <- max(1, hist90$counts, hist30$counts, hist7$counts)
 
-png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
-plot(hist90$mids, hist90$counts, type='s', col='grey50', ylim=c(0,plotmax), xlab="Minutes", ylab="Cycles", main="Well Pump Cycle Runtime Distribution", lwd=2)
-lines(hist30$mids, hist30$counts, type='s', col='steelblue', lwd=2)
-lines(hist7$mids, hist7$counts, type='s', col='orange', lwd=2)
-legend('topright', legend=c('90d', '30d', '7d'), col=c('grey50', 'steelblue', 'orange'), lty=c(1,1,1), lwd=c(2,2,2), inset=0.01)
+cycle_plot_init(fname)
+cycle_draw_panel(c(min(breaks), max(breaks)), c(0,plotmax), "Minutes", "Cycles", "Well Pump Cycle Runtime Distribution")
+vseq <- pretty(c(0, plotmax))
+cycle_grid_lines(h=vseq)
+axis(side=1, col=NA, col.ticks=cycle_axis, col.axis=cycle_axis)
+cycle_axis_y(vseq)
+lines(hist90$mids, hist90$counts, type='s', col=cycle_grey, lwd=2)
+lines(hist30$mids, hist30$counts, type='s', col=cycle_blue, lwd=2)
+lines(hist7$mids, hist7$counts, type='s', col=cycle_orange, lwd=2)
+cycle_legend('topright', legend=c('90d', '30d', '7d'), col=c(cycle_grey, cycle_blue, cycle_orange), lty=c(1,1,1), lwd=c(2,2,2), inset=0.01)
 dev.off()
 
 system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity2', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)

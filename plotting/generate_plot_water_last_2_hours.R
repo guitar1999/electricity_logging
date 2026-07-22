@@ -6,6 +6,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 query <- "SELECT watts_water_pump, measurement_time FROM electricity_iotawatt.electricity_measurements WHERE measurement_time > (CURRENT_TIMESTAMP) - ((DATE_PART('MINUTE', (CURRENT_TIMESTAMP)) + 60) * INTERVAL '1 MINUTE') - (DATE_PART('SECOND', (CURRENT_TIMESTAMP)) * INTERVAL '1 SECOND') AND watts_water_pump IS NOT NULL ORDER BY measurement_time;"
 res <- dbGetQuery(con, query)
+res$watts_water_pump <- res$watts_water_pump * 2
 
 fname <- '/tmp/water_last_2_hours.png'
 mintime <- min(res$measurement_time)

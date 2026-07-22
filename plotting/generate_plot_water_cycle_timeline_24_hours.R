@@ -3,6 +3,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
     source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
+source(paste(githome, '/electricity_logging/plotting/water_cycle_plot_style.R', sep=''))
 
 query <- "WITH bounds AS (SELECT CURRENT_TIMESTAMP - INTERVAL '24 HOURS' AS start_time, CURRENT_TIMESTAMP AS end_time) SELECT GREATEST(wc.cycle_start, b.start_time) AS cycle_start, LEAST(wc.cycle_end, b.end_time) AS cycle_end, wc.runtime FROM water_statistics.water_cycles wc, bounds b WHERE wc.cycle_end >= b.start_time AND wc.cycle_start <= b.end_time ORDER BY wc.cycle_start;"
 res <- dbGetQuery(con, query)
@@ -19,16 +20,16 @@ query2 <- paste("SELECT (date || ' ' || sunrise)::timestamp AS sunrise, (date ||
 res2 <- dbGetQuery(con, query2)
 
 
-png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
-plot(c(mintime, maxtime), c(0, 1), type='n', xlim=c(mintime, maxtime), ylim=c(0, 1), xlab="Time", ylab="", main="Well Pump Cycles - Last 24 Hours", xaxt='n', yaxt='n')
-axis(side=1, at=hseq, labels=substr(hseq, 12, 16))
-abline(v=hourseq, col='black')
-abline(v=res2$sunrise, lty=2, col='orange')
-abline(v=res2$sunset, lty=2, col='orange')
+cycle_plot_init(fname)
+cycle_draw_panel(c(mintime, maxtime), c(0, 1), "Time", "", "Well Pump Cycles - Last 24 Hours")
+cycle_grid_lines(v=hourseq)
+cycle_axis_time(hseq)
+abline(v=res2$sunrise, lty=2, col=cycle_orange)
+abline(v=res2$sunset, lty=2, col=cycle_orange)
 if (nrow(res) > 0) {
-    segments(res$cycle_start, 0.5, res$cycle_end, 0.5, col='steelblue', lwd=8, lend=1)
+    segments(res$cycle_start, 0.5, res$cycle_end, 0.5, col=cycle_blue, lwd=10, lend=1)
 }
-legend('topright', legend=c('Pump On'), col=c('steelblue'), lty=c(1), lwd=c(8), inset=0.01)
+cycle_legend('topright', legend=c('Pump On'), col=c(cycle_blue), lty=c(1), lwd=c(8), inset=0.01)
 dev.off()
 
 system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity2', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)

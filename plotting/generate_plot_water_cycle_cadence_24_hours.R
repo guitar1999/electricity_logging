@@ -3,6 +3,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
     source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
+source(paste(githome, '/electricity_logging/plotting/water_cycle_plot_style.R', sep=''))
 
 query <- "WITH bounds AS (SELECT CURRENT_TIMESTAMP - INTERVAL '24 HOURS' AS start_time, CURRENT_TIMESTAMP AS end_time), cycles AS (SELECT wc.cycle_start, LAG(wc.cycle_start) OVER (ORDER BY wc.cycle_start) AS previous_cycle_start FROM water_statistics.water_cycles wc, bounds b WHERE wc.cycle_start >= b.start_time - INTERVAL '24 HOURS' AND wc.cycle_start <= b.end_time) SELECT cycle_start, EXTRACT('EPOCH' FROM cycle_start - previous_cycle_start)::NUMERIC / 60 AS minutes_since_previous FROM cycles, bounds WHERE cycle_start >= bounds.start_time AND previous_cycle_start IS NOT NULL ORDER BY cycle_start;"
 res <- dbGetQuery(con, query)
@@ -22,19 +23,18 @@ query2 <- paste("SELECT (date || ' ' || sunrise)::timestamp AS sunrise, (date ||
 res2 <- dbGetQuery(con, query2)
 
 
-png(filename=fname, width=1024, height=400, units='px', pointsize=12, bg='white')
-plot(c(mintime, maxtime), c(0, max(vseq)), type='n', xlim=c(mintime, maxtime), ylim=c(0,max(vseq)), xlab="Time", ylab="Minutes", main="Well Pump Cycle Cadence - Last 24 Hours", xaxt='n', yaxt='n')
-axis(side=1, at=hseq, labels=substr(hseq, 12, 16))
-axis(side=2, at=vseq, labels=vseq, las=1)
-abline(v=hourseq, col='black')
-abline(h=vseq, col='grey', lty=2)
-abline(v=res2$sunrise, lty=2, col='orange')
-abline(v=res2$sunset, lty=2, col='orange')
+cycle_plot_init(fname)
+cycle_draw_panel(c(mintime, maxtime), c(0, max(vseq)), "Time", "Minutes", "Well Pump Cycle Cadence - Last 24 Hours")
+cycle_grid_lines(h=vseq, v=hourseq)
+cycle_axis_time(hseq)
+cycle_axis_y(vseq)
+abline(v=res2$sunrise, lty=2, col=cycle_orange)
+abline(v=res2$sunset, lty=2, col=cycle_orange)
 if (nrow(res) > 0) {
-    segments(res$cycle_start, 0, res$cycle_start, res$minutes_since_previous, col='lightblue', lwd=1.5)
-    points(res$cycle_start, res$minutes_since_previous, col='steelblue', pch=19)
+    segments(res$cycle_start, 0, res$cycle_start, res$minutes_since_previous, col=cycle_blue_light, lwd=1.5)
+    points(res$cycle_start, res$minutes_since_previous, col=cycle_blue, pch=19)
 }
-legend('topright', legend=c('Minutes Since Previous Cycle'), col=c('steelblue'), pch=c(19), inset=0.01)
+cycle_legend('topright', legend=c('Minutes Since Previous Cycle'), col=c(cycle_blue), pch=c(19), inset=0.01)
 dev.off()
 
 system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity2', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
