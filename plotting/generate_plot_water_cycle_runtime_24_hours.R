@@ -5,7 +5,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source(paste(githome, '/electricity_logging/plotting/water_cycle_plot_style.R', sep=''))
 
-query <- "WITH bounds AS (SELECT CURRENT_TIMESTAMP - INTERVAL '24 HOURS' AS start_time, CURRENT_TIMESTAMP AS end_time) SELECT wc.cycle_start, wc.runtime FROM water_statistics.water_cycles wc, bounds b WHERE wc.cycle_start >= b.start_time AND wc.cycle_start <= b.end_time ORDER BY wc.cycle_start;"
+query <- "WITH bounds AS (SELECT CURRENT_TIMESTAMP - INTERVAL '24 HOURS' AS start_time, CURRENT_TIMESTAMP AS end_time) SELECT wc.cycle_start, wc.runtime FROM water_statistics.water_cycles_view wc, bounds b WHERE wc.cycle_start >= b.start_time AND wc.cycle_start <= b.end_time ORDER BY wc.cycle_start;"
 res <- dbGetQuery(con, query)
 
 fname <- '/tmp/water_cycle_runtime_24_hours.png'

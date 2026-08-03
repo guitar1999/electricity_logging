@@ -3,7 +3,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
     source(paste(Sys.getenv('HOME'), '/.rconfig.R', sep=''))
 }
 
-query <- "WITH bounds AS (SELECT CURRENT_TIMESTAMP - INTERVAL '24 HOURS' AS start_time, CURRENT_TIMESTAMP AS end_time) SELECT GREATEST(wc.cycle_start, b.start_time) AS cycle_start, LEAST(wc.cycle_end, b.end_time) AS cycle_end, wc.runtime FROM water_statistics.water_cycles wc, bounds b WHERE wc.cycle_end >= b.start_time AND wc.cycle_start <= b.end_time ORDER BY wc.cycle_start;"
+query <- "WITH bounds AS (SELECT CURRENT_TIMESTAMP - INTERVAL '24 HOURS' AS start_time, CURRENT_TIMESTAMP AS end_time) SELECT GREATEST(wc.cycle_start, b.start_time) AS cycle_start, LEAST(wc.cycle_end, b.end_time) AS cycle_end, wc.runtime FROM water_statistics.water_cycles_view wc, bounds b WHERE wc.cycle_end >= b.start_time AND wc.cycle_start <= b.end_time ORDER BY wc.cycle_start;"
 res <- dbGetQuery(con, query)
 
 fname <- '/tmp/water_cycle_timeline_24_hours.png'

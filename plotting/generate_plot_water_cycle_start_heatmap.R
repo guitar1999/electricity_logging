@@ -5,7 +5,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source(paste(githome, '/electricity_logging/plotting/water_cycle_plot_style.R', sep=''))
 
-query <- "SELECT DATE_PART('DOW', cycle_start)::INTEGER AS dow, DATE_PART('HOUR', cycle_start)::INTEGER AS hour, COUNT(*) AS cycles FROM water_statistics.water_cycles WHERE cycle_start >= CURRENT_TIMESTAMP - INTERVAL '90 DAYS' GROUP BY 1, 2 ORDER BY 1, 2;"
+query <- "SELECT DATE_PART('DOW', cycle_start)::INTEGER AS dow, DATE_PART('HOUR', cycle_start)::INTEGER AS hour, COUNT(*) AS cycles FROM water_statistics.water_cycles_view WHERE cycle_start >= CURRENT_TIMESTAMP - INTERVAL '90 DAYS' GROUP BY 1, 2 ORDER BY 1, 2;"
 res <- dbGetQuery(con, query)
 
 fname <- '/tmp/water_cycle_start_heatmap.png'

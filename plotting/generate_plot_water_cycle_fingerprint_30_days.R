@@ -5,7 +5,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source(paste(githome, '/electricity_logging/plotting/water_cycle_plot_style.R', sep=''))
 
-query <- "SELECT cycle_start::DATE AS cycle_date, DATE_PART('HOUR', cycle_start) + DATE_PART('MINUTE', cycle_start) / 60 + DATE_PART('SECOND', cycle_start) / 3600 AS hour_of_day, runtime FROM water_statistics.water_cycles WHERE cycle_start >= CURRENT_DATE - INTERVAL '29 DAYS' ORDER BY cycle_start;"
+query <- "SELECT cycle_start::DATE AS cycle_date, DATE_PART('HOUR', cycle_start) + DATE_PART('MINUTE', cycle_start) / 60 + DATE_PART('SECOND', cycle_start) / 3600 AS hour_of_day, runtime FROM water_statistics.water_cycles_view WHERE cycle_start >= CURRENT_DATE - INTERVAL '29 DAYS' ORDER BY cycle_start;"
 res <- dbGetQuery(con, query)
 
 fname <- '/tmp/water_cycle_fingerprint_30_days.png'

@@ -5,7 +5,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source(paste(githome, '/electricity_logging/plotting/water_cycle_plot_style.R', sep=''))
 
-query <- "SELECT runtime, CASE WHEN cycle_start >= CURRENT_TIMESTAMP - INTERVAL '7 DAYS' THEN '7d' WHEN cycle_start >= CURRENT_TIMESTAMP - INTERVAL '30 DAYS' THEN '30d' ELSE '90d' END AS window FROM water_statistics.water_cycles WHERE cycle_start >= CURRENT_TIMESTAMP - INTERVAL '90 DAYS' ORDER BY runtime;"
+query <- "SELECT runtime, CASE WHEN cycle_start >= CURRENT_TIMESTAMP - INTERVAL '7 DAYS' THEN '7d' WHEN cycle_start >= CURRENT_TIMESTAMP - INTERVAL '30 DAYS' THEN '30d' ELSE '90d' END AS window FROM water_statistics.water_cycles_view WHERE cycle_start >= CURRENT_TIMESTAMP - INTERVAL '90 DAYS' ORDER BY runtime;"
 res <- dbGetQuery(con, query)
 
 fname <- '/tmp/water_cycle_runtime_distribution.png'

@@ -5,7 +5,7 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source(paste(githome, '/electricity_logging/plotting/water_cycle_plot_style.R', sep=''))
 
-query <- "WITH bounds AS (SELECT CURRENT_TIMESTAMP - INTERVAL '24 HOURS' AS start_time, CURRENT_TIMESTAMP AS end_time), cycles AS (SELECT wc.cycle_start, LAG(wc.cycle_start) OVER (ORDER BY wc.cycle_start) AS previous_cycle_start FROM water_statistics.water_cycles wc, bounds b WHERE wc.cycle_start >= b.start_time - INTERVAL '24 HOURS' AND wc.cycle_start <= b.end_time) SELECT cycle_start, EXTRACT('EPOCH' FROM cycle_start - previous_cycle_start)::NUMERIC / 60 AS minutes_since_previous FROM cycles, bounds WHERE cycle_start >= bounds.start_time AND previous_cycle_start IS NOT NULL ORDER BY cycle_start;"
+query <- "WITH bounds AS (SELECT CURRENT_TIMESTAMP - INTERVAL '24 HOURS' AS start_time, CURRENT_TIMESTAMP AS end_time), cycles AS (SELECT wc.cycle_start, LAG(wc.cycle_start) OVER (ORDER BY wc.cycle_start) AS previous_cycle_start FROM water_statistics.water_cycles_view wc, bounds b WHERE wc.cycle_start >= b.start_time - INTERVAL '24 HOURS' AND wc.cycle_start <= b.end_time) SELECT cycle_start, EXTRACT('EPOCH' FROM cycle_start - previous_cycle_start)::NUMERIC / 60 AS minutes_since_previous FROM cycles, bounds WHERE cycle_start >= bounds.start_time AND previous_cycle_start IS NOT NULL ORDER BY cycle_start;"
 res <- dbGetQuery(con, query)
 
 fname <- '/tmp/water_cycle_cadence_24_hours.png'

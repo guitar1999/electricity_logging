@@ -13,14 +13,14 @@ CREATE OR REPLACE VIEW water_statistics.water_statistics_daily_cycle_view AS (
             sum_date,
             PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY runtime) AS median_cycle_time
         FROM
-            water_statistics.water_cycles
+            water_statistics.water_cycles_view
         GROUP BY
             sum_date
     ), lifetime_median AS (
         SELECT
             PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY runtime) AS median_cycle_time
         FROM
-            water_statistics.water_cycles
+            water_statistics.water_cycles_view
     )
     SELECT
         d.sum_date,
