@@ -34,14 +34,21 @@ plotmax <- max(1, hist_lifetime$counts, hist90$counts, hist30$counts, hist7$coun
 to_plot_count <- function(counts) {
     log10(counts + 1)
 }
+format_count <- function(counts) {
+    ifelse(counts >= 1000, paste(counts / 1000, 'k', sep=''), counts)
+}
 
 cycle_plot_init(fname)
 cycle_draw_panel(c(min(breaks), max(breaks)), c(0, to_plot_count(plotmax)), "Minutes (<= 5)", "Cycles (log scale)", "Well Pump Cycle Runtime Distribution")
-vseq_counts <- pretty(c(0, plotmax))
+vseq_counts <- c(0, 1, 10, 100, 1000, 10000, 100000)
+vseq_counts <- vseq_counts[vseq_counts <= plotmax]
 vseq <- to_plot_count(vseq_counts)
+minor_counts <- c(2:9, 20, 30, 40, 50, 60, 70, 80, 90, 200, 300, 400, 500, 600, 700, 800, 900, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000)
+minor_counts <- minor_counts[minor_counts <= plotmax]
+abline(h=to_plot_count(minor_counts), col=adjustcolor(cycle_grid, alpha.f=0.45), lty=1)
 cycle_grid_lines(h=vseq)
 axis(side=1, at=seq(0, 5, 0.5), labels=seq(0, 5, 0.5), col=NA, col.ticks=cycle_axis, col.axis=cycle_axis)
-cycle_axis_y(vseq, vseq_counts)
+cycle_axis_y(vseq, format_count(vseq_counts))
 lines(hist_lifetime$mids, to_plot_count(hist_lifetime$counts), type='s', col=cycle_grey, lwd=2)
 lines(hist90$mids, to_plot_count(hist90$counts), type='s', col=cycle_blue, lwd=2)
 lines(hist30$mids, to_plot_count(hist30$counts), type='s', col=cycle_orange, lwd=2)
