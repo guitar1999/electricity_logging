@@ -26,7 +26,7 @@ if (nrow(res) > 0) {
     abline(h=res$runtime_p05[1], col=cycle_gold, lty=2)
     points(res$cycle_start, res$runtime, col=pointcol, pch=19)
 }
-cycle_legend('topright', legend=c('Normal', '>= lifetime p95', '<= lifetime p05'), col=c(cycle_blue, cycle_red, cycle_gold), pch=c(19,19,19), inset=0.01)
+cycle_legend('bottomright', legend=c('Normal', '>= lifetime p95', '<= lifetime p05'), col=c(cycle_blue, cycle_red, cycle_gold), pch=c(19,19,19), inset=0.01)
 dev.off()
 
 system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity2', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
