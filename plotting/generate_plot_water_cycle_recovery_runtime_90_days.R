@@ -86,21 +86,12 @@ summarize_bucket <- function(bucket) {
 bucket_summary <- t(sapply(bucket_levels, summarize_bucket))
 
 long_res <- res[res$recovery_bucket == '>6 hr',]
-months <- sort(unique(res$month_start))
-long_summary <- data.frame(
-    month_start=months,
-    month_label=format(as.Date(months), '%b'),
-    n=rep(0, length(months)),
-    median=rep(NA, length(months)),
-    p75=rep(NA, length(months))
-)
-if (nrow(long_summary) > 0) {
-    for (i in 1:nrow(long_summary)) {
-        runtime <- long_res$runtime[long_res$month_start == long_summary$month_start[i]]
-        if (length(runtime) > 0) {
-            long_summary$n[i] <- length(runtime)
-            long_summary$median[i] <- median(runtime, na.rm=TRUE)
-            long_summary$p75[i] <- quantile(runtime, 0.75, na.rm=TRUE, names=FALSE)
+rolling_median_n <- 10
+long_res$rolling_median <- NA
+if (nrow(long_res) > 0) {
+    for (i in 1:nrow(long_res)) {
+        if (i >= rolling_median_n) {
+            long_res$rolling_median[i] <- median(long_res$runtime[(i - rolling_median_n + 1):i], na.rm=TRUE)
         }
     }
 }
@@ -166,19 +157,21 @@ for (i in seq_along(bucket_levels)) {
 mtext('Minutes', side=1, line=0.4, cex=0.8, col=cycle_axis)
 
 par(mar=c(4, 4, 3, 1))
-if (nrow(long_summary) > 0 && any(!is.na(long_summary$median))) {
-    x <- seq_len(nrow(long_summary))
-    ytop <- max(2, long_summary$p75, long_summary$median, na.rm=TRUE)
-    cycle_draw_panel(c(0.5, length(x) + 0.5), c(0, ceiling(ytop)), "Month", "Minutes", ">6 hr Recovery Runtime Trend")
+if (nrow(long_res) > 0) {
+    xlim <- c(Sys.time() - 86400 * 90, Sys.time())
+    ytop <- max(2, long_res$runtime, long_res$rolling_median, na.rm=TRUE)
+    hseq <- seq(xlim[1], xlim[2], 86400 * 14)
+    cycle_draw_panel(xlim, c(0, ceiling(ytop)), "Date", "Minutes", ">6 hr Recovery Runtime Trend")
     cycle_grid_lines(h=seq(0, ceiling(ytop), 0.5))
-    axis(side=1, at=x, labels=long_summary$month_label, col=NA, col.ticks=cycle_axis, col.axis=cycle_axis)
+    axis(side=1, at=hseq, labels=format(hseq, '%b %d'), col=NA, col.ticks=cycle_axis, col.axis=cycle_axis)
     cycle_axis_y(seq(0, ceiling(ytop), 0.5))
-    lines(x, long_summary$median, col=cycle_blue, lwd=2)
-    points(x, long_summary$median, col=cycle_blue, pch=19)
-    segments(x, long_summary$median, x, long_summary$p75, col=cycle_blue_light, lwd=2)
-    text(x, pmin(ceiling(ytop), long_summary$p75 + 0.15), labels=paste('n=', long_summary$n, sep=''), cex=0.75, col=cycle_axis)
+    points(long_res$cycle_start, long_res$runtime, col=adjustcolor(cycle_blue, alpha.f=0.55), pch=19, cex=0.85)
+    if (any(!is.na(long_res$rolling_median))) {
+        lines(long_res$cycle_start, long_res$rolling_median, col=cycle_red, lwd=2)
+    }
+    cycle_legend('topright', legend=c('Cycle runtime', '10-cycle rolling median'), col=c(cycle_blue, cycle_red), pch=c(19, NA), lty=c(NA, 1), lwd=c(NA, 2), inset=0.01)
 } else {
-    cycle_draw_panel(c(0, 1), c(0, 1), "Month", "Minutes", ">6 hr Recovery Runtime Trend")
+    cycle_draw_panel(c(0, 1), c(0, 1), "Date", "Minutes", ">6 hr Recovery Runtime Trend")
     text(0.5, 0.5, 'No >6 hr recovery cycles', col=cycle_axis)
 }
 
