@@ -94,6 +94,9 @@ if (ticker %% 2 == 1) {
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_power_decline.R', sep=''))
     runtime <- runtime + plottime
     print("    water pump cycle power decline")
+    plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_runtime_power_drop.R', sep=''))
+    runtime <- runtime + plottime
+    print("    water pump runtime and power drop")
     plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_fingerprint_30_days.R', sep=''))
     runtime <- runtime + plottime
     print("    water pump cycle fingerprint 30 days")
