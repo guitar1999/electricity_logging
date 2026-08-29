@@ -42,10 +42,13 @@ metrics_query <- "
                         AND watts_water_pump > 10
                 )
                 SELECT
-                    AVG(watts) FILTER (WHERE elapsed_seconds <= 15) AS starting_watts,
-                    AVG(watts) FILTER (
-                        WHERE elapsed_seconds >= GREATEST(0, c.runtime * 60 - 20)
-                        AND elapsed_seconds < GREATEST(0, c.runtime * 60 - 5)
+                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY watts) FILTER (
+                        WHERE elapsed_seconds >= 10
+                        AND elapsed_seconds <= 30
+                    ) AS starting_watts,
+                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY watts) FILTER (
+                        WHERE elapsed_seconds >= GREATEST(0, c.runtime * 60 - 30)
+                        AND elapsed_seconds <= GREATEST(0, c.runtime * 60 - 10)
                     ) AS ending_watts,
                     REGR_SLOPE(watts, elapsed_seconds) AS slope_watts_per_second,
                     COUNT(*) AS samples
@@ -197,7 +200,7 @@ if (nrow(metrics) > 0) {
     hseq <- seq(as.POSIXct('2026-05-01', tz='America/New_York'), as.POSIXct('2026-08-30', tz='America/New_York'), by='2 weeks')
     raw_colors <- period_colors[metrics$analysis_period]
     raw_colors[is.na(raw_colors)] <- cycle_grey
-    cycle_draw_panel(xlim, c(ymin, ymax), "Cycle start date", "Power drop (%)", "Within-Cycle Power Drop Trend")
+    cycle_draw_panel(xlim, c(ymin, ymax), "Cycle start date", "Power drop: median 10-30s vs final 30-10s (%)", "Within-Cycle Power Drop Trend")
     cycle_grid_lines(h=pretty(c(ymin, ymax)), v=hseq)
     axis(side=1, at=hseq, labels=format(hseq, '%b %d'), col=NA, col.ticks=cycle_axis, col.axis=cycle_axis)
     cycle_axis_y(pretty(c(ymin, ymax)))
