@@ -109,6 +109,12 @@ while(TRUE){
         plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_anomalies_7_days.R', sep=''))
         runtime <- runtime + plottime
         print("    water pump cycle anomalies 7 days")
+        plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_count_hourly.R', sep=''))
+        runtime <- runtime + plottime
+        print("    water pump cycle count hourly")
+        plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_count_daily.R', sep=''))
+        runtime <- runtime + plottime
+        print("    water pump cycle count daily")
         plottime <- genplot(paste(githome, '/gas_logging/plotting/generate_plot_oil_dow_season.R', sep=''))
         runtime <- runtime + plottime
         print("    oil dow season")
@@ -143,6 +149,12 @@ while(TRUE){
         plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_yearly.R', sep=''))
         runtime <- runtime + plottime
         print("    water yearly")
+        plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_count_monthly.R', sep=''))
+        runtime <- runtime + plottime
+        print("    water pump cycle count monthly")
+        plottime <- genplot(paste(githome, '/electricity_logging/plotting/generate_plot_water_cycle_count_yearly.R', sep=''))
+        runtime <- runtime + plottime
+        print("    water pump cycle count yearly")
     }
 
     # Run the monthly and daily 1year every 30th loop and add the plotting times to the loop runtime
