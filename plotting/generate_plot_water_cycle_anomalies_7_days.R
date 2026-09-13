@@ -12,7 +12,9 @@ fname <- '/tmp/water_cycle_anomalies_7_days.png'
 mintime <- Sys.time() - 86400 * 7
 maxtime <- Sys.time()
 runtime_cap <- 10
-vseq <- seq(0, runtime_cap, 1)
+maxruntime <- ifelse(nrow(res) > 0, max(1, res$runtime, res$runtime_p95, na.rm=TRUE), 1)
+plot_maxruntime <- min(runtime_cap, ceiling(maxruntime))
+vseq <- seq(0, plot_maxruntime, 1)
 hseq <- seq(mintime, maxtime, 86400)
 pointcol <- ifelse(nrow(res) > 0 & res$runtime >= res$runtime_p95, cycle_red, ifelse(nrow(res) > 0 & res$runtime <= res$runtime_p05, cycle_gold, cycle_blue))
 
@@ -62,29 +64,29 @@ best_legend_position <- function(plot_data, xlim, ylim, line_y=NULL) {
 }
 
 cycle_plot_init(fname)
-cycle_draw_panel(c(mintime, maxtime), c(0, runtime_cap), "Date", "Minutes", "Well Pump Runtime Anomalies - Last 7 Days")
+cycle_draw_panel(c(mintime, maxtime), c(0, plot_maxruntime), "Date", "Minutes", "Well Pump Runtime Anomalies - Last 7 Days")
 cycle_grid_lines(h=vseq, v=hseq)
 cycle_axis_time(hseq, format(hseq, '%m-%d'))
 cycle_axis_y(vseq)
 if (nrow(res) > 0) {
-    if (res$runtime_p95[1] <= runtime_cap) {
+    if (res$runtime_p95[1] <= plot_maxruntime) {
         abline(h=res$runtime_p95[1], col=cycle_red, lty=2)
     }
-    if (res$runtime_p05[1] <= runtime_cap) {
+    if (res$runtime_p05[1] <= plot_maxruntime) {
         abline(h=res$runtime_p05[1], col=cycle_gold, lty=2)
     }
-    plot_runtime <- pmin(res$runtime, runtime_cap)
+    plot_runtime <- pmin(res$runtime, plot_maxruntime)
     point_pch <- ifelse(res$runtime > runtime_cap, 8, 19)
     points(res$cycle_start, plot_runtime, col=pointcol, pch=point_pch)
 }
 legend_data <- data.frame()
 legend_lines <- NULL
 if (nrow(res) > 0) {
-    legend_data <- data.frame(cycle_start=res$cycle_start, plot_runtime=pmin(res$runtime, runtime_cap))
+    legend_data <- data.frame(cycle_start=res$cycle_start, plot_runtime=pmin(res$runtime, plot_maxruntime))
     legend_lines <- c(res$runtime_p95[1], res$runtime_p05[1])
-    legend_lines <- legend_lines[legend_lines <= runtime_cap]
+    legend_lines <- legend_lines[legend_lines <= plot_maxruntime]
 }
-legend_position <- best_legend_position(legend_data, c(mintime, maxtime), c(0, runtime_cap), legend_lines)
+legend_position <- best_legend_position(legend_data, c(mintime, maxtime), c(0, plot_maxruntime), legend_lines)
 cycle_legend(legend_position, legend=c('Normal', '>= lifetime p95', '<= lifetime p05', '>10 min'), col=c(cycle_blue, cycle_red, cycle_gold, cycle_red), pch=c(19,19,19,8), inset=0.01)
 dev.off()
 

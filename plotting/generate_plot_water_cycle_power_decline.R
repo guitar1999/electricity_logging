@@ -15,7 +15,7 @@ metrics_query <- "
             water_statistics.water_cycles_view
         WHERE
             cycle_start >= TIMESTAMPTZ '2026-05-01'
-            AND cycle_start < LEAST(CURRENT_TIMESTAMP, TIMESTAMPTZ '2026-08-30')
+            AND cycle_start < CURRENT_TIMESTAMP
             AND runtime >= 0.5
     ), metrics AS (
         SELECT
@@ -68,14 +68,8 @@ metrics_query <- "
         100 * (starting_watts - ending_watts) / NULLIF(starting_watts, 0) AS percent_drop,
         slope_watts_per_second,
         samples,
-        CASE
-            WHEN cycle_start >= TIMESTAMPTZ '2026-08-29' AND cycle_start < TIMESTAMPTZ '2026-08-30' THEN 'Aug 29'
-            WHEN cycle_start >= TIMESTAMPTZ '2026-08-01' AND cycle_start < TIMESTAMPTZ '2026-08-15' THEN 'Early Aug'
-            WHEN cycle_start >= TIMESTAMPTZ '2026-07-01' AND cycle_start < TIMESTAMPTZ '2026-08-01' THEN 'July'
-            WHEN cycle_start >= TIMESTAMPTZ '2026-06-01' AND cycle_start < TIMESTAMPTZ '2026-07-01' THEN 'June'
-            WHEN cycle_start >= TIMESTAMPTZ '2026-05-01' AND cycle_start < TIMESTAMPTZ '2026-06-01' THEN 'May'
-            ELSE NULL
-        END AS analysis_period
+        DATE_TRUNC('month', cycle_start)::DATE AS analysis_month,
+        TO_CHAR(cycle_start, 'Mon') AS analysis_period
     FROM
         metrics
     WHERE
@@ -90,14 +84,18 @@ fname <- '/tmp/water_cycle_power_decline.png'
 metrics_fname <- '/tmp/water_cycle_power_decline_metrics.csv'
 write.csv(metrics, metrics_fname, row.names=FALSE)
 
-period_levels <- c('May', 'June', 'July', 'Early Aug', 'Aug 29')
-period_colors <- c(
-    'May'='#0f766e',
-    'June'=cycle_blue,
-    'July'=cycle_orange,
-    'Early Aug'='#7c3aed',
-    'Aug 29'=cycle_red
-)
+period_levels <- character()
+period_colors <- c()
+if (nrow(metrics) > 0) {
+    month_order <- unique(metrics$analysis_month[order(metrics$analysis_month)])
+    for (month in month_order) {
+        month_rows <- metrics[metrics$analysis_month == month,]
+        period_levels <- c(period_levels, month_rows$analysis_period[1])
+    }
+    period_palette <- c('#0f766e', cycle_blue, cycle_orange, '#7c3aed', cycle_red, '#0891b2', '#4d7c0f', '#be123c')
+    period_colors <- period_palette[((seq_along(period_levels) - 1) %% length(period_palette)) + 1]
+    names(period_colors) <- period_levels
+}
 
 representative_cycles <- data.frame()
 if (nrow(metrics) > 0) {
@@ -197,7 +195,7 @@ if (nrow(metrics) > 0) {
     xlim <- range(metrics$cycle_start, na.rm=TRUE)
     ymin <- floor(min(metrics$percent_drop, na.rm=TRUE) / 5) * 5
     ymax <- ceiling(max(metrics$percent_drop, metrics$rolling_percent_drop, na.rm=TRUE) / 5) * 5
-    hseq <- seq(as.POSIXct('2026-05-01', tz='America/New_York'), as.POSIXct('2026-08-30', tz='America/New_York'), by='2 weeks')
+    hseq <- seq(as.POSIXct('2026-05-01', tz='America/New_York'), Sys.time(), by='2 weeks')
     raw_colors <- period_colors[metrics$analysis_period]
     raw_colors[is.na(raw_colors)] <- cycle_grey
     cycle_draw_panel(xlim, c(ymin, ymax), "Cycle start date", "Power drop: median 10-30s vs final 30-10s (%)", "Within-Cycle Power Drop Trend")
