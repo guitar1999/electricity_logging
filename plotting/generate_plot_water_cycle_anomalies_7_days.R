@@ -15,7 +15,9 @@ runtime_cap <- 10
 maxruntime <- ifelse(nrow(res) > 0, max(1, res$runtime, res$runtime_p95, na.rm=TRUE), 1)
 plot_maxruntime <- min(runtime_cap, ceiling(maxruntime))
 vseq <- seq(0, plot_maxruntime, 1)
-hseq <- seq(mintime, maxtime, 86400)
+tick_start <- as.POSIXct(as.Date(mintime) + 1)
+tick_end <- as.POSIXct(as.Date(maxtime))
+hseq <- seq(tick_start, tick_end, by='1 day')
 pointcol <- ifelse(nrow(res) > 0 & res$runtime >= res$runtime_p95, cycle_red, ifelse(nrow(res) > 0 & res$runtime <= res$runtime_p05, cycle_gold, cycle_blue))
 
 best_legend_position <- function(plot_data, xlim, ylim, line_y=NULL) {
