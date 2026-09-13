@@ -5,17 +5,17 @@ if (! 'package:RPostgreSQL' %in% search()) {
 
 source(paste(githome, '/electricity_logging/plotting/water_cycle_plot_style.R', sep=''))
 
-query <- "WITH thresholds AS (SELECT PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY runtime) AS runtime_p95, PERCENTILE_CONT(0.05) WITHIN GROUP (ORDER BY runtime) AS runtime_p05 FROM water_statistics.water_cycles_view) SELECT wc.cycle_start, wc.runtime, t.runtime_p05, t.runtime_p95 FROM water_statistics.water_cycles_view wc, thresholds t WHERE wc.cycle_start >= CURRENT_TIMESTAMP - INTERVAL '7 DAYS' ORDER BY wc.cycle_start;"
+query <- "WITH bounds AS (SELECT CURRENT_DATE - INTERVAL '6 DAYS' AS start_time, CURRENT_DATE + INTERVAL '1 DAY' AS end_time), thresholds AS (SELECT PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY runtime) AS runtime_p95, PERCENTILE_CONT(0.05) WITHIN GROUP (ORDER BY runtime) AS runtime_p05 FROM water_statistics.water_cycles_view) SELECT wc.cycle_start, wc.runtime, t.runtime_p05, t.runtime_p95 FROM water_statistics.water_cycles_view wc, thresholds t, bounds b WHERE wc.cycle_start >= b.start_time AND wc.cycle_start < b.end_time ORDER BY wc.cycle_start;"
 res <- dbGetQuery(con, query)
 
 fname <- '/tmp/water_cycle_anomalies_7_days.png'
-mintime <- Sys.time() - 86400 * 7
-maxtime <- Sys.time()
+mintime <- as.POSIXct(Sys.Date() - 6)
+maxtime <- as.POSIXct(Sys.Date() + 1)
 runtime_cap <- 10
 maxruntime <- ifelse(nrow(res) > 0, max(1, res$runtime, res$runtime_p95, na.rm=TRUE), 1)
 plot_maxruntime <- min(runtime_cap, ceiling(maxruntime))
 vseq <- seq(0, plot_maxruntime, 1)
-hseq <- seq(mintime, maxtime, 86400)
+hseq <- seq(mintime, maxtime, by='1 day')
 pointcol <- ifelse(nrow(res) > 0 & res$runtime >= res$runtime_p95, cycle_red, ifelse(nrow(res) > 0 & res$runtime <= res$runtime_p05, cycle_gold, cycle_blue))
 
 best_legend_position <- function(plot_data, xlim, ylim, line_y=NULL) {
