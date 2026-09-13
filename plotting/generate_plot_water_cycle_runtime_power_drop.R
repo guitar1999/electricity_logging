@@ -16,7 +16,7 @@ metrics_query <- "
             water_statistics.water_cycles_view
         WHERE
             cycle_start >= TIMESTAMPTZ '2026-04-29'
-            AND cycle_start < LEAST(CURRENT_TIMESTAMP, TIMESTAMPTZ '2026-08-30')
+            AND cycle_start < CURRENT_TIMESTAMP
     ), cycles AS (
         SELECT
             cycle_start,
@@ -75,6 +75,7 @@ metrics_query <- "
         runtime,
         recovery_minutes,
         100 * (starting_watts - ending_watts) / NULLIF(starting_watts, 0) AS percent_drop,
+        DATE_TRUNC('month', cycle_start)::DATE AS analysis_month,
         TO_CHAR(cycle_start, 'Mon') AS month_label
     FROM
         metrics
@@ -90,12 +91,18 @@ fname <- '/tmp/water_cycle_runtime_power_drop.png'
 summary_fname <- '/tmp/water_cycle_runtime_power_drop_summary.csv'
 correlation_fname <- '/tmp/water_cycle_runtime_power_drop_correlations.csv'
 
-month_colors <- c(
-    'May'='#0f766e',
-    'Jun'=cycle_blue,
-    'Jul'=cycle_orange,
-    'Aug'=cycle_red
-)
+month_colors <- c()
+if (nrow(cycles) > 0) {
+    month_order <- unique(cycles$analysis_month[order(cycles$analysis_month)])
+    month_labels <- character()
+    for (month in month_order) {
+        month_rows <- cycles[cycles$analysis_month == month,]
+        month_labels <- c(month_labels, month_rows$month_label[1])
+    }
+    month_palette <- c('#0f766e', cycle_blue, cycle_orange, '#7c3aed', cycle_red, '#0891b2', '#4d7c0f', '#be123c')
+    month_colors <- month_palette[((seq_along(month_labels) - 1) %% length(month_palette)) + 1]
+    names(month_colors) <- month_labels
+}
 
 cycles$next5_runtime_median <- NA
 if (nrow(cycles) > 1) {
