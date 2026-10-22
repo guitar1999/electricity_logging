@@ -42,8 +42,15 @@ comparison$plot_date <- as.Date(paste0(
 plot_start <- as.Date('1999-10-01')
 plot_end <- as.Date('2000-09-30')
 years <- sort(unique(comparison$comparison_year))
-colors <- setNames(grey.colors(length(years), start=0.72, end=0.35), years)
-colors[as.character(current_year)] <- '#dc2626'
+# Keep the emphasis on recent water years as the calendar advances.
+style_index <- pmin(4L, pmax(0L, current_year - years)) + 1L
+palette <- c('#dc2626', '#2563eb', '#4b5563', '#9ca3af', '#d1d5db')
+alphas <- c(1.00, 0.90, 0.70, 0.40, 0.20)
+widths <- c(2.2, 1.8, 1.3, 1.0, 0.8)
+colors <- setNames(vapply(style_index, function(i) {
+    adjustcolor(palette[i], alpha.f=alphas[i])
+}, character(1)), years)
+line_widths <- setNames(widths[style_index], years)
 ymax <- ceiling(max(1, comparison$median_cycle_time, na.rm=TRUE))
 fname <- '/tmp/water_cycle_time_median_year_over_year.png'
 png(filename=fname, width=1024, height=450, units='px', pointsize=12, bg='white')
@@ -63,8 +70,9 @@ for (year in years) {
     }
     series <- merge(data.frame(plot_date=calendar), series, by='plot_date', all.x=TRUE)
     lines(series$plot_date, series$median_cycle_time,
-          col=colors[as.character(year)], lwd=if (year == current_year) 2.5 else 1.5)
+          col=colors[as.character(year)], lwd=line_widths[as.character(year)])
 }
-legend('topleft', legend=years, col=colors[as.character(years)], lty=1, lwd=2, bty='n', horiz=TRUE, cex=0.85)
+legend('topleft', legend=years, col=colors[as.character(years)], lty=1,
+       lwd=line_widths[as.character(years)], bty='n', horiz=TRUE, cex=0.85)
 dev.off()
 system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
