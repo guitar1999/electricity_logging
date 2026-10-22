@@ -28,36 +28,40 @@ dev.off()
 
 system(paste("scp", fname, paste(paste(webuser, webhost, sep="@"), paste(webpath, 'electricity', sep="/"), sep=":"), sep=' '),ignore.stdout=TRUE,ignore.stderr=TRUE)
 
-# Shift by calendar year (not 365 days), including windows crossing New Year.
-# Unmatched February 29 dates are omitted rather than moved to March 1.
-current_year <- as.integer(format(today, '%Y'))
-first_year <- if (nrow(history)) min(as.integer(format(history$sum_date, '%Y'))) else current_year
-comparisons <- lapply(seq.int(0, current_year - first_year), function(offset) {
-    shifted <- history
-    shifted$plot_date <- as.Date(paste0(
-        as.integer(format(history$sum_date, '%Y')) + offset,
-        format(history$sum_date, '-%m-%d')), format='%Y-%m-%d')
-    shifted <- shifted[!is.na(shifted$plot_date) & shifted$plot_date >= today - 89 & shifted$plot_date <= today, ]
-    shifted$comparison_year <- rep(current_year - offset, nrow(shifted))
-    shifted
-})
-comparison <- do.call(rbind, comparisons)
+# Water years are named for their ending year. A leap-year reference preserves
+# February 29 while aligning every other date by month/day across all years.
+water_year <- function(dates) {
+    as.integer(format(dates, '%Y')) + as.integer(format(dates, '%m') >= '10')
+}
+current_year <- water_year(today)
+comparison <- history
+comparison$comparison_year <- water_year(comparison$sum_date)
+comparison$plot_date <- as.Date(paste0(
+    ifelse(format(comparison$sum_date, '%m') >= '10', '1999', '2000'),
+    format(comparison$sum_date, '-%m-%d')))
+plot_start <- as.Date('1999-10-01')
+plot_end <- as.Date('2000-09-30')
 years <- sort(unique(comparison$comparison_year))
-colors <- setNames(c(if (length(years) > 1) grey.colors(length(years) - 1, start=0.72, end=0.35), '#dc2626'), years)
+colors <- setNames(grey.colors(length(years), start=0.72, end=0.35), years)
+colors[as.character(current_year)] <- '#dc2626'
 ymax <- ceiling(max(1, comparison$median_cycle_time, na.rm=TRUE))
 fname <- '/tmp/water_cycle_time_median_year_over_year.png'
 png(filename=fname, width=1024, height=450, units='px', pointsize=12, bg='white')
 par(mar=c(4, 4, 4, 1), col.axis='#475569', col.lab='#334155', fg='#334155')
-plot(c(today - 89, today), c(0, ymax), type='n', xlab='Date (calendar aligned)', ylab='Minutes',
-     main='Daily Median Well Pump Cycle Time - Year over Year', xaxt='n', yaxt='n', bty='n')
+plot(c(plot_start, plot_end), c(0, ymax), type='n', xlab='Water year (Oct 1 - Sep 30; labeled by ending year)', ylab='Minutes',
+     main='Daily Median Well Pump Cycle Time - Water Year Comparison', xaxt='n', yaxt='n', bty='n')
 ticks <- pretty(c(0, ymax))
 abline(h=ticks, col='#e2e8f0')
 axis(2, at=ticks, las=1, tick=FALSE)
-axis.Date(1, at=seq(today - 89, today, by='14 days'), format='%b %d')
+axis.Date(1, at=c(seq(plot_start, as.Date('2000-09-01'), by='month'), plot_end), format='%b %d')
 for (year in years) {
     series <- comparison[comparison$comparison_year == year, ]
     # Insert missing days so lines never bridge outages or absent cycle data.
-    series <- merge(data.frame(plot_date=seq(today - 89, today, by='day')), series, by='plot_date', all.x=TRUE)
+    calendar <- seq(plot_start, plot_end, by='day')
+    if (!(year %% 4 == 0 && (year %% 100 != 0 || year %% 400 == 0))) {
+        calendar <- calendar[format(calendar, '%m-%d') != '02-29']
+    }
+    series <- merge(data.frame(plot_date=calendar), series, by='plot_date', all.x=TRUE)
     lines(series$plot_date, series$median_cycle_time,
           col=colors[as.character(year)], lwd=if (year == current_year) 2.5 else 1.5)
 }
